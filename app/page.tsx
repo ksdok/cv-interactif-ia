@@ -1,21 +1,13 @@
 import ChatInterface from '@/components/ChatInterface'
 import AboutSection from '@/components/AboutSection'
 import ProjectGallery from '@/components/ProjectGallery'
+import Header from '@/components/Header'
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 backdrop-blur-sm bg-white/90">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-2xl font-bold text-slate-900">
-            CV Interactif IA avec RAG
-          </h1>
-          <p className="text-sm text-slate-600 mt-1">
-            Assistant IA alimenté par vos documents (géré via n8n)
-          </p>
-        </div>
-      </header>
+      <Header />
 
       {/* Contenu principal */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -26,14 +18,14 @@ export default function Home() {
             <ProjectGallery />
             
             {/* Info RAG */}
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg shadow-sm border border-blue-200 p-6">
-              <h3 className="text-lg font-bold text-slate-900 mb-2">
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg shadow-sm border border-blue-200 dark:border-blue-800 p-6">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
                 🤖 RAG activé
               </h3>
-              <p className="text-sm text-slate-700">
+              <p className="text-sm text-slate-700 dark:text-slate-300">
                 Les réponses sont générées à partir de vos documents personnels stockés dans le RAG.
               </p>
-              <p className="text-xs text-slate-600 mt-2">
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">
                 💡 Pour enrichir le RAG, utilisez le workflow n8n avec vos documents PDF.
               </p>
             </div>
@@ -47,8 +39,8 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-slate-600 text-sm">
+      <footer className="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-slate-600 dark:text-slate-400 text-sm">
           Propulsé par Claude AI + RAG + n8n • Créé avec Next.js
         </div>
       </footer>

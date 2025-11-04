@@ -72,7 +72,7 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 flex flex-col h-[600px]">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[600px]">
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {messages.map((message, index) => (
@@ -85,8 +85,8 @@ export default function ChatInterface() {
             <div
               className={`max-w-[80%] rounded-lg px-4 py-2 ${
                 message.role === 'user'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-slate-100 text-slate-900'
+                  ? 'bg-blue-600 dark:bg-blue-500 text-white'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
               }`}
             >
               <p className="whitespace-pre-wrap">{message.content}</p>
@@ -95,11 +95,11 @@ export default function ChatInterface() {
         ))}
         {isLoading && (
           <div className="flex justify-start message-fade-in">
-            <div className="bg-slate-100 rounded-lg px-4 py-2">
+            <div className="bg-slate-100 dark:bg-slate-700 rounded-lg px-4 py-2">
               <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-100"></div>
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-200"></div>
+                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce delay-100"></div>
+                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce delay-200"></div>
               </div>
             </div>
           </div>
@@ -108,20 +108,20 @@ export default function ChatInterface() {
       </div>
 
       {/* Input */}
-      <form onSubmit={sendMessage} className="border-t border-slate-200 p-4">
+      <form onSubmit={sendMessage} className="border-t border-slate-200 dark:border-slate-700 p-4">
         <div className="flex space-x-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Posez votre question..."
-            className="flex-1 px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed transition-colors"
           >
             Envoyer
           </button>
