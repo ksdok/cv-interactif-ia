@@ -20,16 +20,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true)
-    // Récupérer le thème sauvegardé ou utiliser la préférence système
+    // Récupérer le thème sauvegardé ou utiliser le mode clair par défaut
     const savedTheme = localStorage.getItem('theme') as Theme | null
     if (savedTheme) {
       setTheme(savedTheme)
       document.documentElement.classList.toggle('dark', savedTheme === 'dark')
     } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      const initialTheme = prefersDark ? 'dark' : 'light'
-      setTheme(initialTheme)
-      document.documentElement.classList.toggle('dark', prefersDark)
+      // Mode clair par défaut
+      setTheme('light')
+      document.documentElement.classList.remove('dark')
     }
   }, [])
 

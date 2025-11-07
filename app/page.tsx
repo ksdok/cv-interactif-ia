@@ -20,13 +20,10 @@ export default function Home() {
             {/* Info RAG */}
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg shadow-sm border border-blue-200 dark:border-blue-800 p-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
-                🤖 RAG activé
+                RAG activé
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300">
-                Les réponses sont générées à partir de vos documents personnels stockés dans le RAG.
-              </p>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-2">
-                💡 Pour enrichir le RAG, utilisez le workflow n8n avec vos documents PDF.
+                Les réponses sont générées à partir des informations stockées dans le RAG.
               </p>
             </div>
           </div>
