@@ -1,23 +1,31 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import TypingEffect from './TypingEffect'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
+  isTyping?: boolean
 }
 
-export default function ChatInterface() {
+interface ChatInterfaceProps {
+  suggestedQuestion: string
+  onQuestionSent: () => void
+}
+
+export default function ChatInterface({ suggestedQuestion, onQuestionSent }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Bonjour ! Je suis l'assistant IA qui représente ce candidat. Posez-moi des questions sur son parcours, ses compétences, ou comment ce site a été créé !",
+      content: "Bonjour ! Je suis l'assistant IA qui représente Kim-San. Posez-moi des questions sur son parcours, ses compétences, ou comment ce site a été créé !",
     },
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const lastSuggestedRef = useRef('')
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -28,6 +36,14 @@ export default function ChatInterface() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    if (suggestedQuestion && suggestedQuestion !== lastSuggestedRef.current) {
+      lastSuggestedRef.current = suggestedQuestion
+      setInput(suggestedQuestion)
+      onQuestionSent()
+    }
+  }, [suggestedQuestion, onQuestionSent])
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,7 +74,7 @@ export default function ChatInterface() {
 
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.response },
+        { role: 'assistant', content: data.response, isTyping: true },
       ])
     } catch (error) {
       console.error('Erreur:', error)
@@ -92,7 +108,19 @@ export default function ChatInterface() {
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
               }`}
             >
-              <p className="whitespace-pre-wrap">{message.content}</p>
+              {message.role === 'assistant' && message.isTyping ? (
+                <TypingEffect
+                  text={message.content}
+                  onUpdate={scrollToBottom}
+                  onComplete={() => {
+                    setMessages(prev => prev.map((msg, idx) =>
+                      idx === index ? { ...msg, isTyping: false } : msg
+                    ))
+                  }}
+                />
+              ) : (
+                <p className="whitespace-pre-wrap">{message.content}</p>
+              )}
             </div>
           </div>
         ))}
@@ -124,7 +152,7 @@ export default function ChatInterface() {
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed cursor-pointer transition-colors"
           >
             Envoyer
           </button>

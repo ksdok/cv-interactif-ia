@@ -35,9 +35,9 @@ export async function POST(req: Request) {
     const lastUserMessage = messages && messages.length > 0 ? messages[messages.length - 1].content : ''
     console.log('Last user message extracted:', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>')
 
-    // Perform the RAG search: get the top 6 relevant document snippets for the query.
-    console.log('Calling searchDocuments with query (truncated):', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>', ' topK=6')
-    const relevantDocs = await searchDocuments(lastUserMessage, 6)
+    // Perform the RAG search: get the top 10 relevant document snippets for the query.
+    console.log('Calling searchDocuments with query (truncated):', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>', ' topK=10')
+    const relevantDocs = await searchDocuments(lastUserMessage, 10)
     console.log('Search completed. Documents found:', Array.isArray(relevantDocs) ? relevantDocs.length : 'invalid', relevantDocs?.slice?.(0, 5) ?? relevantDocs)
 
     // Build a plain-text context from retrieved documents.
@@ -69,11 +69,14 @@ INSTRUCTIONS:
 - Si l'information n'est pas dans le contexte RAG, utilise tes connaissances générales sur le candidat
 - Réponds de manière naturelle et conversationnelle
 - Sois précis et factuel quand tu as les informations
-- Si tu n'as pas l'information, dis-le honnêtement
 - Ne réponds QU'aux questions concernant le candidat
 - Réponds en français ou en anglais selon la langue de la question posée
 - Tu proposes des exemples concrets quand c'est pertinent
 - Tu peux suggérer au recruteur de poser des questions spécifiques pour en savoir plus
+
+A NE PAS FAIRE ABSOLUEMENT:
+      - utiliser d'emojis
+      - inventer des informations sur le candidat
 ${context}`,
       messages: messages,
     })

@@ -4,7 +4,7 @@ export default function ProjectGallery() {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
       <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-        Stack technique du projet
+        Stack technique
       </h2>
 
       <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300">
