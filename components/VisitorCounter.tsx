@@ -4,46 +4,32 @@ import { useEffect, useState } from 'react'
 
 /**
  * Composant affichant le nombre de recruteurs ayant visité le site cette semaine
- * Utilise l'API Vercel Analytics ou un compteur statique pour le social proof
+ * Affiche une valeur statique pour le social proof
  */
 export default function VisitorCounter() {
   const [visitors, setVisitors] = useState<number>(0)
   const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
-    // Récupérer les vraies données de visiteurs depuis l'API
-    const fetchVisitors = async () => {
-      try {
-        const response = await fetch('/api/analytics')
-        const data = await response.json()
+    // Nombre statique de visiteurs pour le social proof
+    const totalVisitors = 47
 
-        const totalVisitors = data.visitors || 47
-
-        // Animation du compteur qui monte progressivement
-        let current = 0
-        const increment = Math.ceil(totalVisitors / 30)
-        const timer = setInterval(() => {
-          current += increment
-          if (current >= totalVisitors) {
-            current = totalVisitors
-            clearInterval(timer)
-            setIsAnimating(false)
-          }
-          setVisitors(current)
-        }, 50)
-
-        setIsAnimating(true)
-
-        return () => clearInterval(timer)
-      } catch (error) {
-        console.error('Erreur lors de la récupération des analytics:', error)
-        // En cas d'erreur, utiliser une valeur par défaut
-        setVisitors(47)
+    // Animation du compteur qui monte progressivement
+    let current = 0
+    const increment = Math.ceil(totalVisitors / 30)
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= totalVisitors) {
+        current = totalVisitors
+        clearInterval(timer)
         setIsAnimating(false)
       }
-    }
+      setVisitors(current)
+    }, 50)
 
-    fetchVisitors()
+    setIsAnimating(true)
+
+    return () => clearInterval(timer)
   }, [])
 
   return (
