@@ -11,26 +11,39 @@ export default function VisitorCounter() {
   const [isAnimating, setIsAnimating] = useState(false)
 
   useEffect(() => {
-    // Simulation d'un chargement du nombre de visiteurs
-    // TODO: Remplacer par un vrai appel API si nécessaire
-    const simulatedVisitors = 47 // Nombre de recruteurs cette semaine
+    // Récupérer les vraies données de visiteurs depuis l'API
+    const fetchVisitors = async () => {
+      try {
+        const response = await fetch('/api/analytics')
+        const data = await response.json()
 
-    // Animation du compteur qui monte progressivement
-    let current = 0
-    const increment = Math.ceil(simulatedVisitors / 30)
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= simulatedVisitors) {
-        current = simulatedVisitors
-        clearInterval(timer)
+        const totalVisitors = data.visitors || 47
+
+        // Animation du compteur qui monte progressivement
+        let current = 0
+        const increment = Math.ceil(totalVisitors / 30)
+        const timer = setInterval(() => {
+          current += increment
+          if (current >= totalVisitors) {
+            current = totalVisitors
+            clearInterval(timer)
+            setIsAnimating(false)
+          }
+          setVisitors(current)
+        }, 50)
+
+        setIsAnimating(true)
+
+        return () => clearInterval(timer)
+      } catch (error) {
+        console.error('Erreur lors de la récupération des analytics:', error)
+        // En cas d'erreur, utiliser une valeur par défaut
+        setVisitors(47)
         setIsAnimating(false)
       }
-      setVisitors(current)
-    }, 50)
+    }
 
-    setIsAnimating(true)
-
-    return () => clearInterval(timer)
+    fetchVisitors()
   }, [])
 
   return (
