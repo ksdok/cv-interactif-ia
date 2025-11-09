@@ -24,7 +24,7 @@ export default function ProjectGallery() {
             Intelligence Artificielle
           </h3>
           <p className="text-xs">
-            Propulsé par <span className="font-medium">Claude Sonnet 4</span> d'Anthropic pour des réponses
+            Propulsé par <span className="font-medium">Claude Haiku 4.5</span> d'Anthropic pour des réponses
             naturelles et pertinentes sur le parcours professionnel.
           </p>
         </div>
