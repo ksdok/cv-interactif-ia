@@ -56,9 +56,9 @@ export async function POST(req: Request) {
     }
 
     // Call Anthropic (Claude) to generate a response.
-    console.log('Preparing to call Anthropic.messages.create. Model: claude-sonnet-4-20250514')
+    console.log('Preparing to call Anthropic.messages.create. Model: claude-haiku-4-5-20251001')
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
       system: `Tu es un assistant IA personnel qui représente du candidat dans son CV interactif. 
 
