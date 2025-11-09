@@ -15,17 +15,19 @@ export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
 
       <div className="space-y-4">
         <div className="flex items-center space-x-3">
+          
           <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
             KSD
           </div>
+          
           <div>
             <h3 className="font-semibold text-slate-900 dark:text-slate-100">DOK Kim-san</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Business Analyst chez la SG</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">En poste chez la SG, ouvert aux opportunités</p>
           </div>
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed"> 
+          <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
             Ce projet est pour vous montrer ma passion récente pour l'intelligence artificielle<br/>
             Sur comment, nous pouvons utiliser des modèles de langage avancés pour créer des expériences interactives et engageantes.<br/>
             N'hésitez pas à me poser des questions sur mon parcours professionnel, mes compétences techniques, ou même sur la construction de ce site !
@@ -89,6 +91,19 @@ export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
               Aime-t-il les chats ?
             </p>
           </div>
+        </div>
+
+        {/* Bouton de contact par email - Placé en bas de la section */}
+        <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+          <a
+            href="mailto:dokkimsan@gmail.com?subject=Opportunité professionnelle&body=Bonjour Kim-san,%0D%0A%0D%0AJ'ai consulté votre CV interactif et je souhaite échanger avec vous concernant une opportunité."
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-4 py-3 rounded-lg transition-all duration-300 hover:shadow-lg hover:scale-105"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span>Me contacter par email</span>
+          </a>
         </div>
       </div>
     </div>

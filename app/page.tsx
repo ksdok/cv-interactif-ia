@@ -5,6 +5,7 @@ import ChatInterface from '@/components/ChatInterface'
 import AboutSection from '@/components/AboutSection'
 import ProjectGallery from '@/components/ProjectGallery'
 import Header from '@/components/Header'
+import VisitorCounter from '@/components/VisitorCounter'
 
 /**
  * Page principale du CV interactif
@@ -32,6 +33,10 @@ export default function Home() {
           <div className="lg:col-span-1 lg:order-1 space-y-6">
             {/* Passer la callback pour remonter les questions cliquées */}
             <AboutSection onQuestionClick={setSuggestedQuestion} />
+
+            {/* Compteur de visiteurs pour le social proof */}
+            <VisitorCounter />
+
             <ProjectGallery />
 
             {/* Info RAG */}
