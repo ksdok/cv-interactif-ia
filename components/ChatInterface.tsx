@@ -65,9 +65,12 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent }: Cha
     setIsLoading(true)
 
     // Sur mobile, scroller vers le haut du conteneur de messages après l'envoi
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = 0
-    }
+    // Utiliser setTimeout pour s'assurer que le DOM est mis à jour
+    setTimeout(() => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = 0
+      }
+    }, 50)
 
     try {
       // Appel à l'API Claude via le backend Next.js
