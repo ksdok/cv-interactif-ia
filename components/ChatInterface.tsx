@@ -60,6 +60,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent }: Cha
 
     const userMessage = input.trim()
     setInput('') // Vider le champ de saisie
+    lastSuggestedRef.current = '' // Réinitialiser la dernière question suggérée pour permettre de la réutiliser
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
 
@@ -117,7 +118,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent }: Cha
             }`}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 ${
+              className={`max-w-[80%] rounded-lg px-4 py-2 text-[15px] ${
                 message.role === 'user'
                   ? 'bg-blue-600 dark:bg-blue-500 text-white'
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'

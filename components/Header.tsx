@@ -9,7 +9,7 @@ export default function Header() {
         <div className="flex-1 min-w-0">
           {/* Version mobile */}
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 dark:text-slate-100">
-            <span className="block sm:hidden">CV Chat Interactif</span>
+            <span className="block sm:hidden">CV Chat Interactif • KSD</span>
             <span className="hidden sm:block lg:hidden">CV Chat Interactif • Kim-san</span>
             <span className="hidden lg:block">CV Chat Interactif, designé par Kim-san, codé par Claude</span>
           </h1>
