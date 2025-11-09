@@ -165,8 +165,8 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent }: Cha
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Posez votre question..."
-            // Optimisé pour mobile : padding et texte réduits sur petit écran
-            className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+            // text-base (16px) sur mobile pour éviter le zoom automatique iOS Safari
+            className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
             disabled={isLoading}
           />
           <button
