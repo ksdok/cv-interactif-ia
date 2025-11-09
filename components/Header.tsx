@@ -11,7 +11,7 @@ export default function Header() {
           <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 dark:text-slate-100">
             <span className="block sm:hidden">CV Chat Interactif</span>
             <span className="hidden sm:block lg:hidden">CV Chat Interactif • Kim-san</span>
-            <span className="hidden lg:block">CV Chat Interactif, designé par Kim-san, créé par Claude</span>
+            <span className="hidden lg:block">CV Chat Interactif, designé par Kim-san, codé par Claude</span>
           </h1>
         </div>
         <div className="flex-shrink-0">

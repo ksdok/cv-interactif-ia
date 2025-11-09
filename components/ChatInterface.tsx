@@ -91,7 +91,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent }: Cha
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[600px]">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[500px] sm:h-[600px]">
       {/* Messages */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {messages.map((message, index) => (
@@ -99,7 +99,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent }: Cha
             key={index}
             className={`flex ${
               message.role === 'user' ? 'justify-end' : 'justify-start'
-            } message-fade-in`}
+            } ${message.role === 'user' ? 'message-slide-in-right' : 'message-slide-in-left'}`}
           >
             <div
               className={`max-w-[80%] rounded-lg px-4 py-2 ${

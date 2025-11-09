@@ -36,3 +36,40 @@ body {
 .animate-blink {
   animation: blink 1s infinite;
 }
+
+/* Animations d'entrée pour les messages */
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px) scale(0.95);
+  }
+  60% {
+    transform: translateX(5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  60% {
+    transform: translateX(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.message-slide-in-left {
+  animation: slideInLeft 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.message-slide-in-right {
+  animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
