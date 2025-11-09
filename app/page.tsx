@@ -6,24 +6,31 @@ import AboutSection from '@/components/AboutSection'
 import ProjectGallery from '@/components/ProjectGallery'
 import Header from '@/components/Header'
 
+/**
+ * Page principale du CV interactif
+ * Gère la communication entre les questions suggérées et le chat
+ */
 export default function Home() {
+  // État partagé pour les questions suggérées cliquées dans AboutSection
   const [suggestedQuestion, setSuggestedQuestion] = useState<string>('')
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      {/* Header */}
+      {/* Header avec titre responsive et toggle dark mode */}
       <Header />
 
-      {/* Contenu principal */}
+      {/* Contenu principal - padding bottom augmenté sur mobile pour éviter le chevauchement avec la barre Safari iOS */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 sm:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Chat Interface - En haut sur mobile, à droite sur desktop */}
           <div className="lg:col-span-2 lg:order-2">
+            {/* Passer la question suggérée au chat et une callback pour la réinitialiser */}
             <ChatInterface suggestedQuestion={suggestedQuestion} onQuestionSent={() => setSuggestedQuestion('')} />
           </div>
 
           {/* Colonne gauche : À propos + Projets - En bas sur mobile, à gauche sur desktop */}
           <div className="lg:col-span-1 lg:order-1 space-y-6">
+            {/* Passer la callback pour remonter les questions cliquées */}
             <AboutSection onQuestionClick={setSuggestedQuestion} />
             <ProjectGallery />
 

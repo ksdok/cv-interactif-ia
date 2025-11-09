@@ -37,39 +37,45 @@ body {
   animation: blink 1s infinite;
 }
 
-/* Animations d'entrée pour les messages */
+/* ============================================
+   Animations d'entrée pour les messages du chat
+   ============================================ */
+
+/* Animation pour les messages de l'assistant (apparaissent depuis la gauche) */
 @keyframes slideInLeft {
   0% {
     opacity: 0;
-    transform: translateX(-30px) scale(0.95);
+    transform: translateX(-30px) scale(0.95); /* Commence invisible, à gauche et légèrement réduit */
   }
   60% {
-    transform: translateX(5px) scale(1.02);
+    transform: translateX(5px) scale(1.02); /* Overshoot : dépasse légèrement à droite avec un bounce */
   }
   100% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0) scale(1); /* Position finale normale */
   }
 }
 
+/* Animation pour les messages utilisateur (apparaissent depuis la droite) */
 @keyframes slideInRight {
   0% {
     opacity: 0;
-    transform: translateX(30px) scale(0.95);
+    transform: translateX(30px) scale(0.95); /* Commence invisible, à droite et légèrement réduit */
   }
   60% {
-    transform: translateX(-5px) scale(1.02);
+    transform: translateX(-5px) scale(1.02); /* Overshoot : dépasse légèrement à gauche avec un bounce */
   }
   100% {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0) scale(1); /* Position finale normale */
   }
 }
 
+/* Classes CSS à appliquer aux messages */
 .message-slide-in-left {
-  animation: slideInLeft 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slideInLeft 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Courbe de Bézier pour un effet bounce */
 }
 
 .message-slide-in-right {
-  animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slideInRight 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); /* Courbe de Bézier pour un effet bounce */
 }

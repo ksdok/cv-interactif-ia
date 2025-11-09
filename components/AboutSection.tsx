@@ -1,9 +1,13 @@
 'use client'
 
 interface AboutSectionProps {
-  onQuestionClick: (question: string) => void
+  onQuestionClick: (question: string) => void // Callback pour notifier le parent quand une question est cliquée
 }
 
+/**
+ * Section "À propos" avec informations personnelles et questions suggérées
+ * Les questions suggérées sont cliquables et remplissent automatiquement le champ de saisie du chat
+ */
 export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-6">
@@ -55,9 +59,11 @@ export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
           </div>
         </div>
 
+        {/* Questions suggérées cliquables */}
         <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
           <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-2">Questions suggérées</h4>
           <div className="space-y-2 text-xs">
+            {/* Chaque question appelle onQuestionClick pour remplir le champ de saisie du chat */}
             <p
               onClick={() => onQuestionClick("Quel est son parcours professionnel ?")}
               className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors"
