@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useEffect } from 'react'
 import ChatInterface from '@/components/ChatInterface'
 import AboutSection from '@/components/AboutSection'
 import ProjectGallery from '@/components/ProjectGallery'
@@ -10,10 +11,24 @@ import VisitorCounter from '@/components/VisitorCounter'
 /**
  * Page principale du CV interactif
  * Gère la communication entre les questions suggérées et le chat
+ * Gère également l'extraction et le passage du token CSRF au composant ChatInterface
  */
 export default function Home() {
   // État partagé pour les questions suggérées cliquées dans AboutSection
   const [suggestedQuestion, setSuggestedQuestion] = useState<string>('')
+
+  // État pour stocker le token CSRF extrait de la page
+  // SÉCURITÉ: Le token est stocké en sécurité dans httpOnly cookie côté serveur
+  // Nous l'extrayons ici depuis la page HTML générée par le serveur
+  const [csrfToken, setCSRFToken] = useState<string>('')
+
+  useEffect(() => {
+    // Extract CSRF token from the meta tag set by server
+    // The server embeds the token in a data attribute for safe client access
+    const tokenElement = document.querySelector('meta[name="csrf-token"]')
+    const token = tokenElement?.getAttribute('content') || ''
+    setCSRFToken(token)
+  }, [])
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -25,8 +40,12 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Chat Interface - En haut sur mobile, à droite sur desktop */}
           <div className="lg:col-span-2 lg:order-2">
-            {/* Passer la question suggérée au chat et une callback pour la réinitialiser */}
-            <ChatInterface suggestedQuestion={suggestedQuestion} onQuestionSent={() => setSuggestedQuestion('')} />
+            {/* Passer la question suggérée au chat, une callback pour la réinitialiser, et le token CSRF */}
+            <ChatInterface
+              suggestedQuestion={suggestedQuestion}
+              onQuestionSent={() => setSuggestedQuestion('')}
+              csrfToken={csrfToken}
+            />
           </div>
 
           {/* Colonne gauche : À propos + Projets - En bas sur mobile, à gauche sur desktop */}

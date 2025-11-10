@@ -12,9 +12,10 @@ interface Message {
 interface ChatInterfaceProps {
   suggestedQuestion: string
   onQuestionSent: () => void
+  csrfToken: string  // CSRF token for protecting POST requests
 }
 
-export default function ChatInterface({ suggestedQuestion, onQuestionSent }: ChatInterfaceProps) {
+export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfToken }: ChatInterfaceProps) {
   // État des messages du chat
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -72,9 +73,13 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent }: Cha
 
     try {
       // Appel à l'API Claude via le backend Next.js
+      // SECURITY: Include CSRF token in request header to prevent forged requests
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,  // CSRF token for protection
+        },
         body: JSON.stringify({
           messages: [
             ...messages,

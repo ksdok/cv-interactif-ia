@@ -19,6 +19,9 @@ import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
 import { searchDocuments } from '@/lib/rag'
 import { validateChatMessages } from '@/lib/validation'
+import { getCSRFTokenFromRequest, verifyCSRFToken } from '@/lib/csrf'
+import { cookies } from 'next/headers'
+import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -27,6 +30,26 @@ const anthropic = new Anthropic({
 export async function POST(req: Request) {
   console.log('POST /api/chat - handler start')
   try {
+    // SECURITY: Verify CSRF token to prevent Cross-Site Request Forgery attacks
+    // This ensures the request comes from a legitimate user on our site,
+    // not from a malicious attacker's website
+    console.log('Verifying CSRF token...')
+    const csrfTokenFromRequest = getCSRFTokenFromRequest(req)
+    const cookieStore = await cookies()
+    const csrfTokenFromCookie = cookieStore.get(CSRF_COOKIE_CONFIG.name)?.value
+
+    if (!verifyCSRFToken(csrfTokenFromRequest, csrfTokenFromCookie)) {
+      console.warn('CSRF token validation failed:', {
+        hasToken: !!csrfTokenFromRequest,
+        tokenLength: csrfTokenFromRequest?.length || 0,
+      })
+      return NextResponse.json(
+        { error: 'CSRF token validation failed' },
+        { status: 403 }
+      )
+    }
+    console.log('CSRF token verified ✓')
+
     // Read the JSON payload and extract the conversation messages.
     console.log('Reading request body...')
     const { messages } = await req.json()
