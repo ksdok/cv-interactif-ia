@@ -18,6 +18,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
 import { searchDocuments } from '@/lib/rag'
+import { validateChatMessages } from '@/lib/validation'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -31,8 +32,22 @@ export async function POST(req: Request) {
     const { messages } = await req.json()
     console.log('Request body parsed. messages length:', Array.isArray(messages) ? messages.length : 'invalid')
 
+    // SECURITY: Validate input structure and content to prevent:
+    // - Memory exhaustion from huge payloads
+    // - Type confusion attacks
+    // - Invalid message structures
+    const validation = validateChatMessages(messages)
+    if (!validation.isValid) {
+      console.warn('Invalid message format:', validation.error)
+      return NextResponse.json(
+        { error: `Invalid request: ${validation.error}` },
+        { status: 400 }
+      )
+    }
+
     // Use the last message from the conversation as the retrieval query.
-    const lastUserMessage = messages && messages.length > 0 ? messages[messages.length - 1].content : ''
+    // Safe to access after validation confirms messages is non-empty array with valid structure
+    const lastUserMessage = messages[messages.length - 1].content.trim()
     console.log('Last user message extracted:', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>')
 
     // Perform the RAG search: get the top 10 relevant document snippets for the query.
