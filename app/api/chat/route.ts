@@ -22,6 +22,7 @@ import { validateChatMessages } from '@/lib/validation'
 import { getCSRFTokenFromRequest, verifyCSRFToken } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
+import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds } from '@/lib/rateLimit'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -30,6 +31,33 @@ const anthropic = new Anthropic({
 export async function POST(req: Request) {
   console.log('POST /api/chat - handler start')
   try {
+    // SECURITY: Check rate limit to prevent API abuse
+    // Limits: 200 requests per day per IP address
+    // Protects against: spam, DoS attacks, quota exhaustion
+    console.log('Checking rate limit...')
+    const clientIP = getClientIP(req)
+    const rateLimit = checkRateLimit(clientIP)
+
+    if (!rateLimit.allowed) {
+      console.warn('Rate limit exceeded:', { clientIP, resetTime: rateLimit.resetTime })
+      const retryAfterSeconds = getRetryAfterSeconds()
+      return NextResponse.json(
+        {
+          error: 'Rate limit exceeded: 200 requests per day maximum',
+          retryAfter: retryAfterSeconds,
+          resetTime: rateLimit.resetTime,
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(retryAfterSeconds),
+            ...getRateLimitHeaders(rateLimit),
+          },
+        }
+      )
+    }
+    console.log(`Rate limit OK: ${rateLimit.remaining} requests remaining today`)
+
     // SECURITY: Verify CSRF token to prevent Cross-Site Request Forgery attacks
     // This ensures the request comes from a legitimate user on our site,
     // not from a malicious attacker's website
@@ -128,7 +156,13 @@ ${context}`,
 
     // Return the extracted text to the client as JSON.
     console.log('Returning response to client.')
-    return NextResponse.json({ response: text })
+    // Include rate limit headers so client knows how many requests remain
+    return NextResponse.json(
+      { response: text },
+      {
+        headers: getRateLimitHeaders(rateLimit),
+      }
+    )
   } catch (error) {
     // Log the error server-side for debugging and return a generic 500 error to the client.
     console.error('API error:', error)
