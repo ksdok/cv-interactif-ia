@@ -1,12 +1,12 @@
 'use client'
 
 interface AboutSectionProps {
-  onQuestionClick: (question: string) => void // Callback pour notifier le parent quand une question est cliquée
+  onQuestionClick: (question: string) => void // Callback to notify parent when a question is clicked
 }
 
 /**
- * Section "À propos" avec informations personnelles et questions suggérées
- * Les questions suggérées sont cliquables et remplissent automatiquement le champ de saisie du chat
+ * "About" section with personal information and suggested questions
+ * Suggested questions are clickable and automatically fill the chat input field
  */
 export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
   return (
@@ -61,11 +61,11 @@ export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
           </div>
         </div>
 
-        {/* Questions suggérées cliquables */}
+        {/* Clickable suggested questions */}
         <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
-          <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-2">Questions suggérées</h4>
+          <h4 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-2">Suggested Questions</h4>
           <div className="space-y-2 text-xs">
-            {/* Chaque question appelle onQuestionClick pour remplir le champ de saisie du chat */}
+            {/* Each question calls onQuestionClick to fill the chat input field */}
             <p
               onClick={() => onQuestionClick("Quel est son parcours professionnel ?")}
               className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors"
@@ -93,7 +93,7 @@ export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
           </div>
         </div>
 
-        {/* Bouton de contact par email - Placé en bas de la section */}
+        {/* Email contact button - Placed at the bottom of the section */}
         <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
           <a
             href="mailto:dokkimsan@gmail.com?subject=Opportunité professionnelle&body=Bonjour Kim-san,%0D%0A%0D%0AJ'ai consulté votre CV interactif et je souhaite échanger avec vous concernant une opportunité."

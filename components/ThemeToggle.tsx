@@ -9,7 +9,7 @@ export default function ThemeToggle() {
     <button
       onClick={toggleTheme}
       className="p-2 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-      aria-label="Basculer le thème"
+      aria-label="Toggle theme"
     >
       {theme === 'light' ? (
         <svg

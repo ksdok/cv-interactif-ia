@@ -34,7 +34,7 @@ export default async function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
-        {/* Empêcher le zoom sur iOS lors du focus sur les inputs */}
+        {/* Prevent zoom on iOS when focusing on input fields */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
         {/* SECURITY: Embed CSRF token in meta tag for client access

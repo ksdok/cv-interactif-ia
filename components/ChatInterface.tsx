@@ -16,63 +16,63 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfToken }: ChatInterfaceProps) {
-  // État des messages du chat
+  // Chat messages state
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
       content: "Bonjour ! Je suis l'assistant IA qui représente Kim-San. Posez-moi des questions sur son parcours, ses compétences, ou comment ce site a été créé !",
     },
   ])
-  const [input, setInput] = useState('') // Texte du champ de saisie
-  const [isLoading, setIsLoading] = useState(false) // Indicateur de chargement pendant l'appel API
+  const [input, setInput] = useState('') // Input field text
+  const [isLoading, setIsLoading] = useState(false) // Loading indicator during API call
 
-  // Refs pour gérer le scroll automatique
+  // Refs to manage automatic scrolling
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
-  // Ref pour éviter les boucles infinies dans useEffect lors des questions suggérées
+  // Ref to avoid infinite loops in useEffect for suggested questions
   const lastSuggestedRef = useRef('')
 
-  // Fonction pour scroller automatiquement vers le bas du chat
+  // Function to automatically scroll to the bottom of the chat
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
   }
 
-  // Scroller vers le bas à chaque nouveau message
+  // Scroll to bottom on each new message
   useEffect(() => {
     scrollToBottom()
   }, [messages])
 
-  // Gérer les questions suggérées cliquées depuis la section "À propos"
+  // Handle suggested questions clicked from the "About" section
   useEffect(() => {
     if (suggestedQuestion && suggestedQuestion !== lastSuggestedRef.current) {
       lastSuggestedRef.current = suggestedQuestion
-      setInput(suggestedQuestion) // Remplir le champ de saisie avec la question
-      onQuestionSent() // Notifier le parent pour réinitialiser la question suggérée
+      setInput(suggestedQuestion) // Fill the input field with the question
+      onQuestionSent() // Notify parent to reset the suggested question
     }
   }, [suggestedQuestion, onQuestionSent])
 
-  // Fonction pour envoyer un message à l'API
+  // Function to send a message to the API
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
 
     const userMessage = input.trim()
-    setInput('') // Vider le champ de saisie
-    lastSuggestedRef.current = '' // Réinitialiser la dernière question suggérée pour permettre de la réutiliser
+    setInput('') // Clear the input field
+    lastSuggestedRef.current = '' // Reset the last suggested question to allow reuse
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
 
-    // Sur mobile, scroller toute la page vers le haut après l'envoi
-    // Utiliser setTimeout pour s'assurer que le DOM est mis à jour
+    // On mobile, scroll the entire page up after sending
+    // Use setTimeout to ensure the DOM is updated
     setTimeout(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }, 100)
 
     try {
-      // Appel à l'API Claude via le backend Next.js
+      // Call the Claude API through the Next.js backend
       // SECURITY: Include CSRF token in request header to prevent forged requests
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -94,14 +94,14 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
         throw new Error(data.error)
       }
 
-      // Ajouter la réponse de l'assistant avec l'effet de typing activé
+      // Add the assistant's response with typing effect enabled
       setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: data.response, isTyping: true },
       ])
     } catch (error) {
-      console.error('Erreur:', error)
-      // Afficher un message d'erreur en cas de problème
+      console.error('Error:', error)
+      // Display an error message if something goes wrong
       setMessages((prev) => [
         ...prev,
         {
@@ -116,7 +116,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[500px] sm:h-[600px]">
-      {/* Zone des messages */}
+      {/* Messages area */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {messages.map((message, index) => (
           <div
@@ -124,7 +124,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
             className={`flex ${
               message.role === 'user' ? 'justify-end' : 'justify-start'
             } ${
-              // Animation slide-in : depuis la droite pour l'utilisateur, depuis la gauche pour l'assistant
+              // Slide-in animation: from right for user, from left for assistant
               message.role === 'user' ? 'message-slide-in-right' : 'message-slide-in-left'
             }`}
           >
@@ -135,13 +135,13 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
                   : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
               }`}
             >
-              {/* Utiliser l'effet de typing uniquement pour les nouveaux messages de l'assistant */}
+              {/* Use typing effect only for new assistant messages */}
               {message.role === 'assistant' && message.isTyping ? (
                 <TypingEffect
                   text={message.content}
-                  onUpdate={scrollToBottom} // Scroller à chaque caractère ajouté
+                  onUpdate={scrollToBottom} // Scroll on each character added
                   onComplete={() => {
-                    // Désactiver l'effet de typing une fois terminé
+                    // Disable typing effect once complete
                     setMessages(prev => prev.map((msg, idx) =>
                       idx === index ? { ...msg, isTyping: false } : msg
                     ))
@@ -153,7 +153,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
             </div>
           </div>
         ))}
-        {/* Indicateur de chargement (3 points qui rebondissent) */}
+        {/* Loading indicator (3 bouncing dots) */}
         {isLoading && (
           <div className="flex justify-start message-fade-in">
             <div className="bg-slate-100 dark:bg-slate-700 rounded-lg px-4 py-2">
@@ -168,26 +168,26 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Formulaire de saisie */}
+      {/* Input form */}
       <form onSubmit={sendMessage} className="border-t border-slate-200 dark:border-slate-700 p-3 sm:p-4">
         <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Posez votre question..."
-            // text-base (16px) sur mobile pour éviter le zoom automatique iOS Safari
+            placeholder="Ask your question..."
+            // text-base (16px) on mobile to avoid iOS Safari automatic zoom
             className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            // flex-shrink-0 empêche le bouton de rétrécir sur mobile
-            // whitespace-nowrap garde "Envoyer" sur une seule ligne
+            // flex-shrink-0 prevents button from shrinking on mobile
+            // whitespace-nowrap keeps "Send" on a single line
             className="px-4 sm:px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed cursor-pointer transition-colors whitespace-nowrap text-sm sm:text-base flex-shrink-0"
           >
-            Envoyer
+            Send
           </button>
         </div>
       </form>

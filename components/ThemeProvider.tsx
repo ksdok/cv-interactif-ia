@@ -20,13 +20,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true)
-    // Récupérer le thème sauvegardé ou utiliser le mode clair par défaut
+    // Retrieve saved theme or use light mode by default
     const savedTheme = localStorage.getItem('theme') as Theme | null
     if (savedTheme) {
       setTheme(savedTheme)
       document.documentElement.classList.toggle('dark', savedTheme === 'dark')
     } else {
-      // Mode clair par défaut
+      // Light mode by default
       setTheme('light')
       document.documentElement.classList.remove('dark')
     }
@@ -45,7 +45,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme(newTheme)
     localStorage.setItem('theme', newTheme)
 
-    // Force l'application de la classe immédiatement
+    // Force the class to apply immediately
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark')
     } else {

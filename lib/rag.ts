@@ -34,11 +34,11 @@ export async function searchDocuments(
   filter: object = {}
 ) {
   try {
-    console.log('Recherche pour:', query)
+    console.log('Searching for:', query)
 
     // Create the embedding for the query text.
     const queryEmbedding = await createEmbedding(query)
-    console.log('Embedding créé pour la requête.')
+    console.log('Embedding created for the query.')
 
     // Call the Supabase RPC 'match_documents' which performs the vector similarity search.
     // Note: the stored procedure determines how match_threshold / filtering are applied.
@@ -47,9 +47,9 @@ export async function searchDocuments(
       match_count: matchCount,
       filter: filter,
     })
-    console.log('Résultats Supabase:', { 
-      found: data?.length || 0, 
-      error: error?.message 
+    console.log('Supabase results:', {
+      found: data?.length || 0,
+      error: error?.message
     })
     if (error) {
       console.error('Search error:', error)

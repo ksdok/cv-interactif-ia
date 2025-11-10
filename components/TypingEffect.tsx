@@ -3,33 +3,33 @@
 import { useState, useEffect } from 'react'
 
 interface TypingEffectProps {
-  text: string // Le texte complet à afficher
-  speed?: number // Vitesse de frappe en ms (défaut: 15ms par caractère)
-  onComplete?: () => void // Callback appelé quand le typing est terminé
-  onUpdate?: () => void // Callback appelé à chaque caractère ajouté (pour le scroll)
+  text: string // Full text to display
+  speed?: number // Typing speed in ms (default: 15ms per character)
+  onComplete?: () => void // Callback called when typing is complete
+  onUpdate?: () => void // Callback called for each character added (for scrolling)
 }
 
 /**
- * Composant qui affiche du texte avec un effet de typing (machine à écrire)
- * Affiche les caractères un par un avec un curseur clignotant
+ * Component that displays text with a typing effect (typewriter)
+ * Displays characters one by one with a blinking cursor
  */
 export default function TypingEffect({ text, speed = 15, onComplete, onUpdate }: TypingEffectProps) {
-  const [displayedText, setDisplayedText] = useState('') // Texte affiché jusqu'à présent
-  const [currentIndex, setCurrentIndex] = useState(0) // Index du prochain caractère à afficher
-  const [isComplete, setIsComplete] = useState(false) // Flag indiquant si le typing est terminé
+  const [displayedText, setDisplayedText] = useState('') // Text displayed so far
+  const [currentIndex, setCurrentIndex] = useState(0) // Index of next character to display
+  const [isComplete, setIsComplete] = useState(false) // Flag indicating if typing is complete
 
-  // Effet pour ajouter un caractère à la fois
+  // Effect to add one character at a time
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {
         setDisplayedText(text.slice(0, currentIndex + 1))
         setCurrentIndex(currentIndex + 1)
-        onUpdate?.() // Notifier le parent (pour scroller automatiquement)
+        onUpdate?.() // Notify parent (for auto-scrolling)
       }, speed)
 
       return () => clearTimeout(timeout)
     } else if (!isComplete) {
-      // Le typing est terminé
+      // Typing is complete
       setIsComplete(true)
       onComplete?.()
     }
@@ -38,7 +38,7 @@ export default function TypingEffect({ text, speed = 15, onComplete, onUpdate }:
   return (
     <span className="whitespace-pre-wrap">
       {displayedText}
-      {/* Curseur clignotant visible uniquement pendant le typing */}
+      {/* Blinking cursor visible only during typing */}
       {!isComplete && (
         <span className="inline-block w-[2px] h-4 bg-slate-900 dark:bg-slate-100 ml-[2px] animate-blink"></span>
       )}
