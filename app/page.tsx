@@ -53,8 +53,8 @@ export default function Home() {
             {/* Pass callback to send up clicked questions */}
             <AboutSection onQuestionClick={setSuggestedQuestion} />
 
-            {/* Visitor counter for social proof */}
-            <VisitorCounter />
+            {/* Visitor counter for social proof - Hidden for the time being */}
+            {/* <VisitorCounter /> */}
 
             <ProjectGallery />
 

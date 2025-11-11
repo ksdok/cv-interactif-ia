@@ -12,7 +12,10 @@
       "Bash(npm run build:*)",
       "Bash(npm install:*)",
       "Bash(timeout 10 curl:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(findstr:*)",
+      "Bash(pkill:*)",
+      "Bash(timeout 10 bash:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

@@ -20,7 +20,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Bonjour ! Je suis l'assistant IA qui représente Kim-San. Posez-moi des questions sur son parcours, ses compétences, ou comment ce site a été créé !",
+      content: "Bonjour ! Je suis l'assistant IA qui représente Kim-San. Posez-moi des questions sur son parcours, ses compétences, ou comment ce site a été créé ! Utilisez la fonctionnalité 'Match Job' pour voir comment son profil correspond à votre besoin.",
     },
   ])
   const [input, setInput] = useState('') // Input field text
@@ -118,68 +118,72 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[500px] sm:h-[600px]">
       {/* Messages area */}
       <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
-        {messages.map((message, index) => (
-          <div
-            key={index}
-            className={`flex ${
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            } ${
-              // Slide-in animation: from right for user, from left for assistant
-              message.role === 'user' ? 'message-slide-in-right' : 'message-slide-in-left'
-            }`}
-          >
+          {messages.map((message, index) => (
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 text-[15px] ${
-                message.role === 'user'
-                  ? 'bg-blue-600 dark:bg-blue-500 text-white'
-                  : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
+              key={index}
+              className={`flex ${
+                message.role === 'user' ? 'justify-end' : 'justify-start'
+              } ${
+                // Slide-in animation: from right for user, from left for assistant
+                message.role === 'user' ? 'message-slide-in-right' : 'message-slide-in-left'
               }`}
             >
-              {/* Use typing effect only for new assistant messages */}
-              {message.role === 'assistant' && message.isTyping ? (
-                <TypingEffect
-                  text={message.content}
-                  onUpdate={scrollToBottom} // Scroll on each character added
-                  onComplete={() => {
-                    // Disable typing effect once complete
-                    setMessages(prev => prev.map((msg, idx) =>
-                      idx === index ? { ...msg, isTyping: false } : msg
-                    ))
-                  }}
-                />
-              ) : (
-                <p className="whitespace-pre-wrap">{message.content}</p>
-              )}
-            </div>
-          </div>
-        ))}
-        {/* Loading indicator (3 bouncing dots) */}
-        {isLoading && (
-          <div className="flex justify-start message-fade-in">
-            <div className="bg-slate-100 dark:bg-slate-700 rounded-lg px-4 py-2">
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce delay-100"></div>
-                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce delay-200"></div>
+              <div
+                className={`max-w-[80%] rounded-lg px-4 py-2 text-[15px] ${
+                  message.role === 'user'
+                    ? 'bg-blue-600 dark:bg-blue-500 text-white'
+                    : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
+                }`}
+              >
+                {/* Use typing effect only for new assistant messages */}
+                {message.role === 'assistant' && message.isTyping ? (
+                  <TypingEffect
+                    text={message.content}
+                    onUpdate={scrollToBottom} // Scroll on each character added
+                    onComplete={() => {
+                      // Disable typing effect once complete
+                      setMessages(prev => prev.map((msg, idx) =>
+                        idx === index ? { ...msg, isTyping: false } : msg
+                      ))
+                    }}
+                  />
+                ) : (
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                )}
               </div>
             </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
+          ))}
+          {/* Loading indicator (3 bouncing dots) */}
+          {isLoading && (
+            <div className="flex justify-start message-fade-in">
+              <div className="bg-slate-100 dark:bg-slate-700 rounded-lg px-4 py-2">
+                <div className="flex space-x-2">
+                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce"></div>
+                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce delay-200"></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
 
       {/* Input form */}
       <form onSubmit={sendMessage} className="border-t border-slate-200 dark:border-slate-700 p-3 sm:p-4">
         <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask your question..."
-            // text-base (16px) on mobile to avoid iOS Safari automatic zoom
-            className="flex-1 min-w-0 px-3 sm:px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
-            disabled={isLoading}
-          />
+          {/* Input field */}
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask your question..."
+              // text-base (16px) on mobile to avoid iOS Safari automatic zoom
+              className="w-full px-3 sm:px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              disabled={isLoading}
+            />
+          </div>
+
           <button
             type="submit"
             disabled={isLoading || !input.trim()}

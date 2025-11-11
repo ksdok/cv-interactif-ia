@@ -10,6 +10,7 @@ This is a modern Next.js application that transforms a static CV into an **inter
 
 - **🤖 AI-Powered Chat Interface** - Ask questions about the candidate's CV and get intelligent responses
 - **📚 Retrieval-Augmented Generation (RAG)** - Answers are grounded in actual CV data, not hallucinations
+- **💼 Job Matching** - Analyze how well your CV matches specific job descriptions with AI-powered analysis
 - **🌙 Dark Mode Support** - Comfortable viewing in any lighting condition
 - **🛡️ Enterprise-Grade Security** - Multiple layers of protection against attacks
 - **⚡ Fast & Responsive** - Built with Next.js 16 for optimal performance
@@ -192,8 +193,10 @@ For detailed security documentation, see:
 cv-interactif-ia/
 ├── app/
 │   ├── api/
-│   │   └── chat/
-│   │       └── route.ts         # Main API endpoint with security checks
+│   │   ├── chat/
+│   │   │   └── route.ts         # Main chat API endpoint with security checks
+│   │   └── job-match/
+│   │       └── route.ts         # Job matching API endpoint
 │   ├── layout.tsx               # Root layout with CSRF token
 │   ├── page.tsx                 # Home page
 │   └── globals.css              # Global styles
@@ -202,7 +205,8 @@ cv-interactif-ia/
 │   ├── Header.tsx               # Application header
 │   ├── ThemeProvider.tsx         # Dark mode support
 │   ├── ProjectGallery.tsx        # Projects showcase
-│   └── AboutSection.tsx          # About section
+│   ├── AboutSection.tsx          # About section with Job Matcher integration
+│   └── JobMatcher.tsx            # Job matching modal component
 ├── lib/
 │   ├── validation.ts            # Input validation with 40+ tests
 │   ├── csrf.ts                  # CSRF token generation/verification
@@ -215,6 +219,54 @@ cv-interactif-ia/
 ├── tsconfig.json
 └── README.md                    # This file
 ```
+
+## 💼 Job Matcher Feature
+
+The CV Interactif IA includes a Job Matcher tool that helps candidates understand how well their CV aligns with specific job postings using AI-powered analysis.
+
+### Location & Appearance
+
+The "Match Job Description" button appears in the **AboutSection** with:
+- **Styling:** Black background with white text
+- **Interaction:** Hover state darkens to slate-900 with scale effect for smooth interaction
+- **Component:** Integrated via `JobMatcher.tsx` modal component
+
+### How It Works
+
+1. Click the "Match Job Description" button in the About section
+2. A modal opens for job description input
+3. Paste a job description (100-10,000 characters)
+4. Click analyze to get AI-powered evaluation
+5. Receive three match percentages with personalized insights
+
+### Key Metrics
+
+- **Overall Match (0-100%)** - How well your profile fits the position overall
+- **Skills Match (0-100%)** - Technical skill alignment with job requirements
+- **Experience Match (0-100%)** - Relevance of your background and work history
+- **Analysis** - Detailed explanation of the matching assessment
+- **Strengths** - Key areas where your CV aligns with the position
+- **Improvements** - Areas to emphasize or develop for better positioning
+
+### Rate Limiting
+
+Job matching has a dedicated rate limit: **200 analyses per day per IP address**. This helps manage API costs while allowing thorough job market research.
+
+### Component Architecture
+
+**File:** `components/JobMatcher.tsx`
+- Client component with modal dialog
+- Handles job description input validation (100-10,000 chars)
+- Fetches `/api/job-match` endpoint
+- Displays results with match percentages and recommendations
+- Includes CSRF token security for API calls
+
+**API Endpoint:** `app/api/job-match/route.ts`
+- Server-side job description analysis
+- Rate limiting protection
+- Integration with Claude API for analysis
+
+**Documentation:** For complete user guide and developer documentation, see `JOB_MATCHER.md`
 
 ## 🔄 API Endpoints
 
@@ -259,6 +311,50 @@ x-ratelimit-reset: 2025-11-11T00:00:00.000Z
   "resetTime": "2025-11-11T00:00:00.000Z"
 }
 ```
+
+### POST `/api/job-match`
+
+**Description:** Analyze how well a job description matches the candidate's CV.
+
+**Security Requirements:**
+- Valid JSON payload with jobDescription
+- Under rate limit (200 requests/day)
+
+**Request:**
+```json
+{
+  "jobDescription": "Senior React Developer, 5+ years experience required..."
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "overallMatch": 85,
+  "skillsMatch": 90,
+  "experienceMatch": 80,
+  "analysis": "Your React and Next.js expertise strongly align with this position.",
+  "strengths": [
+    "Expert-level React and Next.js skills",
+    "Full-stack development background"
+  ],
+  "improvements": [
+    "Emphasize architecture experience",
+    "Highlight mentoring activities"
+  ]
+}
+```
+
+**Response (429 Too Many Requests):**
+```json
+{
+  "error": "Rate limit exceeded: 200 analyses per day maximum",
+  "retryAfter": 3600,
+  "resetTime": "2025-11-11T00:00:00.000Z"
+}
+```
+
+For complete API documentation, see `JOB_MATCHER.md`
 
 ## 🧪 Testing
 
@@ -323,6 +419,41 @@ Set these in Vercel project settings:
 - **Security overhead:** ~3ms (negligible)
 - **Build time:** <3 seconds
 - **Cold start:** <1 second (Vercel)
+
+## 🎨 CSS Animations & Styling
+
+### Message Animations
+
+The chat interface includes smooth entry animations for messages:
+
+- **Assistant Messages:** Slide in from left with bounce effect
+  - Keyframe: `slideInLeft` (0.5s duration)
+  - Timing: `cubic-bezier(0.34, 1.56, 0.64, 1)` for bouncy feel
+  - Class: `.message-slide-in-left`
+
+- **User Messages:** Slide in from right with bounce effect
+  - Keyframe: `slideInRight` (0.5s duration)
+  - Timing: `cubic-bezier(0.34, 1.56, 0.64, 1)` for bouncy feel
+  - Class: `.message-slide-in-right`
+
+- **Typing Effect:** Cursor animation (blinking)
+  - Keyframe: `blink` (1s interval)
+  - Class: `.animate-blink`
+
+### Job Matcher Button Animation
+
+The Job Matcher button features a subtle "breathing" pulse effect:
+
+- **Keyframe:** `buttonBreath` (2.5s duration)
+- **Effect:** Golden glow expands and contracts in a smooth loop
+- **Color:** Amber shadow pulse `rgba(250, 204, 21, 0.5)`
+- **Class:** `.button-highlight-pulse`
+- **Interaction:** Animation pauses on hover/focus for better UX
+- **File:** `app/globals.css` (lines 87-103)
+
+**File:** `app/globals.css`
+
+All animations use CSS keyframes with no JavaScript overhead for maximum performance.
 
 ## 🐛 Troubleshooting
 
