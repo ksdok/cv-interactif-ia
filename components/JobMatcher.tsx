@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface JobMatchResult {
   overallMatch: number
@@ -21,6 +21,21 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<JobMatchResult | null>(null)
   const [error, setError] = useState('')
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  // Detect dark mode
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark')
+    setIsDarkMode(isDark)
+
+    const observer = new MutationObserver(() => {
+      const isDark = document.documentElement.classList.contains('dark')
+      setIsDarkMode(isDark)
+    })
+
+    observer.observe(document.documentElement, { attributes: true })
+    return () => observer.disconnect()
+  }, [])
 
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
@@ -140,7 +155,19 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
               <button
                 onClick={handleAnalyze}
                 disabled={isLoading || !jobDescription.trim()}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-slate-400 disabled:to-slate-400 text-white font-semibold px-4 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed cursor-pointer"
+                style={{
+                  backgroundColor: isDarkMode ? '#334155' : '#0f172a',
+                  color: '#ffffff'
+                }}
+                className="w-full font-semibold px-4 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed cursor-pointer disabled:opacity-50"
+                onMouseEnter={(e) => {
+                  if (!isLoading && jobDescription.trim()) {
+                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
+                }}
               >
                 {isLoading ? 'Analyse en cours...' : 'Analyser le matching du du poste'}
               </button>
@@ -203,19 +230,49 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
               <div className="flex gap-3">
                 <button
                   onClick={handleReset}
-                  className="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-900 dark:text-slate-100 font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: isDarkMode ? '#334155' : '#0f172a',
+                    color: '#ffffff'
+                  }}
+                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
+                  }}
                 >
                   Analyser un Autre Poste
                 </button>
                 <a
                   href={`mailto:dokkimsan@gmail.com?subject=Analyse de Correspondance de Poste&body=Bonjour Kim-san,%0D%0A%0D%0AJ'ai analysé le profil avec la description de poste et j'aimerais discuter des résultats:%0D%0A%0D%0ACOrrespondance Globale: ${result.overallMatch}%25%0D%0ACOrrespondance Compétences: ${result.skillsMatch}%25%0D%0ACOrrespondance Expérience: ${result.experienceMatch}%25%0D%0A%0D%0AAnalyse:%0D%0A${result.analysis}%0D%0A%0D%0APoints Forts:%0D%0A${result.strengths.join('%0D%0A')}%0D%0A%0D%0ADomaines à Développer:%0D%0A${result.improvements.join('%0D%0A')}%0D%0A%0D%0AJ'attends votre retour.`}
-                  className="flex-1 bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer text-center"
+                  style={{
+                    backgroundColor: isDarkMode ? '#334155' : '#0f172a',
+                    color: '#ffffff'
+                  }}
+                  className="flex-1 flex items-center justify-center font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
+                  }}
                 >
                   Contactez moi
                 </a>
                 <button
                   onClick={handleClose}
-                  className="flex-1 bg-slate-100 dark:bg-slate-700/50 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  style={{
+                    backgroundColor: isDarkMode ? '#334155' : '#0f172a',
+                    color: '#ffffff'
+                  }}
+                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
+                  }}
                 >
                   Fermer
                 </button>
