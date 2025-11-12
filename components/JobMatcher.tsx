@@ -138,7 +138,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   placeholder="Collez la description complète du poste ici... (max 10 000 caractères)"
-                  className="w-full h-48 px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full h-32 sm:h-40 lg:h-48 px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   disabled={isLoading}
                 />
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -159,7 +159,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                   backgroundColor: isDarkMode ? '#334155' : '#0f172a',
                   color: '#ffffff'
                 }}
-                className="w-full font-semibold px-4 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed cursor-pointer disabled:opacity-50"
+                className="w-full font-semibold px-4 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed cursor-pointer disabled:opacity-50 active:scale-95 active:opacity-75 sm:hover:scale-105"
                 onMouseEnter={(e) => {
                   if (!isLoading && jobDescription.trim()) {
                     e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
@@ -175,7 +175,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
           ) : (
             // Results view
             <div className="space-y-6">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
                   <p className="text-xs text-slate-600 dark:text-slate-400 uppercase font-semibold mb-1">Correspondance Globale</p>
                   <p className="text-3xl font-bold text-green-600 dark:text-green-400">{result.overallMatch}%</p>
@@ -227,14 +227,14 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                 </div>
               )}
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleReset}
                   style={{
                     backgroundColor: isDarkMode ? '#334155' : '#0f172a',
                     color: '#ffffff'
                   }}
-                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 active:opacity-75 sm:hover:scale-105 cursor-pointer"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
                   }}
@@ -250,7 +250,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                     backgroundColor: isDarkMode ? '#334155' : '#0f172a',
                     color: '#ffffff'
                   }}
-                  className="flex-1 flex items-center justify-center font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  className="flex-1 flex items-center justify-center font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 active:opacity-75 sm:hover:scale-105 cursor-pointer"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
                   }}
@@ -266,7 +266,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                     backgroundColor: isDarkMode ? '#334155' : '#0f172a',
                     color: '#ffffff'
                   }}
-                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 active:opacity-75 sm:hover:scale-105 cursor-pointer"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
                   }}
