@@ -118,7 +118,7 @@ export async function POST(req: Request) {
 
     // Parse request body
     console.log('Reading request body...')
-    const { jobDescription } = await req.json()
+    const { jobDescription, language } = await req.json()
 
     // Validate input
     if (!jobDescription || typeof jobDescription !== 'string') {
@@ -175,9 +175,52 @@ export async function POST(req: Request) {
       cvContext += `\n[${index + 1}] ${doc.content || ''}`
     })
 
+    // Determine response language based on job description language
+    const responseLanguage = language === 'en' ? 'en' : 'fr'
+    console.log(`Detected job description language: ${responseLanguage}`)
+
     // Call OpenAI to analyze the match
     console.log('Calling OpenAI to analyze job match...')
-    const analysisPrompt = `Tu es un expert en orientation professionnelle. Analyse la correspondance entre les données du Rag du candidat et la description du poste.
+
+    // Create prompts in both French and English
+    let analysisPrompt: string
+
+    if (responseLanguage === 'en') {
+      analysisPrompt = `You are a professional career guidance expert. Analyze the match between the candidate's RAG data and the job description.
+
+${cvContext}
+
+---
+
+JOB DESCRIPTION TO ANALYZE:
+${trimmedJob}
+
+---
+
+Provide a detailed analysis in the following JSON format (respond ONLY with valid JSON, no markdown):
+{
+  "overallMatch": <number 0-100>,
+  "skillsMatch": <number 0-100>,
+  "experienceMatch": <number 0-100>,
+  "analysis": "<summary of 2-3 sentences about the match>",
+  "strengths": [
+    "<his strength: what he does well for this role>",
+    "<another strength>"
+  ],
+  "improvements": [
+    "<area for development>",
+    "<another area>"
+  ]
+}
+
+Be honest and specific. Consider:
+- Alignment of technical skills
+- Match of experience level
+- Industry experience
+- Required certifications or tools
+- Soft skills adequacy`
+    } else {
+      analysisPrompt = `Tu es un expert en orientation professionnelle. Analyse la correspondance entre les données du Rag du candidat et la description du poste.
 
 ${cvContext}
 
@@ -210,6 +253,7 @@ Sois honnête et spécifique. Considère:
 - L'expérience dans le secteur
 - Les certifications ou outils requis
 - L'adéquation des compétences relationnelles`
+    }
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

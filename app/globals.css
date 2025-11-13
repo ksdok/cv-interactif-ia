@@ -4,6 +4,7 @@
   --color-*: initial;
   --color-background: #ffffff;
   --color-foreground: #171717;
+  --breakpoint-xs: 375px;
 }
 
 :root {
@@ -100,4 +101,21 @@ body {
 .button-highlight-pulse:hover,
 .button-highlight-pulse:focus {
   animation: none;
+}
+
+/* ============================================
+   Loading spinner animation
+   ============================================ */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
 }

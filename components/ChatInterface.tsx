@@ -2,6 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react'
 import TypingEffect from './TypingEffect'
+import LinkifiedText from './LinkifiedText'
+import { useLanguage } from '@/lib/LanguageContext'
+import { getTranslation } from '@/lib/translations'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -16,11 +19,14 @@ interface ChatInterfaceProps {
 }
 
 export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfToken }: ChatInterfaceProps) {
-  // Chat messages state
+  const { language } = useLanguage()
+  const t = (key: string) => getTranslation(language, key)
+
+  // Chat messages state with initial greeting
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Bonjour ! Je suis l'assistant IA qui représente Kim-San. Posez-moi des questions sur son parcours, ses compétences, ou comment ce site a été créé ! Utilisez la fonctionnalité 'Match Job' pour voir comment son profil correspond à votre besoin.",
+      content: '',
     },
   ])
   const [input, setInput] = useState('') // Input field text
@@ -39,6 +45,16 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
   }
+
+  // Initialize greeting message when language changes
+  useEffect(() => {
+    setMessages([
+      {
+        role: 'assistant',
+        content: t('chat.greeting'),
+      },
+    ])
+  }, [language])
 
   // Scroll to bottom on each new message
   useEffect(() => {
@@ -106,7 +122,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
         ...prev,
         {
           role: 'assistant',
-          content: "Désolé, une erreur s'est produite. Veuillez réessayer.",
+          content: t('chat.errorMessage'),
         },
       ])
     } finally {
@@ -115,9 +131,9 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
   }
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[500px] sm:h-[600px]">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col h-[400px] xs:h-[480px] sm:h-[600px] lg:h-[600px]">
       {/* Messages area */}
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-2 xs:p-3 sm:p-4 space-y-2 xs:space-y-3 sm:space-y-4 custom-scrollbar">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -129,7 +145,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
               }`}
             >
               <div
-                className={`max-w-[80%] rounded-lg px-4 py-2 text-[15px] ${
+                className={`max-w-[85%] xs:max-w-[82%] sm:max-w-[80%] rounded-lg px-2.5 xs:px-3 sm:px-4 py-1.5 xs:py-2 sm:py-2 text-xs xs:text-sm sm:text-[15px] break-words ${
                   message.role === 'user'
                     ? 'bg-blue-600 dark:bg-blue-500 text-white'
                     : 'bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-slate-100'
@@ -148,7 +164,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
                     }}
                   />
                 ) : (
-                  <p className="whitespace-pre-wrap">{message.content}</p>
+                  <LinkifiedText text={message.content} className="whitespace-pre-wrap block" />
                 )}
               </div>
             </div>
@@ -169,17 +185,17 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
         </div>
 
       {/* Input form */}
-      <form onSubmit={sendMessage} className="border-t border-slate-200 dark:border-slate-700 p-3 sm:p-4">
-        <div className="flex gap-2">
+      <form onSubmit={sendMessage} className="border-t border-slate-200 dark:border-slate-700 p-2 xs:p-2.5 sm:p-4">
+        <div className="flex gap-1.5 xs:gap-2 sm:gap-2">
           {/* Input field */}
           <div className="relative flex-1">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask your question..."
+              placeholder={t('chat.placeholder')}
               // text-base (16px) on mobile to avoid iOS Safari automatic zoom
-              className="w-full px-3 sm:px-4 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base"
+              className="w-full px-2 xs:px-2.5 sm:px-4 py-1.5 xs:py-2 sm:py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm xs:text-base sm:text-base"
               disabled={isLoading}
             />
           </div>
@@ -189,9 +205,9 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
             disabled={isLoading || !input.trim()}
             // flex-shrink-0 prevents button from shrinking on mobile
             // whitespace-nowrap keeps "Send" on a single line
-            className="px-4 sm:px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed cursor-pointer transition-colors whitespace-nowrap text-sm sm:text-base flex-shrink-0"
+            className="px-2.5 xs:px-3 sm:px-6 py-1.5 xs:py-2 sm:py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:bg-slate-300 dark:disabled:bg-slate-700 disabled:cursor-not-allowed cursor-pointer transition-colors whitespace-nowrap text-xs xs:text-sm sm:text-base flex-shrink-0"
           >
-            Send
+            {t('chat.sendButton')}
           </button>
         </div>
       </form>

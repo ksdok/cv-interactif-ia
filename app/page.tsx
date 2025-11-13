@@ -7,6 +7,8 @@ import AboutSection from '@/components/AboutSection'
 import ProjectGallery from '@/components/ProjectGallery'
 import Header from '@/components/Header'
 import VisitorCounter from '@/components/VisitorCounter'
+import { useLanguage } from '@/lib/LanguageContext'
+import { getTranslation } from '@/lib/translations'
 
 /**
  * Main page of the interactive CV
@@ -14,6 +16,9 @@ import VisitorCounter from '@/components/VisitorCounter'
  * Also handles extraction and passing of CSRF token to ChatInterface component
  */
 export default function Home() {
+  const { language } = useLanguage()
+  const t = (key: string) => getTranslation(language, key)
+
   // Shared state for suggested questions clicked in AboutSection
   const [suggestedQuestion, setSuggestedQuestion] = useState<string>('')
 
@@ -61,10 +66,10 @@ export default function Home() {
             {/* RAG Info */}
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg shadow-sm border border-blue-200 dark:border-blue-800 p-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
-                RAG Enabled
+                {t('rag.title')}
               </h3>
               <p className="text-sm text-slate-700 dark:text-slate-300">
-                Responses are generated from information stored in the RAG.
+                {t('rag.description')}
               </p>
             </div>
           </div>
@@ -74,7 +79,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-slate-600 dark:text-slate-400 text-sm">
-          Powered by Claude AI + RAG + n8n • Built with Next.js
+          {t('footer')}
         </div>
       </footer>
     </main>

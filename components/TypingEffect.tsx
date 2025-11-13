@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import LinkifiedText from './LinkifiedText'
 
 interface TypingEffectProps {
   text: string // Full text to display
@@ -36,8 +37,8 @@ export default function TypingEffect({ text, speed = 15, onComplete, onUpdate }:
   }, [currentIndex, text, speed, isComplete, onComplete, onUpdate])
 
   return (
-    <span className="whitespace-pre-wrap">
-      {displayedText}
+    <span className="whitespace-pre-wrap block">
+      <LinkifiedText text={displayedText} className="whitespace-pre-wrap" />
       {/* Blinking cursor visible only during typing */}
       {!isComplete && (
         <span className="inline-block w-[2px] h-4 bg-slate-900 dark:bg-slate-100 ml-[2px] animate-blink"></span>

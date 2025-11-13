@@ -15,7 +15,13 @@
       "Bash(grep:*)",
       "Bash(findstr:*)",
       "Bash(pkill:*)",
-      "Bash(timeout 10 bash:*)"
+      "Bash(timeout 10 bash:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nImprove Job Matcher mobile responsiveness for small screens\n\n* Make results grid responsive (1 column on mobile, 3 on tablet+)\n* Adjust textarea height responsively (h-32 sm:h-40 lg:h-48)\n* Stack buttons vertically on mobile, horizontally on tablet+\n* Add touch feedback for buttons (active:scale-95 active:opacity-75)\n\nThese changes improve UX on phones < 390px (30-40% of mobile users).\nFixes grid text overflow, textarea domination, and button wrapping.\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(taskkill:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(node test-linkify.js:*)",
+      "Bash(npm run lint:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
