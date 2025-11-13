@@ -22,7 +22,9 @@
       "Bash(npx kill-port:*)",
       "Bash(node test-linkify.js:*)",
       "Bash(npm run lint:*)",
-      "Bash(__NEW_LINE__ cd \"C:\\Users\\Dok\\ai\\cv-interactif-ia\")"
+      "Bash(__NEW_LINE__ cd \"C:\\Users\\Dok\\ai\\cv-interactif-ia\")",
+      "Bash(lsof:*)",
+      "Bash(kill:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

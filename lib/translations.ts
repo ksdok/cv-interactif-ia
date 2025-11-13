@@ -106,8 +106,8 @@ export const translations = {
     // Header
     header: {
       titleMobile: 'Interactive Resume • KSD',
-      titleTablet: 'Interactive Resume • Kim-san',
-      titleDesktop: 'Interactive Resume , designed by Kim-san, coded by Claude',
+      titleTablet: 'Interactive Resume Chat• Kim-san',
+      titleDesktop: 'Interactive Resume Chat, designed by Kim-san, coded by Claude',
     },
 
     // Chat Interface

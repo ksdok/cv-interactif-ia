@@ -1,16 +1,16 @@
 # CV Interactif IA - Interactive AI-Powered Resume
 
-A sophisticated, interactive CV application powered by AI that uses Retrieval-Augmented Generation (RAG) to provide intelligent answers about a candidate's professional profile, skills, and experience.
+A sophisticated, interactive resume application powered by AI that uses Retrieval-Augmented Generation (RAG) to provide intelligent answers about a candidate's professional profile, skills, and experience.
 
 ## Project Overview
 
-This is a modern Next.js application that transforms a static CV into an **interactive conversational experience**. Visitors can ask questions about the candidate's background, skills, projects, and experience in natural language (French or English), and an AI assistant powered by Claude provides accurate, contextual responses.
+This is a modern Next.js application that transforms a static resume into an **interactive conversational experience**. Visitors can ask questions about the candidate's background, skills, projects, and experience in natural language (French or English), and an AI assistant powered by Claude provides accurate, contextual responses.
 
 ### Key Features
 
-- **AI-Powered Chat Interface** - Ask questions about the candidate's CV and get intelligent responses
-- **Retrieval-Augmented Generation (RAG)** - Answers are grounded in actual CV data, not hallucinations
-- **Job Matching** - Analyze how well your CV matches specific job descriptions with AI-powered analysis
+- **AI-Powered Chat Interface** - Ask questions about the candidate's resume and get intelligent responses
+- **Retrieval-Augmented Generation (RAG)** - Answers are grounded in actual resume data, not hallucinations
+- **Job Matching** - Analyze how well your resume matches specific job descriptions with AI-powered analysis
 - **Dark Mode Support** - Comfortable viewing in any lighting condition
 - **Enterprise-Grade Security** - Multiple layers of protection against attacks
 - **Fast & Responsive** - Built with Next.js 16 for optimal performance
@@ -115,11 +115,11 @@ Response with Rate Limit Headers
 
 1. **User Query** - Visitor asks a question about the candidate
 2. **Vector Embedding** - Question is converted to a vector using OpenAI embeddings
-3. **Semantic Search** - Vector database finds top 10 most relevant CV snippets
+3. **Semantic Search** - Vector database finds top 10 most relevant resume snippets
 4. **Context Building** - Relevant snippets are assembled into context
 5. **AI Response** - Claude generates answer based on:
    - System prompt (candidate representation instructions)
-   - CV context (relevant snippets)
+   - resume context (relevant snippets)
    - Chat history (conversation context)
 6. **Response** - Natural language answer provided to user
 
@@ -127,7 +127,7 @@ Response with Rate Limit Headers
 ```
 User: "What experience do you have with fintech?"
     ↓
-System searches CV for mentions of fintech, finance, banking
+System searches resume for mentions of fintech, finance, banking
     ↓
 Finds relevant snippets about experience at fintech companies
     ↓
@@ -222,7 +222,7 @@ cv-interactif-ia/
 
 ## Job Matcher Feature
 
-The CV Interactif IA includes a Job Matcher tool that helps candidates understand how well their CV aligns with specific job postings using AI-powered analysis.
+The resume Interactif IA includes a Job Matcher tool that helps candidates understand how well their resume aligns with specific job postings using AI-powered analysis.
 
 ### Location & Appearance
 
@@ -245,7 +245,7 @@ The "Match Job Description" button appears in the **AboutSection** with:
 - **Skills Match (0-100%)** - Technical skill alignment with job requirements
 - **Experience Match (0-100%)** - Relevance of your background and work history
 - **Analysis** - Detailed explanation of the matching assessment
-- **Strengths** - Key areas where your CV aligns with the position
+- **Strengths** - Key areas where your resume aligns with the position
 - **Improvements** - Areas to emphasize or develop for better positioning
 
 ### Rate Limiting
@@ -272,7 +272,7 @@ Job matching has a dedicated rate limit: **200 analyses per day per IP address**
 
 ### POST `/api/chat`
 
-**Description:** Send a message and get an AI response based on CV context.
+**Description:** Send a message and get an AI response based on resume context.
 
 **Security Requirements:**
 - CSRF token in `X-CSRF-Token` header
@@ -314,7 +314,7 @@ x-ratelimit-reset: 2025-11-11T00:00:00.000Z
 
 ### POST `/api/job-match`
 
-**Description:** Analyze how well a job description matches the candidate's CV.
+**Description:** Analyze how well a job description matches the candidate's resume.
 
 **Security Requirements:**
 - Valid JSON payload with jobDescription
@@ -510,8 +510,6 @@ For issues or questions:
 - [Supabase Documentation](https://supabase.com/docs)
 - [RAG Explanation](RATE_LIMITING_EXPLAINED.md)
 
-## Roadmap
-
 ### Completed
 - Core RAG chat functionality
 - Dark mode support
@@ -519,24 +517,6 @@ For issues or questions:
 - CSRF protection
 - Rate limiting
 - Security hardening
-
-### Planned
-- Persistent rate limit storage (Redis/Vercel KV)
-- Admin dashboard for analytics
-- Rate limit alerts
-- IP whitelist/blacklist
-- Audit logging
-- Machine learning anomaly detection
-
-## Achievements
-
-- Enterprise-grade security (4 layers of protection)
-- 100+ hours of testing and refinement
-- Zero security vulnerabilities in code audit
-- Production-ready deployment
-- Comprehensive documentation
-- Full TypeScript type safety
-
 ---
 
 **Last Updated:** November 2025

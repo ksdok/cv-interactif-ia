@@ -101,9 +101,9 @@ export async function POST(req: Request) {
     const lastUserMessage = messages[messages.length - 1].content.trim()
     console.log('Last user message extracted:', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>')
 
-    // Perform the RAG search: get the top 10 relevant document snippets for the query.
-    console.log('Calling searchDocuments with query (truncated):', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>', ' topK=10')
-    const relevantDocs = await searchDocuments(lastUserMessage, 10)
+    // Perform the RAG search: get the top 30 relevant document snippets for the query.
+    console.log('Calling searchDocuments with query (truncated):', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>', ' topK=30')
+    const relevantDocs = await searchDocuments(lastUserMessage, 30)
     console.log('Search completed. Documents found:', Array.isArray(relevantDocs) ? relevantDocs.length : 'invalid', relevantDocs?.slice?.(0, 5) ?? relevantDocs)
 
     // Build a plain-text context from retrieved documents.
