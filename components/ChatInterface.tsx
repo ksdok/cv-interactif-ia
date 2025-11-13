@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import TypingEffect from './TypingEffect'
 import LinkifiedText from './LinkifiedText'
 import { useLanguage } from '@/lib/LanguageContext'
@@ -20,7 +20,7 @@ interface ChatInterfaceProps {
 
 export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfToken }: ChatInterfaceProps) {
   const { language } = useLanguage()
-  const t = (key: string) => getTranslation(language, key)
+  const t = useCallback((key: string) => getTranslation(language, key), [language])
 
   // Chat messages state with initial greeting
   const [messages, setMessages] = useState<Message[]>([
@@ -54,7 +54,7 @@ export default function ChatInterface({ suggestedQuestion, onQuestionSent, csrfT
         content: t('chat.greeting'),
       },
     ])
-  }, [language])
+  }, [t])
 
   // Scroll to bottom on each new message
   useEffect(() => {

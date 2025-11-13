@@ -2,22 +2,22 @@
 
 A sophisticated, interactive CV application powered by AI that uses Retrieval-Augmented Generation (RAG) to provide intelligent answers about a candidate's professional profile, skills, and experience.
 
-## 🎯 Project Overview
+## Project Overview
 
 This is a modern Next.js application that transforms a static CV into an **interactive conversational experience**. Visitors can ask questions about the candidate's background, skills, projects, and experience in natural language (French or English), and an AI assistant powered by Claude provides accurate, contextual responses.
 
 ### Key Features
 
-- **🤖 AI-Powered Chat Interface** - Ask questions about the candidate's CV and get intelligent responses
-- **📚 Retrieval-Augmented Generation (RAG)** - Answers are grounded in actual CV data, not hallucinations
-- **💼 Job Matching** - Analyze how well your CV matches specific job descriptions with AI-powered analysis
-- **🌙 Dark Mode Support** - Comfortable viewing in any lighting condition
-- **🛡️ Enterprise-Grade Security** - Multiple layers of protection against attacks
-- **⚡ Fast & Responsive** - Built with Next.js 16 for optimal performance
-- **🌍 Bilingual** - Supports French and English seamlessly
-- **📱 Mobile-Friendly** - Works perfectly on all devices
+- **AI-Powered Chat Interface** - Ask questions about the candidate's CV and get intelligent responses
+- **Retrieval-Augmented Generation (RAG)** - Answers are grounded in actual CV data, not hallucinations
+- **Job Matching** - Analyze how well your CV matches specific job descriptions with AI-powered analysis
+- **Dark Mode Support** - Comfortable viewing in any lighting condition
+- **Enterprise-Grade Security** - Multiple layers of protection against attacks
+- **Fast & Responsive** - Built with Next.js 16 for optimal performance
+- **Bilingual** - Supports French and English seamlessly
+- **Mobile-Friendly** - Works perfectly on all devices
 
-## 🏗️ Technology Stack
+## Technology Stack
 
 ### Frontend
 - **Next.js 16** - React framework with App Router
@@ -38,7 +38,7 @@ This is a modern Next.js application that transforms a static CV into an **inter
 - **Server-Only Markers** - Prevents secret exposure to clients
 - **Secure Cookies** - httpOnly, SameSite=Strict
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+
@@ -91,7 +91,7 @@ npm run build
 npm run start
 ```
 
-## 📚 How It Works
+## How It Works
 
 ### Architecture Flow
 
@@ -136,9 +136,9 @@ working at companies like LMA and Société Générale on trading platforms
 and financial systems..."
 ```
 
-## 🛡️ Security Features
+## Security Features
 
-### 1. Input Validation ✅
+### 1. Input Validation
 - Validates all chat messages for structure and content
 - Prevents malformed data from crashing the API
 - 40+ test cases ensure reliability
@@ -146,14 +146,14 @@ and financial systems..."
 
 **File:** `lib/validation.ts`
 
-### 2. Server-Only Protection ✅
+### 2. Server-Only Protection
 - Prevents accidental exposure of database credentials
 - API keys cannot be imported into client code
 - Enforced at compile-time by Next.js
 
 **File:** `lib/supabase.ts` (marked with `import 'server-only'`)
 
-### 3. CSRF Protection ✅
+### 3. CSRF Protection
 - Prevents attackers from forging requests from other websites
 - 64-character cryptographically secure tokens
 - Tokens stored in httpOnly cookies (XSS-proof)
@@ -162,7 +162,7 @@ and financial systems..."
 
 **Files:** `lib/csrf.ts`, `middleware.ts`, `app/api/chat/route.ts`
 
-### 4. Rate Limiting ✅
+### 4. Rate Limiting
 - **Limit:** 200 requests per day per IP address
 - **Reset:** Daily at midnight UTC
 - **Purpose:** Prevents quota exhaustion, spam, and DoS attacks
@@ -175,10 +175,10 @@ and financial systems..."
 
 | Feature | Protection Level | Status |
 |---------|-----------------|--------|
-| Input Validation | CRITICAL | ✅ Protected |
-| Server-Only Marker | HIGH | ✅ Protected |
-| CSRF Protection | HIGH | ✅ Protected |
-| Rate Limiting | CRITICAL | ✅ Protected |
+| Input Validation | CRITICAL | Protected |
+| Server-Only Marker | HIGH | Protected |
+| CSRF Protection | HIGH | Protected |
+| Rate Limiting | CRITICAL | Protected |
 
 For detailed security documentation, see:
 - `SECURITY_IMPLEMENTATION_COMPLETE.md` - Complete security overview
@@ -187,7 +187,7 @@ For detailed security documentation, see:
 - `RATE_LIMITING_IMPLEMENTATION.md` - Rate limiting implementation
 - `SERVER_ONLY_SECURITY_TEST.md` - Server-only marker details
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 cv-interactif-ia/
@@ -220,7 +220,7 @@ cv-interactif-ia/
 └── README.md                    # This file
 ```
 
-## 💼 Job Matcher Feature
+## Job Matcher Feature
 
 The CV Interactif IA includes a Job Matcher tool that helps candidates understand how well their CV aligns with specific job postings using AI-powered analysis.
 
@@ -268,7 +268,7 @@ Job matching has a dedicated rate limit: **200 analyses per day per IP address**
 
 **Documentation:** For complete user guide and developer documentation, see `JOB_MATCHER.md`
 
-## 🔄 API Endpoints
+## API Endpoints
 
 ### POST `/api/chat`
 
@@ -356,7 +356,7 @@ x-ratelimit-reset: 2025-11-11T00:00:00.000Z
 
 For complete API documentation, see `JOB_MATCHER.md`
 
-## 🧪 Testing
+## Testing
 
 ### Run Validation Tests
 ```bash
@@ -387,7 +387,7 @@ curl -s -b cookies.txt -X POST http://localhost:3000/api/chat \
 # HTTP 429 Too Many Requests
 ```
 
-## 🚢 Deployment
+## Deployment
 
 ### Deploy to Vercel
 
@@ -411,7 +411,7 @@ Set these in Vercel project settings:
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Anon key
 - `SUPABASE_SERVICE_ROLE_KEY` - Service role key
 
-## 📊 Performance
+## Performance
 
 - **Average response time:** <2 seconds
 - **RAG search:** <500ms
@@ -420,7 +420,7 @@ Set these in Vercel project settings:
 - **Build time:** <3 seconds
 - **Cold start:** <1 second (Vercel)
 
-## 🎨 CSS Animations & Styling
+## CSS Animations & Styling
 
 ### Message Animations
 
@@ -455,7 +455,7 @@ The Job Matcher button features a subtle "breathing" pulse effect:
 
 All animations use CSS keyframes with no JavaScript overhead for maximum performance.
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### API returns 403 Forbidden
 - **Cause:** Invalid or missing CSRF token
@@ -473,7 +473,7 @@ All animations use CSS keyframes with no JavaScript overhead for maximum perform
 - **Cause:** Invalid Supabase credentials
 - **Solution:** Verify `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
 
-## 📝 Environment Variables Reference
+## Environment Variables Reference
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -483,7 +483,7 @@ All animations use CSS keyframes with no JavaScript overhead for maximum perform
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 1. Create a feature branch
@@ -491,18 +491,18 @@ Contributions are welcome! Please:
 3. Test thoroughly
 4. Submit a pull request
 
-## 📄 License
+## License
 
 This project is private. All rights reserved.
 
-## 📞 Support
+## Support
 
 For issues or questions:
 1. Check the security documentation files
 2. Review the troubleshooting section
 3. Check GitHub issues
 
-## 🎓 Learning Resources
+## Learning Resources
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Anthropic Claude API](https://console.anthropic.com/docs/api)
@@ -510,9 +510,9 @@ For issues or questions:
 - [Supabase Documentation](https://supabase.com/docs)
 - [RAG Explanation](RATE_LIMITING_EXPLAINED.md)
 
-## 📈 Roadmap
+## Roadmap
 
-### Completed ✅
+### Completed
 - Core RAG chat functionality
 - Dark mode support
 - Input validation
@@ -520,7 +520,7 @@ For issues or questions:
 - Rate limiting
 - Security hardening
 
-### Planned 🔄
+### Planned
 - Persistent rate limit storage (Redis/Vercel KV)
 - Admin dashboard for analytics
 - Rate limit alerts
@@ -528,18 +528,18 @@ For issues or questions:
 - Audit logging
 - Machine learning anomaly detection
 
-## 🏆 Achievements
+## Achievements
 
-- ✅ Enterprise-grade security (4 layers of protection)
-- ✅ 100+ hours of testing and refinement
-- ✅ Zero security vulnerabilities in code audit
-- ✅ Production-ready deployment
-- ✅ Comprehensive documentation
-- ✅ Full TypeScript type safety
+- Enterprise-grade security (4 layers of protection)
+- 100+ hours of testing and refinement
+- Zero security vulnerabilities in code audit
+- Production-ready deployment
+- Comprehensive documentation
+- Full TypeScript type safety
 
 ---
 
 **Last Updated:** November 2025
-**Build Status:** ✅ Passing
-**Security Status:** 🛡️ Protected
-**Production Ready:** ✅ Yes
+**Build Status:** Passing
+**Security Status:** Protected
+**Production Ready:** Yes

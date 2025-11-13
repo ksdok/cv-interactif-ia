@@ -18,7 +18,12 @@ export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
   const t = (key: string) => getTranslation(language, key)
 
   const [showJobMatcher, setShowJobMatcher] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  // Initialize dark mode by checking document at render time
+  const [isDarkMode, setIsDarkMode] = useState(() =>
+    typeof document !== 'undefined'
+      ? document.documentElement.classList.contains('dark')
+      : false
+  )
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -33,11 +38,8 @@ export default function AboutSection({ onQuestionClick }: AboutSectionProps) {
     }
   }, [showJobMatcher])
 
-  // Detect dark mode
+  // Detect dark mode changes via MutationObserver
   useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark')
-    setIsDarkMode(isDark)
-
     const observer = new MutationObserver(() => {
       const isDark = document.documentElement.classList.contains('dark')
       setIsDarkMode(isDark)

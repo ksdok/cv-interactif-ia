@@ -36,7 +36,7 @@ export async function middleware(request: NextRequest) {
     response.cookies.set(CSRF_COOKIE_CONFIG.name, newToken, {
       httpOnly: CSRF_COOKIE_CONFIG.httpOnly,      // Prevent XSS access
       secure: CSRF_COOKIE_CONFIG.secure,          // HTTPS only
-      sameSite: CSRF_COOKIE_CONFIG.sameSite as any, // Strict same-site policy
+      sameSite: CSRF_COOKIE_CONFIG.sameSite as 'strict' | 'lax' | 'none', // Strict same-site policy
       maxAge: CSRF_COOKIE_CONFIG.maxAge,          // 24 hours
       path: '/',                                   // Available for all routes
     })

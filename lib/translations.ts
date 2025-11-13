@@ -105,9 +105,9 @@ export const translations = {
   en: {
     // Header
     header: {
-      titleMobile: 'Interactive Resume Chat • KSD',
-      titleTablet: 'Interactive Resume Chat • Kim-san',
-      titleDesktop: 'Interactive Resume Chat, designed by Kim-san, coded by Claude',
+      titleMobile: 'Interactive Resume • KSD',
+      titleTablet: 'Interactive Resume • Kim-san',
+      titleDesktop: 'Interactive Resume , designed by Kim-san, coded by Claude',
     },
 
     // Chat Interface
@@ -212,11 +212,11 @@ export const translations = {
  */
 export function getTranslation(language: 'fr' | 'en', keyPath: string): string {
   const keys = keyPath.split('.')
-  let value: any = translations[language]
+  let value: Record<string, unknown> | unknown = translations[language]
 
   for (const key of keys) {
-    if (value && typeof value === 'object' && key in value) {
-      value = value[key]
+    if (value && typeof value === 'object' && key in (value as Record<string, unknown>)) {
+      value = (value as Record<string, unknown>)[key]
     } else {
       console.warn(`Translation key not found: ${keyPath} for language: ${language}`)
       return keyPath // Return the key path as fallback

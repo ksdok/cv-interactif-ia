@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 /**
  * Component displaying the number of recruiters who visited the site this week
@@ -8,9 +8,14 @@ import { useEffect, useState } from 'react'
  */
 export default function VisitorCounter() {
   const [visitors, setVisitors] = useState<number>(0)
-  const [isAnimating, setIsAnimating] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(true) // Start animating immediately
+  const animationStartedRef = useRef(false)
 
   useEffect(() => {
+    // Only run animation once
+    if (animationStartedRef.current) return
+    animationStartedRef.current = true
+
     // Static number of visitors for social proof
     const totalVisitors = 47
 
@@ -27,9 +32,9 @@ export default function VisitorCounter() {
       setVisitors(current)
     }, 50)
 
-    setIsAnimating(true)
-
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+    }
   }, [])
 
   return (

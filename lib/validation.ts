@@ -80,16 +80,22 @@ export function validateChatMessages(
       }
     }
 
+    // Type check for message object
+    const msgObj = msg as Record<string, unknown>
+
     // Check role field exists and is a string
-    if (!('role' in msg) || typeof (msg as any).role !== 'string') {
+    if (!('role' in msgObj) || typeof msgObj.role !== 'string') {
       return {
         isValid: false,
         error: `Message at index ${i} must have a string 'role' field`,
       }
     }
 
+    // Extract role as properly typed variable for includes() check
+    const role = msgObj.role as 'user' | 'assistant'
+
     // Check role is one of the valid values
-    if (!VALID_ROLES.includes((msg as any).role)) {
+    if (!VALID_ROLES.includes(role)) {
       return {
         isValid: false,
         error: `Message at index ${i} has invalid role. Must be one of: ${VALID_ROLES.join(', ')}`,
@@ -97,7 +103,7 @@ export function validateChatMessages(
     }
 
     // Check content field exists and is a string
-    if (!('content' in msg) || typeof (msg as any).content !== 'string') {
+    if (!('content' in msgObj) || typeof msgObj.content !== 'string') {
       return {
         isValid: false,
         error: `Message at index ${i} must have a string 'content' field`,
@@ -105,7 +111,7 @@ export function validateChatMessages(
     }
 
     // Check content is not empty after trimming
-    const trimmedContent = ((msg as any).content as string).trim()
+    const trimmedContent = (msgObj.content as string).trim()
     if (trimmedContent.length === 0) {
       return {
         isValid: false,
@@ -114,10 +120,10 @@ export function validateChatMessages(
     }
 
     // Check content length doesn't exceed maximum
-    if ((msg as any).content.length > MAX_MESSAGE_LENGTH) {
+    if ((msgObj.content as string).length > MAX_MESSAGE_LENGTH) {
       return {
         isValid: false,
-        error: `Message at index ${i} content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters (got ${(msg as any).content.length})`,
+        error: `Message at index ${i} content exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters (got ${(msgObj.content as string).length})`,
       }
     }
 

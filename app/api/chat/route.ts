@@ -111,7 +111,10 @@ export async function POST(req: Request) {
     let context = ''
     if (relevantDocs.length > 0) {
       context = '\n\nINFORMATIONS PERTINENTES DU CV:\n'
-      relevantDocs.forEach((doc: any, index: number) => {
+      interface Document {
+        content: string
+      }
+      relevantDocs.forEach((doc: Document, index: number) => {
         // Each snippet is prefixed with an index to make references clearer in the prompt.
         const snippet = `\n[${index + 1}] ${doc.content}\n`
         context += snippet

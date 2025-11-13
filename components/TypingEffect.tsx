@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import LinkifiedText from './LinkifiedText'
 
 interface TypingEffectProps {
@@ -17,10 +17,13 @@ interface TypingEffectProps {
 export default function TypingEffect({ text, speed = 15, onComplete, onUpdate }: TypingEffectProps) {
   const [displayedText, setDisplayedText] = useState('') // Text displayed so far
   const [currentIndex, setCurrentIndex] = useState(0) // Index of next character to display
-  const [isComplete, setIsComplete] = useState(false) // Flag indicating if typing is complete
+  const completionCalledRef = useRef(false) // Track if onComplete has been called
 
   // Effect to add one character at a time
   useEffect(() => {
+    // Only proceed if we haven't finished typing
+    if (currentIndex >= text.length) return
+
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {
         setDisplayedText(text.slice(0, currentIndex + 1))
@@ -29,12 +32,19 @@ export default function TypingEffect({ text, speed = 15, onComplete, onUpdate }:
       }, speed)
 
       return () => clearTimeout(timeout)
-    } else if (!isComplete) {
-      // Typing is complete
-      setIsComplete(true)
+    }
+  }, [currentIndex, text, speed, onUpdate])
+
+  // Call onComplete callback when typing finishes (without setting state)
+  useEffect(() => {
+    if (currentIndex >= text.length && !completionCalledRef.current) {
+      completionCalledRef.current = true
       onComplete?.()
     }
-  }, [currentIndex, text, speed, isComplete, onComplete, onUpdate])
+  }, [currentIndex, text.length, onComplete])
+
+  // Determine if typing is complete based on currentIndex vs text length
+  const isComplete = currentIndex >= text.length
 
   return (
     <span className="whitespace-pre-wrap block">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 
 export type Language = 'fr' | 'en'
 
@@ -12,27 +12,26 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('fr')
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    // Get language preference from localStorage or browser
-    const savedLanguage = localStorage.getItem('language') as Language | null
+  // Initialize language from localStorage or browser preference
+  const [language, setLanguageState] = useState<Language>(() => {
+    const savedLanguage = typeof window !== 'undefined'
+      ? (localStorage.getItem('language') as Language | null)
+      : null
 
     if (savedLanguage) {
-      // User has previously selected a language
-      setLanguageState(savedLanguage)
-    } else {
-      // Auto-detect from browser language
-      const browserLang = navigator.language.toLowerCase()
-      // If browser language starts with 'fr', use French; otherwise use English
-      const detectedLanguage: Language = browserLang.startsWith('fr') ? 'fr' : 'en'
-      setLanguageState(detectedLanguage)
-      localStorage.setItem('language', detectedLanguage)
+      return savedLanguage
     }
 
-    setMounted(true)
-  }, [])
+    // Auto-detect from browser language
+    if (typeof window !== 'undefined') {
+      const browserLang = navigator.language.toLowerCase()
+      const detectedLanguage: Language = browserLang.startsWith('fr') ? 'fr' : 'en'
+      localStorage.setItem('language', detectedLanguage)
+      return detectedLanguage
+    }
+
+    return 'fr' // Default fallback
+  })
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang)

@@ -4,8 +4,8 @@ import { useLanguage } from '@/lib/LanguageContext'
 
 /**
  * Language toggle button component
- * Switches between French (FR flag) and English (EN flag)
- * Displays current language and allows switching
+ * Switches between French and English
+ * Displays "FR"/"US" text labels
  */
 export default function LanguageToggle() {
   const { language, setLanguage } = useLanguage()
@@ -21,8 +21,8 @@ export default function LanguageToggle() {
       aria-label={language === 'fr' ? 'Switch to English' : 'Basculer vers le français'}
       title={language === 'fr' ? 'Switch to English' : 'Basculer vers le français'}
     >
-      <span className="inline-block w-5 h-5 flex items-center justify-center text-sm font-bold">
-        {language === 'fr' ? '🇫🇷' : '🇬🇧'}
+      <span className="inline-block text-sm font-bold text-slate-900 dark:text-slate-100">
+        {language === 'fr' ? 'FR' : 'US'}
       </span>
     </button>
   )

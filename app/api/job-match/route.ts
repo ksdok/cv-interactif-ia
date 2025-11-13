@@ -171,7 +171,10 @@ export async function POST(req: Request) {
     // Build CV context from retrieved snippets
     console.log(`Retrieved ${cvSnippets.length} CV snippets`)
     let cvContext = 'USER CV INFORMATION:\n'
-    cvSnippets.forEach((doc: any, index: number) => {
+    interface CVDocument {
+      content?: string
+    }
+    cvSnippets.forEach((doc: CVDocument, index: number) => {
       cvContext += `\n[${index + 1}] ${doc.content || ''}`
     })
 
