@@ -21,9 +21,9 @@ export const translations = {
     about: {
       title: 'À propos',
       name: 'DOK Kim-san',
-      subtitle: 'En poste chez la SG, ouvert aux opportunités',
+      subtitle: 'En poste chez la Société Générale, ouvert aux opportunités',
       description:
-        "Ce projet est pour vous montrer ma passion récente pour l'intelligence artificielle\nSur comment, nous pouvons utiliser des modèles de langage avancés pour créer des expériences interactives et engageantes.\nN'hésitez pas à me poser des questions sur mon parcours professionnel, mes compétences techniques, ou même sur la construction de ce site !",
+        "\nEnchanté, je m'appelle Kim-san DOK.\n\n Je vous présente Nicky mon assistant IA qui va vous aider à mieux me connaître.\n\nN'hésitez pas lui poser des questions sur mon parcours professionnel, mes compétences techniques, ou même sur la construction de ce site !",
       keySkills: 'Compétences clés',
       suggestedQuestions: 'Questions suggérées',
       suggestedQ1: 'Quel est son parcours professionnel ?',
@@ -124,7 +124,7 @@ export const translations = {
     about: {
       title: 'About',
       name: 'DOK Kim-san',
-      subtitle: 'Currently at SG, open to opportunities',
+      subtitle: 'Currently at Société Générale, open to opportunities',
       description:
         'This project is to showcase my recent passion for artificial intelligence\nAbout how we can use advanced language models to create interactive and engaging experiences.\nFeel free to ask me questions about my professional background, technical skills, or even how this site was built!',
       keySkills: 'Key Skills',

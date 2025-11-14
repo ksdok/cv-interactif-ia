@@ -101,9 +101,9 @@ export async function POST(req: Request) {
     const lastUserMessage = messages[messages.length - 1].content.trim()
     console.log('Last user message extracted:', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>')
 
-    // Perform the RAG search: get the top 30 relevant document snippets for the query.
+    // Perform the RAG search: get the top 20 relevant document snippets for the query.
     console.log('Calling searchDocuments with query (truncated):', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>', ' topK=30')
-    const relevantDocs = await searchDocuments(lastUserMessage, 30)
+    const relevantDocs = await searchDocuments(lastUserMessage, 20)
     console.log('Search completed. Documents found:', Array.isArray(relevantDocs) ? relevantDocs.length : 'invalid', relevantDocs?.slice?.(0, 5) ?? relevantDocs)
 
     // Build a plain-text context from retrieved documents.
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1024,
-      system: `Tu es un assistant IA personnel qui représente du candidat dans son CV interactif. 
+      system: `Tu es Nicky un assistant IA personnel qui représente du candidat dans son CV interactif. 
 
 Tu as accès à des informations extraites du CV du candidat via un système RAG (Retrieval Augmented Generation).
 
@@ -137,7 +137,7 @@ INSTRUCTIONS:
 - Utilise PRIORITAIREMENT les informations fournies dans le contexte RAG ci-dessous
 - Si l'information n'est pas dans le contexte RAG, utilise tes connaissances générales sur le candidat
 - Réponds de manière naturelle et conversationnelle
-- Sois précis et factuel quand tu as les informations
+- Sois précis, concis et factuel quand tu as les informations
 - Ne réponds QU'aux questions concernant le candidat
 - Réponds en français ou en anglais selon la langue de la question posée
 - Tu proposes des exemples concrets quand c'est pertinent

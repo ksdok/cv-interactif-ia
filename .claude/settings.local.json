@@ -24,7 +24,8 @@
       "Bash(npm run lint:*)",
       "Bash(__NEW_LINE__ cd \"C:\\Users\\Dok\\ai\\cv-interactif-ia\")",
       "Bash(lsof:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(git checkout:*)"
     ]
   },
   "enableAllProjectMcpServers": true,

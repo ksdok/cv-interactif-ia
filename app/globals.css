@@ -119,3 +119,47 @@ body {
 .spinner {
   animation: spin 1s linear infinite;
 }
+
+/* ============================================
+   Fade in animation for page transitions
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* ============================================
+   Slide up and fade in animation
+   ============================================ */
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up-fade-in {
+  animation: slideUpFadeIn 0.5s ease-out;
+}
+
+.slide-up-fade-in.delay-1 {
+  animation-delay: 0.1s;
+}
+
+.slide-up-fade-in.delay-2 {
+  animation-delay: 0.2s;
+}
