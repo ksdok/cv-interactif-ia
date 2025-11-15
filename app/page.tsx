@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import ChatInterfacePerplexity from '@/components/ChatInterfacePerplexity'
 import Header from '@/components/Header'
+import { useLanguage } from '@/lib/LanguageContext'
 
 /**
  * Main page with Perplexity-style UI
@@ -14,6 +15,7 @@ export default function Home() {
   // We extract it here from the meta tag in the browser
   const [csrfToken, setCsrfToken] = useState<string>('')
   const [suggestedQuestion, setSuggestedQuestion] = useState<string>('')
+  const { isTransitioning } = useLanguage()
 
   // Extract CSRF token from meta tag on client-side mount
   useEffect(() => {
@@ -23,7 +25,10 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black dark:bg-black flex flex-col">
+    <div
+      className="min-h-screen bg-black dark:bg-black flex flex-col transition-opacity duration-300"
+      style={{ opacity: isTransitioning ? 0.5 : 1 }}
+    >
       {/* Minimal Header */}
       <Header />
 
