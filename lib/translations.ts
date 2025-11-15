@@ -9,6 +9,7 @@ export const translations = {
 
     // Chat Interface
     chat: {
+      pageTitle: 'CV Interactif via un Chatbot IA',
       greeting:
         "Bonjour ! Je suis l'assistant IA qui représente Kim-San. Posez-moi des questions sur son parcours, ses compétences, ou comment ce site a été créé ! Utilisez la fonctionnalité 'Match Job' pour voir comment son profil correspond à votre besoin.",
       placeholder: 'Posez votre question...',
@@ -112,6 +113,7 @@ export const translations = {
 
     // Chat Interface
     chat: {
+      pageTitle: 'Interactive Resume via an AI Chatbot',
       greeting:
         'Hello! I\'m the AI assistant representing Kim-San. Ask me questions about his background, skills, or how this site was built! Use the "Match Job" feature to see how his profile aligns with your needs.',
       placeholder: 'Ask your question...',
