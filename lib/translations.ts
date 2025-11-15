@@ -126,7 +126,7 @@ export const translations = {
       name: 'DOK Kim-san',
       subtitle: 'Currently at Société Générale, open to opportunities',
       description:
-        'This project is to showcase my recent passion for artificial intelligence\nAbout how we can use advanced language models to create interactive and engaging experiences.\nFeel free to ask me questions about my professional background, technical skills, or even how this site was built!',
+        '\nNice to meet you, my name is Kim-san DOK.\n\n Let me introduce you Nicky, my AI assistant, who will help you get more information about me.\n\nFeel free to ask him questions about my professional background, technical skills, or even how this site was built!',
       keySkills: 'Key Skills',
       suggestedQuestions: 'Suggested Questions',
       suggestedQ1: 'What is his professional background?',
