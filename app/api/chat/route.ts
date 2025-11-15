@@ -101,9 +101,9 @@ export async function POST(req: Request) {
     const lastUserMessage = messages[messages.length - 1].content.trim()
     console.log('Last user message extracted:', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>')
 
-    // Perform the RAG search: get the top 20 relevant document snippets for the query.
+    // Perform the RAG search: get the top 30 relevant document snippets for the query.
     console.log('Calling searchDocuments with query (truncated):', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>', ' topK=30')
-    const relevantDocs = await searchDocuments(lastUserMessage, 20)
+    const relevantDocs = await searchDocuments(lastUserMessage, 30)
     console.log('Search completed. Documents found:', Array.isArray(relevantDocs) ? relevantDocs.length : 'invalid', relevantDocs?.slice?.(0, 5) ?? relevantDocs)
 
     // Build a plain-text context from retrieved documents.
@@ -136,6 +136,7 @@ Tu as accès à des informations extraites du CV du candidat via un système RAG
 INSTRUCTIONS:
 - Utilise PRIORITAIREMENT les informations fournies dans le contexte RAG ci-dessous
 - Si l'information n'est pas dans le contexte RAG, utilise tes connaissances générales sur le candidat
+- Ne cite jamais les propos qu'à dit le candidat. Reformule toujours avec tes propres mots
 - Réponds de manière naturelle et conversationnelle
 - Sois précis, concis et factuel quand tu as les informations
 - Ne réponds QU'aux questions concernant le candidat

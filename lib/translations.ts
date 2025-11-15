@@ -24,7 +24,7 @@ export const translations = {
       name: 'DOK Kim-san',
       subtitle: 'En poste chez la Société Générale, ouvert aux opportunités',
       description:
-        "\nEnchanté, je m'appelle Kim-san DOK.\n\n Je vous présente Nicky mon assistant IA qui va vous aider à mieux me connaître.\n\nN'hésitez pas lui poser des questions sur mon parcours professionnel, mes compétences techniques, ou même sur la construction de ce site !",
+        "\nEnchanté, je m'appelle Kim-san DOK.\n\nJe vous présente Nicky mon assistant IA qui va vous aider à mieux me connaître.\n\nN'hésitez pas lui poser des questions sur mon parcours professionnel, mes compétences techniques, ou même sur la construction de ce site !",
       keySkills: 'Compétences clés',
       suggestedQuestions: 'Questions suggérées',
       suggestedQ1: 'Quel est son parcours professionnel ?',
@@ -128,7 +128,7 @@ export const translations = {
       name: 'DOK Kim-san',
       subtitle: 'Currently at Société Générale, open to opportunities',
       description:
-        '\nNice to meet you, my name is Kim-san DOK.\n\n Let me introduce you Nicky, my AI assistant, who will help you get more information about me.\n\nFeel free to ask him questions about my professional background, technical skills, or even how this site was built!',
+        '\nNice to meet you, my name is Kim-san DOK.\n\nLet me introduce you Nicky, my AI assistant, who will help you get more information about me.\n\nFeel free to ask him questions about my professional background, technical skills, or even how this site was built!',
       keySkills: 'Key Skills',
       suggestedQuestions: 'Suggested Questions',
       suggestedQ1: 'What is his professional background?',
