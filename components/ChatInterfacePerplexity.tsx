@@ -135,7 +135,7 @@ export default function ChatInterfacePerplexity({
         >
           <div className="mx-auto max-w-2xl space-y-6 pb-24 sm:pb-20">
             {/* Title and Description at Top */}
-            <div className="text-center mb-8">
+            <div className="text-left mb-8">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-2 sm:mb-3">
                 CV Interactif
               </h1>
@@ -235,8 +235,8 @@ export default function ChatInterfacePerplexity({
   return (
     <div className="fixed inset-0 bg-black dark:bg-black flex flex-col justify-center items-center px-4 sm:px-6 overflow-hidden pt-16 transition-all duration-1000">
       {/* Logo/Title */}
-      <div className="mb-6 sm:mb-8 text-center max-w-2xl px-2 sm:px-4 slide-up-fade-in flex-shrink-0">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-2 sm:mb-3">
+      <div className="mb-6 sm:mb-8 text-left max-w-2xl px-2 sm:px-4 slide-up-fade-in flex-shrink-0">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-light text-white mb-2 sm:mb-3 text-center">
           CV Interactif<br/>via un Chatbot IA
         </h1>
         <p className="text-sm sm:text-base lg:text-base whitespace-pre-wrap mb-4 sm:mb-6 leading-relaxed text-slate-300">
