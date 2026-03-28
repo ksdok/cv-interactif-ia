@@ -213,7 +213,7 @@ export default function ChatPreview({
 
   // Collapsed view - initial state (from mockup)
   return (
-    <section className="w-full px-8 mb-48">
+    <section className="w-full px-8 mb-32">
       <div className="max-w-3xl mx-auto bg-surface-container-low rounded-lg p-12 transition-all duration-500 hover:shadow-sm">
         {/* AI response section with avatar */}
         <div className="mb-12 space-y-6">
