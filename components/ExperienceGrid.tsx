@@ -72,7 +72,7 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
           <p className="text-lg font-bold text-on-surface">Bike &amp; Food</p>
           <p className="text-secondary text-sm">Ride, sweat and eat</p>
           <p className="text-lg font-bold text-on-surface">Cats</p>
-          <p className="text-secondary text-sm">I trust in Cat Distribution System</p>
+          <p className="text-secondary text-sm">In Cat Distribution System I trust</p>
           {/* Decorative background flame */}
           <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none select-none">
             <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface">
