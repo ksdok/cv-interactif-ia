@@ -3,7 +3,7 @@ interface ExperienceGridProps {
 }
 
 export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps) {
-  const stack = ['Agentic Coding', 'React', 'TypeScript', 'Next.js', 'Tailwind', 'Python', 'Figma', 'Supabase']
+  const stack = ['Agentic Coding', 'React', 'TypeScript', 'Next.js', 'Tailwind', 'Python', 'Supabase']
   const humanStack = ['Empathy driven', 'Adaptable', 'Collaborative', 'AI Enthusiast']
   return (
     <section className="w-full px-8">
