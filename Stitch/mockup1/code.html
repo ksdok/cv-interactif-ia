@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kim-san DOK | Interactive Resume</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#acabab",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed-variant": "#3b3b3b",
+              "secondary-fixed": "#c8c6c6",
+              "surface-container-high": "#e8e8e8",
+              "inverse-primary": "#c8c6c5",
+              "on-primary-fixed": "#ffffff",
+              "secondary": "#5f5e5e",
+              "on-secondary-fixed": "#1b1c1c",
+              "tertiary-fixed-dim": "#464747",
+              "surface-variant": "#e2e2e2",
+              "on-tertiary": "#e3e2e2",
+              "on-tertiary-container": "#ffffff",
+              "on-tertiary-fixed-variant": "#e3e2e2",
+              "tertiary-container": "#747474",
+              "surface-tint": "#5f5e5e",
+              "on-surface": "#1a1c1c",
+              "surface-container-highest": "#e2e2e2",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed-variant": "#e5e2e1",
+              "surface-container": "#eeeeee",
+              "surface-container-low": "#f3f3f4",
+              "primary-fixed": "#5f5e5e",
+              "surface-bright": "#f9f9f9",
+              "outline-variant": "#c6c6c6",
+              "primary-container": "#3c3b3b",
+              "on-secondary-container": "#1b1c1c",
+              "primary-fixed-dim": "#474746",
+              "on-primary": "#e5e2e1",
+              "on-background": "#1a1c1c",
+              "outline": "#777777",
+              "inverse-surface": "#2f3131",
+              "on-error": "#ffffff",
+              "on-tertiary-fixed": "#ffffff",
+              "secondary-container": "#d6d4d3",
+              "surface-dim": "#dadada",
+              "primary": "#000000",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#474747",
+              "tertiary": "#3b3b3c",
+              "surface": "#f9f9f9",
+              "on-error-container": "#410002",
+              "inverse-on-surface": "#f0f1f1",
+              "on-primary-container": "#ffffff",
+              "error": "#ba1a1a",
+              "background": "#f9f9f9",
+              "tertiary-fixed": "#5e5e5e"
+            },
+            fontFamily: {
+              "headline": ["Inter"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-nav { backdrop-filter: blur(20px); }
+        .fade-in-text { opacity: 0.7; }
+        /* Custom shadows for the chat input */
+        .chat-shadow-focus:focus-within {
+            box-shadow: 0 10px 40px rgba(26, 28, 28, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container overflow-x-hidden">
+<!-- TopAppBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#f9f9f9]/80 dark:bg-[#1a1c1c]/80 backdrop-blur-xl">
+<div class="flex justify-between items-center w-full px-8 py-6 max-w-7xl mx-auto">
+<div class="flex flex-col">
+<span class="text-2xl font-semibold tracking-[-0.02em] text-[#1a1c1c] dark:text-[#f9f9f9]">Kim-san DOK</span>
+<span class="text-[10px] uppercase tracking-widest text-secondary mt-1">designed by kim-san / coded by AI</span>
+</div>
+<div class="hidden md:flex items-center space-x-12">
+<a class="text-[#1a1c1c] dark:text-[#f9f9f9] font-medium border-b-0 hover:text-[#1a1c1c] dark:hover:text-[#ffffff] transition-all duration-300 ease-in-out" href="#">Work</a>
+<a class="text-[#5f5e5e] dark:text-[#a1a1a1] font-normal hover:text-[#1a1c1c] dark:hover:text-[#ffffff] transition-all duration-300 ease-in-out" href="#">Archive</a>
+<a class="text-[#5f5e5e] dark:text-[#a1a1a1] font-normal hover:text-[#1a1c1c] dark:hover:text-[#ffffff] transition-all duration-300 ease-in-out" href="#">About</a>
+</div>
+<div class="flex items-center space-x-6">
+<button class="scale-95 active:opacity-80 transition-transform flex items-center gap-2 group">
+<span class="material-symbols-outlined text-secondary group-hover:text-primary transition-colors" data-icon="language">language</span>
+<span class="text-[0.75rem] font-medium text-secondary group-hover:text-primary">US</span>
+</button>
+<button class="scale-95 active:opacity-80 transition-transform">
+<span class="material-symbols-outlined text-secondary hover:text-primary transition-colors" data-icon="dark_mode">dark_mode</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-40 pb-24 px-8 max-w-7xl mx-auto min-h-screen flex flex-col items-center">
+<!-- Hero Section -->
+<section class="w-full text-center mb-24">
+<h1 class="text-secondary text-[0.75rem] tracking-[0.3em] uppercase mb-8 font-medium">Portfolio Showcase</h1>
+<h2 class="text-5xl md:text-7xl font-bold tracking-tighter text-on-surface leading-[1.1] max-w-4xl mx-auto">
+                Interactive Resume <br/>via an AI Chatbot
+            </h2>
+</section>
+<!-- Asymmetrical Intro Text -->
+<section class="w-full grid grid-cols-1 md:grid-cols-12 gap-8 mb-32">
+<div class="md:col-start-2 md:col-span-5">
+<p class="text-2xl text-on-surface leading-relaxed font-light">
+                    Explore my professional journey through a conversational interface. Ask about my <span class="font-medium italic">design philosophy</span>, technical stack, or recent projects.
+                </p>
+</div>
+<div class="md:col-start-8 md:col-span-4 self-end">
+<p class="text-secondary text-sm leading-loose">
+                    This experimental interface bridges the gap between static documents and human conversation, powered by custom LLM integration.
+                </p>
+</div>
+</section>
+<!-- Interactive Chat Interface -->
+<section class="w-full max-w-3xl mx-auto mb-48">
+<div class="bg-surface-container-low rounded-lg p-12 transition-all duration-500 hover:shadow-sm">
+<!-- AI Placeholder Response -->
+<div class="mb-12 space-y-6">
+<div class="flex items-start gap-4">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-xs" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="space-y-4">
+<p class="text-on-surface text-lg leading-relaxed fade-in-text">
+                                Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience in product design and creative engineering.
+                            </p>
+<p class="text-on-surface text-lg leading-relaxed fade-in-text">
+                                What would you like to know first?
+                            </p>
+</div>
+</div>
+</div>
+<!-- Chat Input Field -->
+<div class="relative group chat-shadow-focus transition-all duration-300">
+<input class="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-secondary-fixed-dim rounded-full border-none focus:ring-0 text-xl transition-all duration-200 ease-in-out" placeholder="Ask Nicky about Kim-san's experience..." type="text"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="arrow_upward">arrow_upward</span>
+</button>
+</div>
+<!-- Quick Suggestion Chips -->
+<div class="mt-8 flex flex-wrap gap-3 justify-center">
+<button class="px-6 py-2 rounded-full text-[0.75rem] border border-outline-variant/20 text-secondary hover:bg-surface-container-highest transition-colors">"Work history"</button>
+<button class="px-6 py-2 rounded-full text-[0.75rem] border border-outline-variant/20 text-secondary hover:bg-surface-container-highest transition-colors">"Design process"</button>
+<button class="px-6 py-2 rounded-full text-[0.75rem] border border-outline-variant/20 text-secondary hover:bg-surface-container-highest transition-colors">"Contact info"</button>
+</div>
+</div>
+</section>
+<!-- Experience Grid (Bento Style) -->
+<section class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
+<div class="md:col-span-2 bg-surface-container-low rounded-lg p-10 flex flex-col justify-between group overflow-hidden relative min-h-[400px]">
+<div class="z-10">
+<span class="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">Featured Role</span>
+<h3 class="text-3xl font-bold mt-4 mb-2">Lead Product Designer</h3>
+<p class="text-secondary">@ Minimalist Collective — 2021-Present</p>
+</div>
+<div class="mt-8 z-10">
+<p class="max-w-md text-on-surface leading-relaxed">Defining design systems for high-growth startups, focusing on accessibility and structural integrity.</p>
+</div>
+<div class="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700">
+<span class="material-symbols-outlined text-[200px]" data-icon="grid_view">grid_view</span>
+</div>
+</div>
+<div class="bg-surface-container-highest rounded-lg p-10 flex flex-col justify-between">
+<div>
+<span class="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">Technical Stack</span>
+<div class="mt-6 flex flex-wrap gap-2">
+<span class="bg-surface-container-lowest px-3 py-1 rounded-md text-xs font-medium">React</span>
+<span class="bg-surface-container-lowest px-3 py-1 rounded-md text-xs font-medium">Tailwind</span>
+<span class="bg-surface-container-lowest px-3 py-1 rounded-md text-xs font-medium">Figma</span>
+<span class="bg-surface-container-lowest px-3 py-1 rounded-md text-xs font-medium">Python</span>
+</div>
+</div>
+<div class="mt-8">
+<a class="text-xs font-bold underline underline-offset-8 flex items-center gap-2" href="#">
+                        VIEW GITHUB
+                        <span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-lg p-10 md:col-span-1 shadow-sm flex flex-col">
+<span class="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-6">Education</span>
+<p class="text-lg font-bold">MFA Design &amp; Tech</p>
+<p class="text-secondary text-sm">Parsons School of Design</p>
+<div class="mt-auto pt-8">
+<img class="w-full h-32 object-cover rounded-md grayscale hover:grayscale-0 transition-all duration-700" data-alt="architectural close-up of a modern university building with clean lines and glass facade" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg7G2tqTubP530AwDmNaQqMPvSnfg33LBth4zlb78Hu7BKmJVRy0Me-KQm8E-owhBELQs8O-7JjwL_i-VpvwuxqoK0a69i4CArlqxSdVko1RH_KqntwzSYS7hUYX4YerwolZ8aHeUWPTx1J2oMINe3vXFyfVlWEJ5st_wWnY5br5181FCzdbMF1eCJOC6rAdErWIHPTl8onHaBpxGzKYbVLV_h9FKHn0YrDWH8JlKpIgM_2-2GosP9NOH3Xi-qzCMQzZq25Vo2j3mD"/>
+</div>
+</div>
+<div class="md:col-span-2 bg-on-background rounded-lg p-10 text-on-primary flex items-center justify-between">
+<div class="max-w-md">
+<h3 class="text-2xl font-bold mb-4 text-[#e5e2e1]">Ready to collaborate?</h3>
+<p class="text-[#acabab] text-sm">I'm currently available for select freelance opportunities and design consultations.</p>
+</div>
+<button class="bg-surface-container-lowest text-on-surface px-8 py-4 rounded-md font-bold hover:bg-surface-container-low transition-colors">
+                    Say Hello
+                </button>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 bg-transparent">
+<div class="flex flex-col md:flex-row justify-between items-center px-8 w-full max-w-7xl mx-auto">
+<p class="text-[0.75rem] font-['Inter'] tracking-wider uppercase text-[#5f5e5e] dark:text-[#a1a1a1]">
+                © 2024 Kim-san DOK. Curated Minimalism.
+            </p>
+<div class="flex space-x-12 mt-8 md:mt-0">
+<a class="text-[0.75rem] font-['Inter'] tracking-wider uppercase text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1a1c1c] dark:hover:text-[#f9f9f9] transition-colors" href="#">LinkedIn</a>
+<a class="text-[0.75rem] font-['Inter'] tracking-wider uppercase text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1a1c1c] dark:hover:text-[#f9f9f9] transition-colors" href="#">Twitter</a>
+<a class="text-[0.75rem] font-['Inter'] tracking-wider uppercase text-[#5f5e5e] dark:text-[#a1a1a1] hover:text-[#1a1c1c] dark:hover:text-[#f9f9f9] transition-colors" href="#">Email</a>
+</div>
+</div>
+</footer>
+</body></html>

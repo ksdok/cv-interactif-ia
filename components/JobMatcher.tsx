@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useLanguage } from '@/lib/LanguageContext'
-import { getTranslation } from '@/lib/translations'
+import { useState } from 'react'
 
 interface JobMatchResult {
   overallMatch: number
@@ -19,53 +17,19 @@ interface JobMatcherProps {
 }
 
 export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
-  const { language } = useLanguage()
-  const t = (key: string) => getTranslation(language, key)
-
   const [jobDescription, setJobDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<JobMatchResult | null>(null)
   const [error, setError] = useState('')
-  const [isDarkMode, setIsDarkMode] = useState(false)
-
-
-  // Detect dark mode
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains('dark')
-    setIsDarkMode(isDark)
-
-    const observer = new MutationObserver(() => {
-      const isDark = document.documentElement.classList.contains('dark')
-      setIsDarkMode(isDark)
-    })
-
-    observer.observe(document.documentElement, { attributes: true })
-    return () => observer.disconnect()
-  }, [])
-
-  // Detect language of job description (simple heuristic)
-  const detectJobDescriptionLanguage = (text: string): 'en' | 'fr' => {
-    // Count French-specific words
-    const frenchWords = ['le ', 'la ', 'les ', 'de ', 'du ', 'et ', 'ou ', 'que ', 'qui ', 'pour ', 'avec ', 'par ', 'sur ', 'dans ', 'à ']
-    const englishWords = ['the ', 'a ', 'and ', 'or ', 'but ', 'in ', 'on ', 'at ', 'to ', 'for ', 'with ', 'by ', 'from ', 'is ', 'are ']
-
-    const lowerText = text.toLowerCase()
-
-    const frenchCount = frenchWords.filter(word => lowerText.includes(word)).length
-    const englishCount = englishWords.filter(word => lowerText.includes(word)).length
-
-    // If significantly more English words, return 'en', otherwise default to 'fr'
-    return englishCount > frenchCount * 1.5 ? 'en' : 'fr'
-  }
 
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
-      setError(t('jobMatcher.errorEmptyDescription'))
+      setError('Please enter a job description')
       return
     }
 
     if (jobDescription.length > 10000) {
-      setError(t('jobMatcher.errorTooLong'))
+      setError('Job description is too long (max 10,000 characters)')
       return
     }
 
@@ -73,7 +37,6 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
     setError('')
 
     try {
-      // SECURITY: Extract CSRF token from meta tag for request
       const csrfTokenElement = document.querySelector('meta[name="csrf-token"]')
       const csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : null
 
@@ -83,28 +46,25 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
         return
       }
 
-      // Detect job description language
-      const jobDescriptionLanguage = detectJobDescriptionLanguage(jobDescription)
-
       const response = await fetch('/api/job-match', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken,
         },
-        body: JSON.stringify({ jobDescription, language: jobDescriptionLanguage }),
+        body: JSON.stringify({ jobDescription, language: 'en' }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || t('jobMatcher.errorMessage'))
+        throw new Error(data.error || 'Failed to analyze job match')
       }
 
       setResult(data)
       setJobDescription('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('jobMatcher.errorMessage'))
+      setError(err instanceof Error ? err.message : 'An error occurred while analyzing the job match')
     } finally {
       setIsLoading(false)
     }
@@ -124,7 +84,6 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
   if (!isOpen) return null
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Only close if clicking on the backdrop itself, not the modal content
     if (e.target === e.currentTarget) {
       handleClose()
     }
@@ -132,46 +91,50 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-2xl"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-xl"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200 dark:border-slate-700 opacity-100">
+      <div className="bg-surface-container-lowest rounded-lg shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-6 flex items-center justify-between">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{t('jobMatcher.title')}</h2>
+        <div className="sticky top-0 bg-surface-container-lowest p-6 flex items-center justify-between">
+          <div>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">AI Analysis</span>
+            <h2 className="text-2xl font-bold text-on-surface mt-1">Job Match</h2>
+          </div>
           <button
             onClick={handleClose}
-            className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
+            className="text-secondary hover:text-on-surface transition-colors"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6">
+        <div className="px-6 pb-8">
           {!result ? (
             // Input form
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div>
-                <label className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                  {t('jobMatcher.jobDescriptionLabel')}
+                <label className="block text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">
+                  Job Description
                 </label>
                 <textarea
                   value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                  placeholder={t('jobMatcher.jobDescriptionPlaceholder')}
-                  className="w-full h-32 sm:h-40 lg:h-48 px-4 py-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  onChange={(e) => setJobDescription(e.target.value.slice(0, 5000))}
+                  placeholder="Paste the job description here..."
+                  className="w-full h-40 sm:h-48 px-6 py-4 bg-surface-container-low text-on-surface placeholder-secondary rounded-lg focus:outline-none resize-none text-sm leading-relaxed"
                   disabled={isLoading}
+                  maxLength={5000}
                 />
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  {jobDescription.length}/10 000 {t('jobMatcher.characterCount')}
+                <p className="text-xs text-secondary mt-2">
+                  {jobDescription.length}/5,000 characters
                 </p>
               </div>
 
               {error && (
-                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg text-sm">
+                <div className="bg-error-container text-on-error-container px-4 py-3 rounded-lg text-sm">
                   {error}
                 </div>
               )}
@@ -179,65 +142,52 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
               <button
                 onClick={handleAnalyze}
                 disabled={isLoading || !jobDescription.trim()}
-                style={{
-                  backgroundColor: isDarkMode ? '#334155' : '#0f172a',
-                  color: '#ffffff'
-                }}
-                className="w-full font-semibold px-4 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed cursor-pointer disabled:opacity-50 active:scale-95 active:opacity-75 sm:hover:scale-105"
-                onMouseEnter={(e) => {
-                  if (!isLoading && jobDescription.trim()) {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
-                }}
+                className="w-full bg-primary text-on-primary font-semibold px-6 py-4 rounded-full transition-all disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 hover:opacity-80"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4 spinner" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span>{t('jobMatcher.analyzing')}</span>
+                    <span>Analyzing...</span>
                   </div>
                 ) : (
-                  t('jobMatcher.analyzeButton')
+                  'Analyze Match'
                 )}
               </button>
             </div>
           ) : (
             // Results view
-            <div className="space-y-6">
+            <div className="space-y-8">
+              {/* Score cards — no borders, surface color shift */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 uppercase font-semibold mb-1">{t('jobMatcher.overallMatch')}</p>
-                  <p className="text-3xl font-bold text-green-600 dark:text-green-400">{result.overallMatch}%</p>
+                <div className="bg-surface-container rounded-lg p-5">
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">Overall</p>
+                  <p className="text-4xl font-bold text-on-surface">{result.overallMatch}%</p>
                 </div>
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 uppercase font-semibold mb-1">{t('jobMatcher.skillsMatch')}</p>
-                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{result.skillsMatch}%</p>
+                <div className="bg-surface-container rounded-lg p-5">
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">Skills</p>
+                  <p className="text-4xl font-bold text-on-surface">{result.skillsMatch}%</p>
                 </div>
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-                  <p className="text-xs text-slate-600 dark:text-slate-400 uppercase font-semibold mb-1">{t('jobMatcher.experienceMatch')}</p>
-                  <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">{result.experienceMatch}%</p>
+                <div className="bg-surface-container rounded-lg p-5">
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">Experience</p>
+                  <p className="text-4xl font-bold text-on-surface">{result.experienceMatch}%</p>
                 </div>
               </div>
 
               <div>
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">{t('jobMatcher.analysis')}</h3>
-                <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{result.analysis}</p>
+                <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">Analysis</p>
+                <p className="text-on-surface leading-relaxed text-sm">{result.analysis}</p>
               </div>
 
               {result.strengths.length > 0 && (
                 <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
-                    <span className="text-green-600 dark:text-green-400">✓</span> {t('jobMatcher.strengths')}
-                  </h3>
-                  <ul className="space-y-1">
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">Strengths</p>
+                  <ul className="space-y-2">
                     {result.strengths.map((strength, idx) => (
-                      <li key={idx} className="text-slate-700 dark:text-slate-300 text-sm flex gap-2">
-                        <span className="text-green-600 dark:text-green-400 font-bold">-</span>
+                      <li key={idx} className="text-on-surface text-sm flex gap-3">
+                        <span className="text-secondary shrink-0">—</span>
                         {strength}
                       </li>
                     ))}
@@ -247,13 +197,11 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
 
               {result.improvements.length > 0 && (
                 <div>
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
-                    <span className="text-amber-600 dark:text-amber-400">→</span> {t('jobMatcher.improvements')}
-                  </h3>
-                  <ul className="space-y-1">
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">Areas for Improvement</p>
+                  <ul className="space-y-2">
                     {result.improvements.map((improvement, idx) => (
-                      <li key={idx} className="text-slate-700 dark:text-slate-300 text-sm flex gap-2">
-                        <span className="text-amber-600 dark:text-amber-400 font-bold">-</span>
+                      <li key={idx} className="text-on-surface text-sm flex gap-3">
+                        <span className="text-secondary shrink-0">—</span>
                         {improvement}
                       </li>
                     ))}
@@ -261,58 +209,24 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                 </div>
               )}
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   onClick={handleReset}
-                  style={{
-                    backgroundColor: isDarkMode ? '#334155' : '#0f172a',
-                    color: '#ffffff'
-                  }}
-                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 active:opacity-75 sm:hover:scale-105 cursor-pointer"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
-                  }}
+                  className="flex-1 bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80"
                 >
-                  {t('jobMatcher.analyzeAnother')}
+                  Analyze Another Job
                 </button>
                 <a
-                  href={`mailto:dokkimsan@gmail.com?subject=${encodeURIComponent(t('jobMatcher.contactSubject'))}&body=${encodeURIComponent(
-                    language === 'fr'
-                      ? `Bonjour Kim-san,\n\nJ'ai analysé le profil avec la description de poste et j'aimerais discuter des résultats:\n\nCorrespondance Globale: ${result.overallMatch}%\nCorrespondance Compétences: ${result.skillsMatch}%\nCorrespondance Expérience: ${result.experienceMatch}%\n\nAnalyse:\n${result.analysis}\n\nPoints Forts:\n${result.strengths.join('\n')}\n\nDomaines à Développer:\n${result.improvements.join('\n')}\n\nJ'attends votre retour.`
-                      : `Hello Kim-san,\n\nI have analyzed the profile with the job description and would like to discuss the results:\n\nOverall Match: ${result.overallMatch}%\nSkills Match: ${result.skillsMatch}%\nExperience Match: ${result.experienceMatch}%\n\nAnalysis:\n${result.analysis}\n\nStrengths:\n${result.strengths.join('\n')}\n\nAreas for Improvement:\n${result.improvements.join('\n')}\n\nI look forward to hearing from you.`
-                  )}`}
-                  style={{
-                    backgroundColor: isDarkMode ? '#334155' : '#0f172a',
-                    color: '#ffffff'
-                  }}
-                  className="flex-1 flex items-center justify-center font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 active:opacity-75 sm:hover:scale-105 cursor-pointer"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
-                  }}
+                  href={`mailto:dokkimsan@gmail.com?subject=Job%20Match%20Analysis%20Results&body=Hello%20Kim-san,%0A%0AI%20have%20analyzed%20the%20profile%20with%20the%20job%20description%20and%20would%20like%20to%20discuss%20the%20results:%0A%0AOverall%20Match:%20${result.overallMatch}%25%0ASkills%20Match:%20${result.skillsMatch}%25%0AExperience%20Match:%20${result.experienceMatch}%25%0A%0AAnalysis:%0A${encodeURIComponent(result.analysis)}%0A%0AStrengths:%0A${result.strengths.join('%0A')}%0A%0AAreas%20for%20Improvement:%0A${result.improvements.join('%0A')}%0A%0AI%20look%20forward%20to%20hearing%20from%20you.`}
+                  className="flex-1 flex items-center justify-center bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80"
                 >
-                  {t('jobMatcher.contactButton')}
+                  Contact Me
                 </a>
                 <button
                   onClick={handleClose}
-                  style={{
-                    backgroundColor: isDarkMode ? '#334155' : '#0f172a',
-                    color: '#ffffff'
-                  }}
-                  className="flex-1 font-semibold px-4 py-2 rounded-lg transition-all active:scale-95 active:opacity-75 sm:hover:scale-105 cursor-pointer"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#475569' : '#1a1f3a'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = isDarkMode ? '#334155' : '#0f172a'
-                  }}
+                  className="flex-1 bg-surface-container text-on-surface font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:bg-surface-container-high"
                 >
-                  {t('jobMatcher.closeButton')}
+                  Close
                 </button>
               </div>
             </div>

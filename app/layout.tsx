@@ -10,8 +10,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { ThemeProvider } from '@/components/ThemeProvider'
-import { LanguageProvider } from '@/lib/LanguageContext'
 import { cookies } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 
@@ -20,34 +18,34 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   metadataBase: new URL('https://kimsandok.com'),
   title: {
-    default: 'Kim-san DOK | Business Analyst & Passionné d\'IA',
+    default: 'Kim-san DOK | Interactive Resume',
     template: '%s | Kim-san DOK',
   },
-  description: 'CV interactif de Kim-san DOK, Business Analyst & Passionné d\'IA. Expert en RAG, Agents IA, Workflow automatisé et n8n. Discutez avec mon assistant IA pour en savoir plus.',
-  keywords: ['Kim-san DOK', 'Passionné d\'IA', 'Business Analyst', 'RAG', 'Agents IA', 'Workflow automatisé', 'React', 'TypeScript', 'n8n', 'Société Générale'],
+  description: 'Interactive resume of Kim-san DOK. Explore my professional background through an AI-powered chatbot. Ask about my experience, skills, and projects.',
+  keywords: ['Kim-san DOK', 'Resume', 'CV', 'Portfolio', 'AI', 'Product Design', 'React', 'TypeScript'],
   authors: [{ name: 'Kim-san DOK' }],
   creator: 'Kim-san DOK',
   openGraph: {
     type: 'website',
-    locale: 'fr_FR',
+    locale: 'en_US',
     url: 'https://kimsandok.com',
-    title: 'Kim-san DOK | Business Analyst & Passionné d\'IA',
-    description: 'Découvrez le CV interactif de Kim-san DOK. Discutez avec mon assistant IA pour explorer mes compétences en RAG, Agents IA et workflows automatisés.',
-    siteName: 'Kim-san DOK - CV Interactif',
+    title: 'Kim-san DOK | Interactive Resume',
+    description: 'Explore my professional journey through an AI chatbot. Ask about my experience, skills, and recent projects.',
+    siteName: 'Kim-san DOK - Interactive Resume',
     images: [
       {
-        url: '/opengraph-image.png', // TODO: Create this image in public/ or app/
+        url: '/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'Kim-san DOK - CV Interactif',
+        alt: 'Kim-san DOK - Interactive Resume',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kim-san DOK | Business Analyst & Passionné d\'IA',
-    description: 'CV interactif propulsé par l\'IA. Discutez avec mon assistant pour en savoir plus sur mon travail en RAG et Agents IA.',
-    images: ['/opengraph-image.png'], // TODO: Create this image
+    title: 'Kim-san DOK | Interactive Resume',
+    description: 'Interactive resume powered by AI. Chat with my assistant to learn more about my experience and projects.',
+    images: ['/opengraph-image.png'],
   },
   robots: {
     index: true,
@@ -76,22 +74,17 @@ export default async function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: 'Kim-san DOK',
-    jobTitle: 'Business Analyst & Passionné d\'IA',
-    worksFor: {
-      '@type': 'Organization',
-      name: 'Société Générale',
-    },
+    jobTitle: 'Product Designer',
     url: 'https://kimsandok.com',
     sameAs: [
-      // TODO: Add actual social links
-      'https://www.linkedin.com/in/kim-san-dok', // Placeholder
-      'https://github.com/kimsandok', // Placeholder
+      'https://www.linkedin.com/in/kim-san-dok',
+      'https://github.com/ksdok',
     ],
-    knowsAbout: ['Intelligence Artificielle', 'RAG', 'Agents IA', 'Workflow automatisé', 'React', 'TypeScript', 'n8n'],
+    knowsAbout: ['Product Design', 'UI/UX', 'React', 'TypeScript', 'Design Systems'],
   }
 
   return (
-    <html lang="fr" suppressHydrationWarning>
+    <html lang="en">
       <head>
         {/* Prevent zoom on iOS when focusing on input fields */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
@@ -106,9 +99,7 @@ export default async function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <LanguageProvider>
-          <ThemeProvider>{children}</ThemeProvider>
-        </LanguageProvider>
+        {children}
       </body>
     </html>
   )

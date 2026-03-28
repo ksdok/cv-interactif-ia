@@ -1,45 +1,32 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import ChatInterfacePerplexity from '@/components/ChatInterfacePerplexity'
+import { useState } from 'react'
 import Header from '@/components/Header'
-import { useLanguage } from '@/lib/LanguageContext'
+import Hero from '@/components/Hero'
+import ChatPreview from '@/components/ChatPreview'
+import ExperienceGrid from '@/components/ExperienceGrid'
+import Footer from '@/components/Footer'
+import JobMatcher from '@/components/JobMatcher'
 
-/**
- * Main page with Perplexity-style UI
- * Minimalist, centered chat interface
- */
 export default function Home() {
-  // State to store CSRF token extracted from the page
-  // SECURITY: The token is securely stored in httpOnly cookie on the server
-  // We extract it here from the meta tag in the browser
-  const [csrfToken, setCsrfToken] = useState<string>('')
-  const [suggestedQuestion, setSuggestedQuestion] = useState<string>('')
-  const { isTransitioning } = useLanguage()
-
-  // Extract CSRF token from meta tag on client-side mount
-  useEffect(() => {
-    const tokenElement = document.querySelector('meta[name="csrf-token"]')
-    const token = tokenElement?.getAttribute('content') || ''
-    setCsrfToken(token)
-  }, [])
+  const [csrfToken] = useState<string>(() => {
+    if (typeof document === 'undefined') return ''
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+  })
+  const [jobMatcherOpen, setJobMatcherOpen] = useState(false)
 
   return (
-    <div
-      className="min-h-screen bg-black dark:bg-black flex flex-col transition-opacity duration-300"
-      style={{ opacity: isTransitioning ? 0.5 : 1 }}
-    >
-      {/* Minimal Header */}
+    <div className="min-h-screen bg-surface flex flex-col">
       <Header />
 
-      {/* Main chat interface - Perplexity style */}
-      <div className="flex-1">
-        <ChatInterfacePerplexity
-          suggestedQuestion={suggestedQuestion}
-          onQuestionSent={() => setSuggestedQuestion('')}
-          csrfToken={csrfToken}
-        />
+      <div className="w-full pt-16">
+        <Hero />
+        <ChatPreview csrfToken={csrfToken} />
+        <ExperienceGrid onOpenJobMatcher={() => setJobMatcherOpen(true)} />
+        <Footer />
       </div>
+
+      <JobMatcher isOpen={jobMatcherOpen} onClose={() => setJobMatcherOpen(false)} />
     </div>
   )
 }

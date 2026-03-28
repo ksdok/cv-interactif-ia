@@ -14,21 +14,17 @@
   5. Parse response and return structured results
 */
 
-import OpenAI from 'openai'
 import { NextResponse } from 'next/server'
 import { searchDocuments } from '@/lib/rag'
 import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds } from '@/lib/rateLimit'
 import { verifyCSRFToken, getCSRFTokenFromRequest, CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { cookies } from 'next/headers'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+import { generateJobMatchResponse } from '@/lib/modelProviders'
 
 // Input validation constraints
 const VALIDATION = {
   MIN_LENGTH: 100,
-  MAX_LENGTH: 10000,
+  MAX_LENGTH: 5000,
 } as const
 
 interface MatchAnalysis {
@@ -118,7 +114,7 @@ export async function POST(req: Request) {
 
     // Parse request body
     console.log('Reading request body...')
-    const { jobDescription, language } = await req.json()
+    const { jobDescription } = await req.json()
 
     // Validate input
     if (!jobDescription || typeof jobDescription !== 'string') {
@@ -178,18 +174,10 @@ export async function POST(req: Request) {
       cvContext += `\n[${index + 1}] ${doc.content || ''}`
     })
 
-    // Determine response language based on job description language
-    const responseLanguage = language === 'en' ? 'en' : 'fr'
-    console.log(`Detected job description language: ${responseLanguage}`)
-
     // Call OpenAI to analyze the match
     console.log('Calling OpenAI to analyze job match...')
 
-    // Create prompts in both French and English
-    let analysisPrompt: string
-
-    if (responseLanguage === 'en') {
-      analysisPrompt = `You are a professional career guidance expert. Analyze the match between the candidate's RAG data and the job description.
+    const analysisPrompt = `You are a professional career guidance expert. Analyze the match between the candidate's CV and the job description.
 
 ${cvContext}
 
@@ -207,7 +195,7 @@ Provide a detailed analysis in the following JSON format (respond ONLY with vali
   "experienceMatch": <number 0-100>,
   "analysis": "<summary of 2-3 sentences about the match>",
   "strengths": [
-    "<his strength: what he does well for this role>",
+    "<strength: what the candidate does well for this role>",
     "<another strength>"
   ],
   "improvements": [
@@ -222,60 +210,13 @@ Be honest and specific. Consider:
 - Industry experience
 - Required certifications or tools
 - Soft skills adequacy`
-    } else {
-      analysisPrompt = `Tu es un expert en orientation professionnelle. Analyse la correspondance entre les données du Rag du candidat et la description du poste.
 
-${cvContext}
-
----
-
-DESCRIPTION DU POSTE À ANALYSER:
-${trimmedJob}
-
----
-
-Fournis une analyse détaillée au format JSON suivant (réponds UNIQUEMENT avec du JSON valide, pas de markdown):
-{
-  "overallMatch": <nombre 0-100>,
-  "skillsMatch": <nombre 0-100>,
-  "experienceMatch": <nombre 0-100>,
-  "analysis": "<résumé de 2-3 phrases de la correspondance>",
-  "strengths": [
-    "<son point fort: ce qu'il fait bien pour ce poste>",
-    "<un autre point fort>"
-  ],
-  "improvements": [
-    "<son domaine à développer>",
-    "<un autre domaine>"
-  ]
-}
-
-Sois honnête et spécifique. Considère:
-- L'alignement des compétences techniques
-- La correspondance du niveau d'expérience
-- L'expérience dans le secteur
-- Les certifications ou outils requis
-- L'adéquation des compétences relationnelles`
-    }
-
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'user',
-          content: analysisPrompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
-    })
-
-    console.log('OpenAI response received')
-
-    // Parse the response
-    const textContent = response.choices[0]?.message?.content || ''
+    // Call the configured AI provider (with automatic fallback).
+    // To change provider or model: edit lib/modelConfig.ts → ACTIVE_PROVIDER_JOB_MATCH
+    console.log('Calling generateJobMatchResponse...')
+    const textContent = await generateJobMatchResponse(analysisPrompt)
     if (!textContent) {
-      throw new Error('Empty response from OpenAI')
+      throw new Error('Empty response from AI provider')
     }
 
     console.log('Parsing OpenAI response...')

@@ -25,7 +25,20 @@
       "Bash(__NEW_LINE__ cd \"C:\\Users\\Dok\\ai\\cv-interactif-ia\")",
       "Bash(lsof:*)",
       "Bash(kill:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(nul)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nFix hydration mismatch errors and update English description\n\n* Add isMounted pattern to Header, LanguageToggle, and ThemeToggle components\n  - Prevents hydration mismatch by rendering fallback values during SSR\n  - Ensures server and client render identical HTML initially\n  - Switches to actual context values after hydration completes\n\n* Update English about description to match French version\n  - Changes from generic AI showcase message to personal introduction\n  - Properly introduces Nicky AI assistant like French version does\n  - Maintains consistent tone across both languages\n\nThese fixes resolve the hydration error that occurred when language/theme\ncontext values differed between server and client.\n\n🤖 Generated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "mcp__supabase__execute_sql",
+      "Bash(git commit:*)",
+      "Bash(find C:UsersDokAIcv-interactif-ia -type f \\\\\\(-name *Theme* -o -name *Language* -o -name translations.ts \\\\\\) -path */components/* -o -path */lib/*)",
+      "Bash(cd:*)",
+      "Bash(grep -r \"from ''''@/lib/LanguageContext\\\\|from ''''@/lib/translations\\\\|useLanguage\\\\|getTranslation\" --include=\"*.tsx\" --include=\"*.ts\")",
+      "Read(//tmp/**)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next:*)",
+      "Bash(node -e \"require\\(''./app/api/chat/route.ts''\\)\")",
+      "Bash(ls -la .env*)",
+      "Bash(1 echo:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
