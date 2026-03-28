@@ -70,14 +70,13 @@ export default function ChatPreview({
     onExpand?.()
   }
 
-  // Send message handler
-  const sendMessage = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Core send logic — no event needed, safe to call from button onClick or onKeyDown
+  const doSend = async () => {
     if (!input.trim() || isLoading) return
 
     const userMessage = input.trim()
     setInput('')
-    handleExpand() // Expand on first message
+    handleExpand()
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setIsLoading(true)
 
@@ -117,6 +116,13 @@ export default function ChatPreview({
       ])
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      doSend()
     }
   }
 
@@ -177,19 +183,22 @@ export default function ChatPreview({
           </div>
 
           {/* Input form */}
-          <form onSubmit={sendMessage} className="relative group chat-shadow-focus transition-all duration-300">
+          <div className="relative group chat-shadow-focus transition-all duration-300">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Ask Nicky about Kim-san's experience..."
               className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder-secondary-fixed-dim rounded-full border-none focus:outline-none focus:ring-0 text-xl transition-all duration-200 ease-in-out"
               disabled={isLoading}
+              enterKeyHint="send"
             />
 
             {/* Send button */}
             <button
-              type="submit"
+              type="button"
+              onClick={doSend}
               disabled={!isTokenReady || isLoading || !input.trim()}
               className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               title={!isTokenReady ? 'Loading...' : ''}
@@ -205,7 +214,7 @@ export default function ChatPreview({
                 </svg>
               )}
             </button>
-          </form>
+          </div>
         </div>
       </section>
     )
@@ -237,19 +246,22 @@ export default function ChatPreview({
         </div>
 
         {/* Input field */}
-        <form onSubmit={sendMessage} className="relative group chat-shadow-focus transition-all duration-300 mb-8">
+        <div className="relative group chat-shadow-focus transition-all duration-300 mb-8">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Ask Nicky about Kim-san's experience..."
             className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder-secondary-fixed-dim rounded-full border-none focus:outline-none focus:ring-0 text-xl transition-all duration-200 ease-in-out"
             disabled={isLoading}
+            enterKeyHint="send"
           />
 
           {/* Send button */}
           <button
-            type="submit"
+            type="button"
+            onClick={doSend}
             disabled={!isTokenReady || isLoading || !input.trim()}
             className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title={!isTokenReady ? 'Loading...' : ''}
@@ -265,7 +277,7 @@ export default function ChatPreview({
               </svg>
             )}
           </button>
-        </form>
+        </div>
 
       </div>
     </section>
