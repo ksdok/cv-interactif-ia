@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { generateCSRFToken, CSRF_COOKIE_CONFIG } from './lib/csrf'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const response = NextResponse.next()
 
   // Set CSRF cookie if not already present

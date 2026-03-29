@@ -41,7 +41,7 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
               ))}
             </div>
           </div>
-          <div>
+          <div className="mt-8">
             <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">Project Technical Stack</span>
             <div className="mt-6 flex flex-wrap gap-2">
               {stack.map((skill) => (
