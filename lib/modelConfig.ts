@@ -14,11 +14,11 @@ export type Provider = 'anthropic' | 'openai' | 'gemini'
 
 // ─── Chat provider (interactive CV assistant) ──────────────────────────────
 export const ACTIVE_PROVIDER: Provider = 'gemini'
-export const FALLBACK_ORDER: Provider[] = ['anthropic', 'openai']
+export const FALLBACK_ORDER: Provider[] = ['openai', 'anthropic']
 
 // ─── Job match provider (CV analysis) ─────────────────────────────────────
 export const ACTIVE_PROVIDER_JOB_MATCH: Provider = 'gemini'
-export const FALLBACK_ORDER_JOB_MATCH: Provider[] = ['anthropic', 'openai']
+export const FALLBACK_ORDER_JOB_MATCH: Provider[] = ['openai', 'anthropic']
 
 // ─── Per-provider model settings ───────────────────────────────────────────
 export const MODEL_CONFIG: Record<Provider, { model: string; maxTokens: number }> = {
