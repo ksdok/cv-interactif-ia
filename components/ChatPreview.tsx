@@ -42,6 +42,8 @@ export default function ChatPreview({
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     setIsTokenReady(!!csrfToken)
@@ -69,6 +71,14 @@ export default function ChatPreview({
     setInput('')
     handleExpand()
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
+
+    // After transition completes, blur input (dismiss iOS keyboard) and scroll to top of chat — mobile only
+    setTimeout(() => {
+      if (window.innerWidth < 768) {
+        inputRef.current?.blur()
+        sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 500)
     setIsLoading(true)
 
     try {
@@ -118,7 +128,7 @@ export default function ChatPreview({
   }
 
   return (
-    <section className={`w-full px-8 transition-all duration-500 ${expanded ? 'mb-16 py-8' : 'mb-32'}`}>
+    <section ref={sectionRef} className={`w-full px-8 transition-all duration-500 ${expanded ? 'mb-16 py-8' : 'mb-32'}`}>
       <div className={`max-w-3xl mx-auto transition-all duration-500 ${
         expanded
           ? 'bg-surface p-0'
@@ -197,6 +207,7 @@ export default function ChatPreview({
         {/* Input — always visible */}
         <div className={`relative group chat-shadow-focus transition-all duration-300 ${expanded ? '' : 'mb-8'}`}>
           <input
+            ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
