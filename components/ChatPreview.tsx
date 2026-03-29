@@ -16,7 +16,7 @@ interface ChatPreviewProps {
   csrfToken: string
 }
 
-const INITIAL_AI_MESSAGE = "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience in product design and creative engineering.\n\nWhat would you like to know first?"
+const INITIAL_AI_MESSAGE = "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience.\n\nWhat would you like to know first?"
 
 export default function ChatPreview({
   isExpanded = false,
@@ -147,7 +147,7 @@ export default function ChatPreview({
             </div>
             <div className="space-y-4">
               <p className="text-on-surface text-lg leading-relaxed opacity-70">
-                Hello, I&apos;m Nicky, Kim-san&apos;s digital twin. I&apos;m here to help you navigate through years of experience in product design and creative engineering.
+                Hello, I&apos;m Nicky, Kim-san&apos;s digital twin. I&apos;m here to help you navigate through years of experience.
               </p>
               <p className="text-on-surface text-lg leading-relaxed opacity-70">
                 What would you like to know first?
