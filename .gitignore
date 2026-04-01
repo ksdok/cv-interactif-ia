@@ -45,3 +45,5 @@ CLAUDE.md
 .mcp.json
 .claude/settings.local.json
 nul
+.vscode/settings.json
+.github/copilot-instructions.md
