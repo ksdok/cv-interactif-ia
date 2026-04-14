@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface JobMatchResult {
   overallMatch: number
@@ -23,17 +23,6 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
   const [error, setError] = useState('')
   const modalRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
-
-  const handleReset = useCallback(() => {
-    setJobDescription('')
-    setResult(null)
-    setError('')
-  }, [])
-
-  const handleClose = useCallback(() => {
-    handleReset()
-    onClose()
-  }, [handleReset, onClose])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -60,7 +49,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
         // Only return focus if we are actively unmounting or closing
       }
     }
-  }, [handleClose, isOpen])
+  }, [isOpen])
 
   // Return focus on close
   useEffect(() => {
@@ -118,6 +107,17 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
     }
   }
 
+  const handleReset = () => {
+    setJobDescription('')
+    setResult(null)
+    setError('')
+  }
+
+  const handleClose = () => {
+    handleReset()
+    onClose()
+  }
+
   if (!isOpen) return null
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -145,7 +145,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
           <button
             onClick={handleClose}
             aria-label="Close dialog"
-            className="flex h-11 w-11 items-center justify-center rounded-full text-secondary transition-colors hover:bg-surface-container hover:text-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="text-secondary hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
