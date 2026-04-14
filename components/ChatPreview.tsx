@@ -18,7 +18,6 @@ interface ChatPreviewProps {
 
 const INITIAL_AI_MESSAGE = "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience.\n\nWhat would you like to know first?"
 const MOBILE_BREAKPOINT = 768
-const KEYBOARD_DISMISS_THRESHOLD = 120
 
 export default function ChatPreview({
   isExpanded = false,
@@ -64,6 +63,9 @@ export default function ChatPreview({
   }
 
   const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+    }
     messagesEndRef.current?.scrollIntoView({ block: 'end' })
   }
 
@@ -105,8 +107,13 @@ export default function ChatPreview({
 
     const handleViewportResize = () => {
       window.requestAnimationFrame(() => {
-        const viewportGap = Math.abs(window.innerHeight - visualViewport.height)
-        if (viewportGap < KEYBOARD_DISMISS_THRESHOLD) {
+        if (!window.visualViewport) {
+          finalize()
+          return
+        }
+
+        const viewportGap = Math.abs(window.innerHeight - window.visualViewport.height)
+        if (viewportGap < 120) {
           finalize()
         }
       })
