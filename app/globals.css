@@ -243,3 +243,11 @@ body {
   background: linear-gradient(90deg, rgba(172, 171, 171, 0.24) 0%, rgba(172, 171, 171, 0.45) 50%, rgba(172, 171, 171, 0.24) 100%);
   animation: skeletonPulse 1.2s ease-in-out infinite;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .message-slide-in-left,
+  .message-slide-in-right,
+  .mobile-chat-skeleton-line {
+    animation: none;
+  }
+}
