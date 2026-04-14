@@ -160,7 +160,7 @@ export default function ChatPreview({
         <div className={`transition-all duration-500 overflow-hidden ${
           expanded ? 'max-h-[500px] opacity-100 mb-8' : 'max-h-0 opacity-0 mb-0'
         }`}>
-          <div ref={messagesContainerRef} className="max-h-[500px] overflow-y-auto space-y-6">
+          <div ref={messagesContainerRef} className="max-h-[500px] overflow-y-auto space-y-6" aria-live="polite" aria-atomic="false">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -213,7 +213,8 @@ export default function ChatPreview({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask Nicky about Kim-san's experience..."
-            className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder-secondary-fixed-dim rounded-full border-none focus:outline-none focus:ring-0 text-xl transition-all duration-200 ease-in-out"
+            aria-label="Ask Nicky about Kim-san's experience"
+            className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-[#5f5e5e] rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-xl transition-all duration-200 ease-in-out"
             disabled={isLoading}
             enterKeyHint="send"
           />
@@ -221,7 +222,8 @@ export default function ChatPreview({
             type="button"
             onClick={doSend}
             disabled={!isTokenReady || isLoading || !input.trim()}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Send message"
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
             title={!isTokenReady ? 'Loading...' : ''}
           >
             {isLoading ? (

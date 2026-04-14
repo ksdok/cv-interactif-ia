@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface JobMatchResult {
   overallMatch: number
@@ -21,6 +21,43 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<JobMatchResult | null>(null)
   const [error, setError] = useState('')
+  const modalRef = useRef<HTMLDivElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose()
+      }
+    }
+
+    if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement
+      document.addEventListener('keydown', handleKeyDown)
+      
+      // Small timeout to ensure modal is rendered
+      setTimeout(() => {
+        const firstInput = modalRef.current?.querySelector('textarea, button, input') as HTMLElement
+        if (firstInput) firstInput.focus()
+      }, 50)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      // When closing, if previousFocusRef exists, return focus
+      if (!isOpen && previousFocusRef.current) {
+        // Only return focus if we are actively unmounting or closing
+      }
+    }
+  }, [isOpen])
+
+  // Return focus on close
+  useEffect(() => {
+    if (!isOpen && previousFocusRef.current) {
+      previousFocusRef.current.focus()
+      previousFocusRef.current = null
+    }
+  }, [isOpen])
 
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
@@ -93,17 +130,22 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
     <div
       className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4 backdrop-blur-xl"
       onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="job-matcher-title"
+      ref={modalRef}
     >
-      <div className="bg-surface-container-lowest rounded-lg shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-surface-container-lowest rounded-lg shadow-sm max-w-2xl w-full max-h-[90vh] overflow-y-auto" tabIndex={-1}>
         {/* Header */}
         <div className="sticky top-0 bg-surface-container-lowest p-6 flex items-center justify-between">
           <div>
             <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">AI Analysis</span>
-            <h2 className="text-2xl font-bold text-on-surface mt-1">Job Match</h2>
+            <h2 id="job-matcher-title" className="text-2xl font-bold text-on-surface mt-1">Job Match</h2>
           </div>
           <button
             onClick={handleClose}
-            className="text-secondary hover:text-on-surface transition-colors"
+            aria-label="Close dialog"
+            className="text-secondary hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -117,14 +159,15 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
             // Input form
             <div className="space-y-6">
               <div>
-                <label className="block text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">
+                <label htmlFor="job-desc" className="block text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">
                   Job Description
                 </label>
                 <textarea
+                  id="job-desc"
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value.slice(0, 5000))}
                   placeholder="Paste the job description here..."
-                  className="w-full h-40 sm:h-48 px-6 py-4 bg-surface-container-low text-on-surface placeholder-secondary rounded-lg focus:outline-none resize-none text-sm leading-relaxed"
+                  className="w-full h-40 sm:h-48 px-6 py-4 bg-surface-container-low text-on-surface placeholder:text-[#5f5e5e] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none text-sm leading-relaxed"
                   disabled={isLoading}
                   maxLength={5000}
                 />
@@ -142,7 +185,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
               <button
                 onClick={handleAnalyze}
                 disabled={isLoading || !jobDescription.trim()}
-                className="w-full bg-primary text-on-primary font-semibold px-6 py-4 rounded-full transition-all disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 hover:opacity-80"
+                className="w-full bg-primary text-on-primary font-semibold px-6 py-4 rounded-full transition-all disabled:cursor-not-allowed disabled:opacity-50 active:scale-95 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
               >
                 {isLoading ? (
                   <div className="flex items-center justify-center gap-2">
@@ -212,19 +255,19 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   onClick={handleReset}
-                  className="flex-1 bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80"
+                  className="flex-1 bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
                   Analyze Another Job
                 </button>
                 <a
                   href={`mailto:dokkimsan@gmail.com?subject=Job%20Match%20Analysis%20Results&body=Hello%20Kim-san,%0A%0AI%20have%20analyzed%20the%20profile%20with%20the%20job%20description%20and%20would%20like%20to%20discuss%20the%20results:%0A%0AOverall%20Match:%20${result.overallMatch}%25%0ASkills%20Match:%20${result.skillsMatch}%25%0AExperience%20Match:%20${result.experienceMatch}%25%0A%0AAnalysis:%0A${encodeURIComponent(result.analysis)}%0A%0AStrengths:%0A${result.strengths.join('%0A')}%0A%0AAreas%20for%20Improvement:%0A${result.improvements.join('%0A')}%0A%0AI%20look%20forward%20to%20hearing%20from%20you.`}
-                  className="flex-1 flex items-center justify-center bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80"
+                  className="flex-1 flex items-center justify-center bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
                   Contact Me
                 </a>
                 <button
                   onClick={handleClose}
-                  className="flex-1 bg-surface-container text-on-surface font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:bg-surface-container-high"
+                  className="flex-1 bg-surface-container text-on-surface font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
                   Close
                 </button>

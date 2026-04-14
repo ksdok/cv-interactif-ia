@@ -8,7 +8,7 @@ This document lists the improvement tasks identified following the architectural
   - Define and apply dark mode color palette CSS variables in `globals.css`.
   - Ensure a smooth transition between light and dark modes.
 
-- [ ] **Improve Accessibility (A11y)**
+- [x] **Improve Accessibility (A11y)**
   - Add `aria-label` attributes to icon buttons (e.g., Send and Close buttons in `ChatPreview.tsx` and `JobMatcher.tsx`).
   - Check and fix the contrast ratio, particularly between `--color-secondary-fixed-dim` and the input background color.
 
