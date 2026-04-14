@@ -17,6 +17,7 @@ interface ChatPreviewProps {
 }
 
 const INITIAL_AI_MESSAGE = "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience.\n\nWhat would you like to know first?"
+const MOBILE_BREAKPOINT = 768
 
 export default function ChatPreview({
   isExpanded = false,
@@ -44,15 +45,85 @@ export default function ChatPreview({
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const mobileViewportListenerCleanupRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     setIsTokenReady(!!csrfToken)
   }, [csrfToken])
 
+  useEffect(() => {
+    return () => {
+      mobileViewportListenerCleanupRef.current?.()
+    }
+  }, [])
+
+  const isMobileViewport = () => {
+    if (typeof window === 'undefined') return false
+    return window.innerWidth < MOBILE_BREAKPOINT
+  }
+
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
+    messagesEndRef.current?.scrollIntoView({ block: 'end' })
+  }
+
+  const revealExpandedChat = (behavior: ScrollBehavior = 'smooth') => {
+    requestAnimationFrame(() => {
+      sectionRef.current?.scrollIntoView({ behavior, block: 'start' })
+      requestAnimationFrame(() => {
+        scrollToBottom()
+      })
+    })
+  }
+
+  const dismissKeyboardAndRevealChat = () => {
+    if (!isMobileViewport()) return
+
+    inputRef.current?.blur()
+    mobileViewportListenerCleanupRef.current?.()
+
+    const visualViewport = window.visualViewport
+    if (!visualViewport) {
+      revealExpandedChat('smooth')
+      return
+    }
+
+    let settled = false
+
+    const cleanup = () => {
+      visualViewport.removeEventListener('resize', handleViewportResize)
+      window.clearTimeout(fallbackTimer)
+      mobileViewportListenerCleanupRef.current = null
+    }
+
+    const finalize = () => {
+      if (settled) return
+      settled = true
+      cleanup()
+      revealExpandedChat('smooth')
+    }
+
+    const handleViewportResize = () => {
+      window.requestAnimationFrame(() => {
+        if (!window.visualViewport) {
+          finalize()
+          return
+        }
+
+        const viewportGap = Math.abs(window.innerHeight - window.visualViewport.height)
+        if (viewportGap < 120) {
+          finalize()
+        }
+      })
+    }
+
+    const fallbackTimer = window.setTimeout(finalize, 350)
+
+    visualViewport.addEventListener('resize', handleViewportResize)
+    mobileViewportListenerCleanupRef.current = cleanup
+    handleViewportResize()
   }
 
   useEffect(() => {
@@ -71,15 +142,9 @@ export default function ChatPreview({
     setInput('')
     handleExpand()
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
-
-    // After transition completes, blur input (dismiss iOS keyboard) and scroll to top of chat — mobile only
-    setTimeout(() => {
-      if (window.innerWidth < 768) {
-        inputRef.current?.blur()
-        sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 500)
     setIsLoading(true)
+
+    dismissKeyboardAndRevealChat()
 
     try {
       const response = await fetch('/api/chat', {
@@ -160,7 +225,7 @@ export default function ChatPreview({
         <div className={`transition-all duration-500 overflow-hidden ${
           expanded ? 'max-h-[500px] opacity-100 mb-8' : 'max-h-0 opacity-0 mb-0'
         }`}>
-          <div ref={messagesContainerRef} className="max-h-[500px] overflow-y-auto space-y-6" aria-live="polite" aria-atomic="false">
+          <div ref={messagesContainerRef} className="max-h-[500px] overflow-y-auto space-y-6 scroll-pb-6" aria-live="polite" aria-atomic="false">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -168,8 +233,10 @@ export default function ChatPreview({
               >
                 <div className={`max-w-[85%] rounded-2xl px-6 py-4 text-sm ${
                   message.role === 'user'
-                    ? 'bg-primary text-on-primary-fixed'
+                    ? 'bg-primary text-on-primary-fixed message-slide-in-right'
                     : 'bg-surface-container-low text-on-surface'
+                  } ${
+                    message.role === 'assistant' ? 'message-slide-in-left' : ''
                 }`}>
                   {message.role === 'assistant' && message.isTyping ? (
                     <TypingEffect
@@ -191,11 +258,11 @@ export default function ChatPreview({
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-surface-container-low rounded-2xl px-6 py-4">
-                  <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-secondary rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-secondary rounded-full animate-bounce delay-100"></div>
-                    <div className="w-2 h-2 bg-secondary rounded-full animate-bounce delay-200"></div>
+                <div className="w-full max-w-[85%] rounded-2xl bg-surface-container-low px-6 py-5 shadow-sm message-slide-in-left" aria-hidden="true">
+                  <div className="space-y-3">
+                    <div className="mobile-chat-skeleton-line h-3 w-3/4 rounded-full"></div>
+                    <div className="mobile-chat-skeleton-line h-3 w-full rounded-full"></div>
+                    <div className="mobile-chat-skeleton-line h-3 w-2/3 rounded-full"></div>
                   </div>
                 </div>
               </div>
@@ -205,7 +272,7 @@ export default function ChatPreview({
         </div>
 
         {/* Input — always visible */}
-        <div className={`relative group chat-shadow-focus transition-all duration-300 ${expanded ? '' : 'mb-8'}`}>
+        <div className={`relative group chat-shadow-focus transition-all duration-300 ${expanded ? '' : 'mb-8'} ${isLoading ? 'chat-loading-active' : ''}`}>
           <input
             ref={inputRef}
             type="text"
@@ -217,6 +284,8 @@ export default function ChatPreview({
             className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-[#5f5e5e] rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-xl transition-all duration-200 ease-in-out"
             disabled={isLoading}
             enterKeyHint="send"
+            autoComplete="off"
+            autoCorrect="off"
           />
           <button
             type="button"
