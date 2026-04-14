@@ -64,7 +64,9 @@ export default function ChatPreview({
   }
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ block: 'end' })
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+    }
   }
 
   const revealExpandedChat = (behavior: ScrollBehavior = 'smooth') => {
