@@ -43,6 +43,7 @@ CLAUDE.md
 
 # configuration
 .mcp.json
+.claude/
 .claude/settings.local.json
 nul
 .vscode/settings.json
