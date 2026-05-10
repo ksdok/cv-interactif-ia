@@ -61,6 +61,6 @@ export async function searchDocuments(
   } catch (error) {
     // Surface and log errors originating from embedding creation or the RPC call.
     console.error('Error in searchDocuments:', error)
-    throw error
+    return []
   }
 }
