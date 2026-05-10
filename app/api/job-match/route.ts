@@ -154,7 +154,7 @@ export async function POST(req: Request) {
 
     // Retrieve user's CV from RAG database
     console.log('Retrieving CV from RAG database...')
-    const cvSnippets = await searchDocuments('', 30) // Retrieve top 30 relevant CV snippets
+    const cvSnippets = await searchDocuments(trimmedJob, 10) // Retrieve top relevant CV snippets for this job description
 
     if (!cvSnippets || cvSnippets.length === 0) {
       console.warn('No CV data found in database')
