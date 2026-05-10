@@ -162,21 +162,8 @@ ${context}`
     // Log the error server-side for debugging and return a generic 500 error to the client.
     console.error('API error:', error)
     return NextResponse.json(
-      { error: 'Failed to communicate with Claude' },
+      { error: 'Failed to generate response. Please try again.' },
       { status: 500 }
     )
   }
 }
-
-// Handles POST requests to /api/chat.
-// - Parses JSON payload and extracts `messages`.
-// - Picks the last user message (`lastUserMessage`) to use as the retrieval query.
-// - Calls `searchDocuments(lastUserMessage, 3)` to get the top 3 relevant CV snippets (RAG).
-// - Builds a `context` string containing those snippets to give the model concrete facts.
-// - Calls Anthropic's SDK (Claude) with:
-//     - a descriptive system prompt (in French) that instructs the assistant to represent the candidate,
-//     - the RAG-built `context` appended to the prompt,
-//     - the conversation `messages` to maintain chat history.
-// - Receives a structured response, finds the block with `type === 'text'` and extracts `text`.
-// - Returns `{ response: text }` as JSON to the caller.
-// - On error: logs details server-side and returns a 500 JSON error message.
