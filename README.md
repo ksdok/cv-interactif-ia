@@ -36,7 +36,7 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 ### Prerequisites
 - Node.js 18+
 - Supabase project with pgvector extension enabled
-- At least one AI provider API key (OpenAI or Gemini)
+- At least one AI provider API key (Gemini for chat, OpenAI required for embeddings)
 
 ### Environment Variables
 

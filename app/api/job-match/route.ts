@@ -4,13 +4,13 @@
   Purpose:
   - Analyzes how well a user's CV matches a job description
   - Uses RAG to retrieve relevant CV snippets
-  - Uses OpenAI to perform semantic matching and analysis
+  - Uses the configured AI provider to perform semantic matching and analysis
 
   High-level flow:
   1. Validate input (job description length, format)
   2. Check rate limit (200 analyses per day per IP)
   3. Retrieve user's CV from vector database (RAG search)
-  4. Call OpenAI API to analyze match between CV and job
+  4. Call AI provider API to analyze match between CV and job
   5. Parse response and return structured results
 */
 
@@ -174,8 +174,9 @@ export async function POST(req: Request) {
       cvContext += `\n[${index + 1}] ${doc.content || ''}`
     })
 
-    // Call OpenAI to analyze the match
-    console.log('Calling OpenAI to analyze job match...')
+    // Call the configured AI provider (with automatic fallback).
+    // To change provider or model: edit lib/modelConfig.ts → ACTIVE_PROVIDER_JOB_MATCH
+    console.log('Calling AI provider to analyze job match...')
 
     const analysisPrompt = `You are a professional career guidance expert. Analyze the match between the candidate's CV and the job description.
 
@@ -219,11 +220,11 @@ Be honest and specific. Consider:
       throw new Error('Empty response from AI provider')
     }
 
-    console.log('Parsing OpenAI response...')
+    console.log('Parsing AI provider response...')
     // Extract JSON from response (handle potential markdown code blocks)
     const jsonMatch = textContent.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
-      throw new Error('Could not parse JSON from OpenAI response')
+      throw new Error('Could not parse JSON from AI provider response')
     }
 
     const analysisData = JSON.parse(jsonMatch[0]) as MatchAnalysis
@@ -237,7 +238,7 @@ Be honest and specific. Consider:
       !Array.isArray(analysisData.strengths) ||
       !Array.isArray(analysisData.improvements)
     ) {
-      throw new Error('Invalid response structure from OpenAI')
+      throw new Error('Invalid response structure from AI provider')
     }
 
     // Clamp percentages to 0-100

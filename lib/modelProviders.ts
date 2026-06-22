@@ -25,7 +25,7 @@ async function callOpenAI(messages: ChatMessage[], system: string): Promise<stri
   const config = MODEL_CONFIG.openai
   const response = await openai.chat.completions.create({
     model: config.model,
-    max_tokens: config.maxTokens,
+    max_completion_tokens: config.maxTokens,
     messages: [
       { role: 'system', content: system },
       ...messages,
