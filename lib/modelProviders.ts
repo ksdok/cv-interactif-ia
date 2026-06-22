@@ -31,6 +31,12 @@ async function callOpenAI(messages: ChatMessage[], system: string): Promise<stri
       ...messages,
     ],
   })
+
+  const cachedTokens = response.usage?.prompt_tokens_details?.cached_tokens
+  if (cachedTokens) {
+    console.log(`[modelProviders] OpenAI cache hit: ${cachedTokens} cached tokens`)
+  }
+
   return response.choices[0]?.message?.content || ''
 }
 
@@ -51,6 +57,12 @@ async function callGemini(messages: ChatMessage[], system: string): Promise<stri
 
   const chat = model.startChat({ history })
   const result = await chat.sendMessage(lastMessage)
+
+  const usage = result.response.usageMetadata
+  if (usage) {
+    console.log(`[modelProviders] Gemini usage: ${JSON.stringify(usage)}`)
+  }
+
   return result.response.text()
 }
 

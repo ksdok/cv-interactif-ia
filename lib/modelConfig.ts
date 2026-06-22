@@ -11,6 +11,10 @@
  */
 
 export type Provider = 'openai' | 'gemini'
+export type CVContextSource = 'rag' | 'cag'
+
+// ─── Chat context source (interactive CV assistant) ────────────────────────
+export const CV_CONTEXT_SOURCE: CVContextSource = 'cag'
 
 // ─── Chat provider (interactive CV assistant) ──────────────────────────────
 export const ACTIVE_PROVIDER: Provider = 'gemini'
