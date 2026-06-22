@@ -1,7 +1,7 @@
 # État du projet — cv-interactif-ia
 
 > Source de vérité pour le suivi des tâches et de la backlog.
-> Dernière mise à jour : 2026-06-22 — Retrait Anthropic + mise à jour modèles (MODEL-001, MODEL-002)
+> Dernière mise à jour : 2026-06-22 — Corrections code review modèles (BUG-008) + lint/build local (BUG-009)
 
 ---
 
@@ -249,6 +249,8 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
 - [x] **BUG-005** — Messages d'erreur CSRF incohérents — uniformisés sur `'CSRF token validation failed'` (`e3e1faf`)
 - [x] **BUG-006** — Commentaire inexact dans `layout.tsx` — corrigé, décrit le double-submit cookie pattern (`e3e1faf`)
 - [x] **BUG-007** — Paramètre `filter` dans `match_documents` — faux positif confirmé
+- [x] **BUG-008** — Fallback OpenAI GPT-5.4 mini — `max_completion_tokens`, README embeddings OpenAI obligatoire, logs provider génériques (`46494ff`)
+- [x] **BUG-009** — Lint local — dépendances React hook stabilisées dans `JobMatcher.tsx`, exemples standalone exclus d'ESLint
 
 ### Features livrées
 - [x] **Multi-provider AI** — fallback chain Gemini → OpenAI (Anthropic retiré)

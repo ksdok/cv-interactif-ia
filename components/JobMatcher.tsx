@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 
 interface JobMatchResult {
   overallMatch: number
@@ -24,6 +24,17 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
   const modalRef = useRef<HTMLDivElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
+  const handleReset = useCallback(() => {
+    setJobDescription('')
+    setResult(null)
+    setError('')
+  }, [])
+
+  const handleClose = useCallback(() => {
+    handleReset()
+    onClose()
+  }, [handleReset, onClose])
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -44,12 +55,8 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
-      // When closing, if previousFocusRef exists, return focus
-      if (!isOpen && previousFocusRef.current) {
-        // Only return focus if we are actively unmounting or closing
-      }
     }
-  }, [isOpen])
+  }, [isOpen, handleClose])
 
   // Return focus on close
   useEffect(() => {
@@ -105,17 +112,6 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleReset = () => {
-    setJobDescription('')
-    setResult(null)
-    setError('')
-  }
-
-  const handleClose = () => {
-    handleReset()
-    onClose()
   }
 
   if (!isOpen) return null
