@@ -1,6 +1,6 @@
 # CV Interactif IA
 
-An interactive resume website with a "High-End Editorial Minimalism" design. Recruiters can chat with **Nicky**, an AI assistant, to ask questions about the candidate's background. Answers are grounded in actual CV data via a RAG (Retrieval-Augmented Generation) system backed by Supabase.
+An interactive resume website with a "High-End Editorial Minimalism" design. Recruiters can chat with **Nicky**, an AI assistant, to ask questions about the candidate's background. Answers are grounded in actual CV data through a configurable CAG/RAG context system.
 
 Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 
@@ -8,7 +8,8 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 
 ## Features
 
-- **AI Chat (Nicky)** — Collapsible chat section powered by RAG. Expands inline on first message.
+- **AI Chat (Nicky)** — Collapsible chat section powered by CAG by default, with RAG fallback available. Expands inline on first message.
+- **Configurable CV Context** — Switch `/api/chat` between local CV file CAG and Supabase RAG via `CV_CONTEXT_SOURCE` in `lib/modelConfig.ts`.
 - **Multi-Provider AI** — Supports OpenAI and Gemini with automatic fallback. Switch providers by editing one line in `lib/modelConfig.ts`.
 - **Job Matcher** — Paste any job description to get an AI-powered CV match analysis (overall %, skills %, experience %, strengths, improvements).
 - **Editorial Design** — Monochromatic palette, Bento-style experience grid, generous whitespace.
@@ -25,7 +26,8 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 | Language | TypeScript |
 | Styling | Tailwind CSS 4 |
 | AI Providers | OpenAI GPT-5.4 mini, Google Gemini 3.5 Flash |
-| Embeddings | OpenAI `text-embedding-3-small` |
+| Chat context | CAG from `data/cv.md` by default; RAG fallback via Supabase |
+| Embeddings | OpenAI `text-embedding-3-small` for RAG/job-match |
 | Vector DB | Supabase (pgvector) |
 | Deployment | Vercel |
 
@@ -63,16 +65,23 @@ npm run lint      # lint check
 
 ---
 
-## Switching AI Provider
+## Switching AI Provider and Context Source
 
-Edit `lib/modelConfig.ts` — this is the only file you need to touch:
+Edit `lib/modelConfig.ts` — this is the only file you need to touch for provider/context routing:
 
 ```ts
-export const ACTIVE_PROVIDER: Provider = 'gemini'         // 'openai' | 'gemini'
+export const CV_CONTEXT_SOURCE: CVContextSource = 'cag'  // 'cag' | 'rag'
+export const ACTIVE_PROVIDER: Provider = 'gemini'        // 'openai' | 'gemini'
 export const FALLBACK_ORDER: Provider[] = ['openai']
 ```
 
 The fallback chain is applied automatically — if the active provider fails, the next in the list is tried.
+
+`CV_CONTEXT_SOURCE` only affects `/api/chat`:
+- `cag` (default): loads the full CV from `data/cv.md` and injects it into the system prompt.
+- `rag`: retrieves the top CV snippets from Supabase using embeddings.
+
+`/api/job-match` continues to use RAG/Supabase retrieval.
 
 ---
 
@@ -82,7 +91,7 @@ The fallback chain is applied automatically — if the active provider fails, th
 cv-interactif-ia/
 ├── app/
 │   ├── api/
-│   │   ├── chat/route.ts          # Chat endpoint (RAG + AI)
+│   │   ├── chat/route.ts          # Chat endpoint (CAG/RAG + AI)
 │   │   └── job-match/route.ts     # Job matching endpoint
 │   ├── layout.tsx                 # Root layout, CSRF token, SEO metadata
 │   ├── page.tsx                   # Main page
@@ -99,14 +108,24 @@ cv-interactif-ia/
 │   ├── TypingEffect.tsx           # Typewriter animation
 │   └── LinkifiedText.tsx          # URL → clickable link renderer
 ├── lib/
-│   ├── modelConfig.ts             # ← Edit here to switch AI provider
+│   ├── modelConfig.ts             # ← Edit here to switch AI provider/context
 │   ├── modelProviders.ts          # OpenAI / Gemini abstraction
+│   ├── cvContext.ts               # Server-only CAG loader for data/cv.md
 │   ├── rag.ts                     # Embedding + Supabase vector search
 │   ├── supabase.ts                # Server-only Supabase client
 │   ├── csrf.ts                    # CSRF token generation + verification
 │   ├── rateLimit.ts               # IP-based rate limiting
 │   ├── validation.ts              # Chat message input validation
 │   └── linkify.ts                 # URL parser utility
+├── data/
+│   └── cv.md                      # Source CV used by CAG mode
+├── docs/
+│   └── cag-limits.md              # CAG/RAG size thresholds and decision rules
+├── scripts/
+│   ├── validate-cag.mjs           # CAG validation questionnaire
+│   ├── measure-cache.mjs          # Provider cache hit measurement
+│   ├── measure-cv-tokens.mjs      # CV token estimate report
+│   └── compare-results.mjs        # CAG vs RAG comparison helper
 └── lib/test-validation.ts         # Standalone validation test suite
 ```
 
@@ -123,7 +142,10 @@ CSRF token verification
     ↓
 Input validation
     ↓
-RAG search — top 10 CV snippets from Supabase
+Context source dispatch (`CV_CONTEXT_SOURCE`)
+    ↓
+CAG: full `data/cv.md` loaded in memory
+or RAG: top 10 CV snippets from Supabase
     ↓
 System prompt built with CV context + Nicky persona
     ↓
@@ -133,6 +155,42 @@ generateResponse() → active provider (with fallback)
 ```
 
 The Nicky persona is defined in `app/api/chat/route.ts` as `const systemPrompt`. Edit this to change the assistant's name, tone, or instructions.
+
+---
+
+## Updating CV Context
+
+### CAG mode (`CV_CONTEXT_SOURCE = 'cag'`)
+
+1. Edit `data/cv.md`.
+2. Restart the dev/server process so the in-memory cache reloads the file.
+3. Run:
+   ```bash
+   node scripts/measure-cv-tokens.mjs
+   npm run lint
+   ```
+4. Optionally validate live responses with real provider keys:
+   ```bash
+   node scripts/validate-cag.mjs --mode cag
+   node scripts/measure-cache.mjs
+   ```
+
+Runtime JSON reports are written to `scripts/results/` and are intentionally gitignored.
+
+### When to use CAG vs RAG
+
+| Mode | Use when | Trade-off |
+|---|---|---|
+| CAG | CV remains compact and stable | Best completeness; prompt caching can reduce repeated prompt cost/latency |
+| RAG | Corpus grows with portfolio, projects, publications, or long case studies | Lower prompt size; retrieval can miss relevant context |
+
+Current rule of thumb: stay in CAG below ~10K CV tokens, benchmark above 10K, and prefer RAG/sectioned retrieval above ~50K tokens. See `docs/cag-limits.md`.
+
+### Prompt caching
+
+- OpenAI: automatic prefix caching when the stable system prompt is at least ~1,024 tokens.
+- Gemini: provider-side cache/usage metadata should be monitored; current stable prefix is estimated just above the ~2,048 token threshold.
+- Cache metrics are logged server-side by `lib/modelProviders.ts` and can be collected with `scripts/measure-cache.mjs`.
 
 ---
 
@@ -196,7 +254,7 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
 |---|---|---|
 | 403 Forbidden | Missing/invalid CSRF token | Refresh page to get a new token |
 | 429 Too Many Requests | Rate limit hit | Wait until midnight UTC |
-| 500 from chat | AI provider down | Check fallback order in `modelConfig.ts` |
+| 500 from chat | AI provider down or CV context file missing | Check fallback order in `modelConfig.ts` and verify `data/cv.md` exists |
 | Empty responses | Invalid API key | Check `.env.local` and Vercel env vars |
 | DB errors | Supabase misconfigured | Verify `SUPABASE_SERVICE_ROLE_KEY` |
 
@@ -216,4 +274,4 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
 
 ---
 
-**Last updated:** March 2026
+**Last updated:** June 2026

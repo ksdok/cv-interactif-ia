@@ -1,7 +1,7 @@
 # État du projet — cv-interactif-ia
 
 > Source de vérité pour le suivi des tâches et de la backlog.
-> Dernière mise à jour : 2026-06-22 — Corrections code review modèles (BUG-008) + lint/build local (BUG-009)
+> Dernière mise à jour : 2026-06-22 — FEAT-CAG-005 documentation CAG/RAG
 
 ---
 
@@ -92,18 +92,24 @@ Le mode RAG est conservé comme fallback configurable pour le cas où le corpus 
   - Le fallback gère le cas où un provider ne supporte pas le cache (dégradation normale sans crash)
   - Critère de fin : aucune régression sur CSRF, rate limit, validation d'entrée, fallback providers
 
-- [ ] **FEAT-CAG-004 — Validation qualité et mesure cache hit rate** `MEDIUM`
-  - Tester les questions fréquentes recruteur avec la source CAG : expérience, outils, secteurs, achievements
-  - Vérifier la taille du fichier et son impact sur les tokens / la latence
-  - Mesurer le cache hit rate côté provider (usage stats dans les réponses API)
-  - Définir une limite de taille acceptable pour rester en mode CAG (< fenêtre contexte)
-  - Si le fichier devient trop long : prévoir un découpage par sections ou retour au RAG
+- [x] **FEAT-CAG-004 — Validation qualité et mesure cache hit rate** `MEDIUM`
+  - Script de validation fonctionnelle : `scripts/validate-cag.mjs`
+  - Script de mesure cache hit rate : `scripts/measure-cache.mjs`
+  - Script de mesure tokens : `scripts/measure-cv-tokens.mjs`
+  - Comparaison CAG vs RAG : `scripts/compare-results.mjs`
+  - Limites documentées : `docs/cag-limits.md`
+  - Taille actuelle : `data/cv.md` ≈ 7 391 chars, 1 848 tokens ; préfixe stable ≈ 2 069 tokens
+  - Mesure live CAG Gemini : 9/9 réponses non vides, latence moyenne 8,0s ; garde-fou hors-sujet correct manuellement en CAG (2/2)
+  - Mesure live RAG : 9/9 réponses non vides, latence moyenne 5,4s ; garde-fou RAG à améliorer sur `Tell me a joke`
+  - Cache Gemini : 0/5 hit explicite, `promptTokenCount` ≈ 1 951 (< seuil réel observé)
+  - Cache OpenAI : 5/5 hits, 1 280 tokens cachés, latence moyenne ≈ 1,4s
+  - Décision : CAG validé côté taille/architecture/qualité de base ; Gemini cache explicite non confirmé, OpenAI cache validé
 
-- [ ] **FEAT-CAG-005 — Documentation et mode opératoire** `LOW`
-  - Documenter dans `README.md` comment mettre à jour le fichier CV
-  - Expliquer quand utiliser `cag` vs `rag`
-  - Documenter les limites : coût tokens, précision, fenêtre contexte
-  - Documenter le mécanisme de prompt caching par provider
+- [x] **FEAT-CAG-005 — Documentation et mode opératoire** `LOW`
+  - `README.md` documente comment mettre à jour `data/cv.md`
+  - `README.md` explique quand utiliser `cag` vs `rag`
+  - `README.md` pointe vers `docs/cag-limits.md` pour les limites : coût tokens, précision, fenêtre contexte
+  - Prompt caching documenté par provider (OpenAI automatique, Gemini usage/cache metadata)
 
 #### Ordre d'implémentation recommandé
 1. `FEAT-CAG-001` — architecture et switch de config
@@ -260,6 +266,8 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
 - [x] **Job Matcher** — analyse CV vs offre d'emploi avec scoring
 - [x] **Design éditorial** — refonte "High-End Editorial Minimalism" (`348d9a2`)
 - [x] **RAG** — retrieval limité à `topK=10` pour pertinence (`2ae3389`)
+- [x] **FEAT-CAG-004** — outillage de validation CAG/cache + limites de taille (`scripts/*.mjs`, `docs/cag-limits.md`)
+- [x] **FEAT-CAG-005** — documentation README du mode opératoire CAG/RAG, mise à jour CV, prompt caching
 
 ### Sécurité & qualité
 - [x] **Validation des entrées** — `lib/validation.ts`, protection injection (`7cfacc9`)
