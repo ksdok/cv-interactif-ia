@@ -1,7 +1,7 @@
 /**
  * CV Context Loader (server-only)
  *
- * Reads data/cv.md once at module load time and caches it in memory.
+ * Reads data/cv.md once on first call and caches it in memory.
  * Subsequent calls to getCVContext() return the cached string without
  * hitting the filesystem.
  *
