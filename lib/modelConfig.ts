@@ -17,12 +17,12 @@ export type CVContextSource = 'rag' | 'cag'
 export const CV_CONTEXT_SOURCE: CVContextSource = 'cag'
 
 // ─── Chat provider (interactive CV assistant) ──────────────────────────────
-export const ACTIVE_PROVIDER: Provider = 'gemini'
-export const FALLBACK_ORDER: Provider[] = ['openai']
+export const ACTIVE_PROVIDER: Provider = 'openai'
+export const FALLBACK_ORDER: Provider[] = ['gemini']
 
 // ─── Job match provider (CV analysis) ─────────────────────────────────────
-export const ACTIVE_PROVIDER_JOB_MATCH: Provider = 'gemini'
-export const FALLBACK_ORDER_JOB_MATCH: Provider[] = ['openai']
+export const ACTIVE_PROVIDER_JOB_MATCH: Provider = 'openai'
+export const FALLBACK_ORDER_JOB_MATCH: Provider[] = ['gemini']
 
 // ─── Per-provider model settings ───────────────────────────────────────────
 export const MODEL_CONFIG: Record<Provider, { model: string; maxTokens: number }> = {

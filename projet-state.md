@@ -40,7 +40,7 @@
 
 **Production** : [kimsandok.com](https://kimsandok.com)
 **Stack** : Next.js 16 · TypeScript · Tailwind 4 · Supabase · Vercel
-**Provider actif** : Gemini 3.5 Flash (fallback : OpenAI GPT-5.4 mini)
+**Provider actif** : OpenAI GPT-5.4 mini (fallback : Gemini 3.5 Flash)
 
 ---
 
