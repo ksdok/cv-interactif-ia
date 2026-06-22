@@ -9,7 +9,7 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 ## Features
 
 - **AI Chat (Nicky)** — Collapsible chat section powered by RAG. Expands inline on first message.
-- **Multi-Provider AI** — Supports Anthropic, OpenAI, and Gemini with automatic fallback. Switch providers by editing one line in `lib/modelConfig.ts`.
+- **Multi-Provider AI** — Supports OpenAI and Gemini with automatic fallback. Switch providers by editing one line in `lib/modelConfig.ts`.
 - **Job Matcher** — Paste any job description to get an AI-powered CV match analysis (overall %, skills %, experience %, strengths, improvements).
 - **Editorial Design** — Monochromatic palette, Bento-style experience grid, generous whitespace.
 - **Security** — CSRF protection, rate limiting (200 req/day/IP), input validation, server-only secrets.
@@ -24,7 +24,7 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 | Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript |
 | Styling | Tailwind CSS 4 |
-| AI Providers | Anthropic Claude, OpenAI, Google Gemini |
+| AI Providers | OpenAI GPT-5.4 mini, Google Gemini 3.5 Flash |
 | Embeddings | OpenAI `text-embedding-3-small` |
 | Vector DB | Supabase (pgvector) |
 | Deployment | Vercel |
@@ -36,14 +36,13 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 ### Prerequisites
 - Node.js 18+
 - Supabase project with pgvector extension enabled
-- At least one AI provider API key (Anthropic, OpenAI, or Gemini)
+- At least one AI provider API key (OpenAI or Gemini)
 
 ### Environment Variables
 
 Create `.env.local`:
 ```bash
-# AI Providers (all three recommended for fallback)
-ANTHROPIC_API_KEY=sk-ant-...
+# AI Providers (both recommended for fallback)
 OPENAI_API_KEY=sk-...
 GEMINI_API_KEY=...
 
@@ -69,8 +68,8 @@ npm run lint      # lint check
 Edit `lib/modelConfig.ts` — this is the only file you need to touch:
 
 ```ts
-export const ACTIVE_PROVIDER: Provider = 'gemini'         // 'anthropic' | 'openai' | 'gemini'
-export const FALLBACK_ORDER: Provider[] = ['anthropic', 'openai']
+export const ACTIVE_PROVIDER: Provider = 'gemini'         // 'openai' | 'gemini'
+export const FALLBACK_ORDER: Provider[] = ['openai']
 ```
 
 The fallback chain is applied automatically — if the active provider fails, the next in the list is tried.
@@ -101,7 +100,7 @@ cv-interactif-ia/
 │   └── LinkifiedText.tsx          # URL → clickable link renderer
 ├── lib/
 │   ├── modelConfig.ts             # ← Edit here to switch AI provider
-│   ├── modelProviders.ts          # Anthropic / OpenAI / Gemini abstraction
+│   ├── modelProviders.ts          # OpenAI / Gemini abstraction
 │   ├── rag.ts                     # Embedding + Supabase vector search
 │   ├── supabase.ts                # Server-only Supabase client
 │   ├── csrf.ts                    # CSRF token generation + verification
@@ -207,8 +206,7 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
 
 1. Push to GitHub
 2. Import project in Vercel
-3. Add all 5 environment variables in project settings:
-   - `ANTHROPIC_API_KEY`
+3. Add all environment variables in project settings:
    - `OPENAI_API_KEY`
    - `GEMINI_API_KEY`
    - `NEXT_PUBLIC_SUPABASE_URL`

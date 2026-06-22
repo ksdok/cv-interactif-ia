@@ -1,19 +1,17 @@
 /**
  * Model Providers
  *
- * Wraps Anthropic, OpenAI, and Gemini behind a unified interface.
+ * Wraps OpenAI and Gemini behind a unified interface.
  * Call generateResponse() — it handles provider selection and fallback.
  */
 
-import Anthropic from '@anthropic-ai/sdk'
 import OpenAI from 'openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { ACTIVE_PROVIDER, FALLBACK_ORDER, ACTIVE_PROVIDER_JOB_MATCH, FALLBACK_ORDER_JOB_MATCH, MODEL_CONFIG, type Provider } from './modelConfig'
 
 // ─── SDK clients (initialized once at module level) ────────────────────────
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' })
 const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 // ─── Message type shared across providers ──────────────────────────────────
@@ -22,18 +20,6 @@ import type { ChatMessage } from './types'
 export type { ChatMessage }
 
 // ─── Per-provider call functions ────────────────────────────────────────────
-
-async function callAnthropic(messages: ChatMessage[], system: string): Promise<string> {
-  const config = MODEL_CONFIG.anthropic
-  const response = await anthropic.messages.create({
-    model: config.model,
-    max_tokens: config.maxTokens,
-    system,
-    messages,
-  })
-  const block = response.content.find((b) => b.type === 'text')
-  return block && 'text' in block ? block.text : ''
-}
 
 async function callOpenAI(messages: ChatMessage[], system: string): Promise<string> {
   const config = MODEL_CONFIG.openai
@@ -71,7 +57,6 @@ async function callGemini(messages: ChatMessage[], system: string): Promise<stri
 // ─── Provider dispatcher ────────────────────────────────────────────────────
 
 const PROVIDERS: Record<Provider, (messages: ChatMessage[], system: string) => Promise<string>> = {
-  anthropic: callAnthropic,
   openai: callOpenAI,
   gemini: callGemini,
 }
