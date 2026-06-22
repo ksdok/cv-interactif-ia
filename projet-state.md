@@ -21,7 +21,7 @@
 **Score global : 3.8/10** — Projet fonctionnel mais immature en ingénierie logicielle.
 
 ### Points forts
-- Multi-provider IA avec fallback (Gemini → OpenAI)
+- Multi-provider IA avec fallback (OpenAI → Gemini)
 - Configuration centralisée (`modelConfig.ts`) — changer de provider = 1 ligne
 - Sécurité au-dessus de la moyenne : CSRF, rate limiting, input validation, server-only
 - RAG intégré (Supabase vector search)

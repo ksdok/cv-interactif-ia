@@ -38,7 +38,7 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 ### Prerequisites
 - Node.js 18+
 - Supabase project with pgvector extension enabled
-- At least one AI provider API key (Gemini for chat, OpenAI required for embeddings)
+- At least one AI provider API key (OpenAI required for default chat + embeddings; Gemini recommended for fallback)
 
 ### Environment Variables
 
@@ -71,8 +71,8 @@ Edit `lib/modelConfig.ts` — this is the only file you need to touch for provid
 
 ```ts
 export const CV_CONTEXT_SOURCE: CVContextSource = 'cag'  // 'cag' | 'rag'
-export const ACTIVE_PROVIDER: Provider = 'gemini'        // 'openai' | 'gemini'
-export const FALLBACK_ORDER: Provider[] = ['openai']
+export const ACTIVE_PROVIDER: Provider = 'openai'         // 'openai' | 'gemini'
+export const FALLBACK_ORDER: Provider[] = ['gemini']
 ```
 
 The fallback chain is applied automatically — if the active provider fails, the next in the list is tried.
