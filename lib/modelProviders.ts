@@ -18,10 +18,8 @@ const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 
 // ─── Message type shared across providers ──────────────────────────────────
 
-export interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-}
+import type { ChatMessage } from './types'
+export type { ChatMessage }
 
 // ─── Per-provider call functions ────────────────────────────────────────────
 

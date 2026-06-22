@@ -89,9 +89,10 @@ export default async function RootLayout({
         {/* Prevent zoom on iOS when focusing on input fields */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-        {/* SECURITY: Embed CSRF token in meta tag for client access
-            The token is in a data attribute, not directly accessible to JavaScript in older browsers.
-            Client components will read this meta tag and use the token in API requests. */}
+        {/* SECURITY: CSRF token exposed to client via meta tag (double-submit cookie pattern).
+            The token is stored in an httpOnly cookie (server-side verification) and mirrored
+            in this meta tag's content attribute so client components can read it and include
+            it in the X-CSRF-Token header on API requests. */}
         <meta name="csrf-token" content={csrfToken} />
         <script
           type="application/ld+json"

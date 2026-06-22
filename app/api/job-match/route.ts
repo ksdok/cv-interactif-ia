@@ -106,7 +106,7 @@ export async function POST(req: Request) {
     if (!verifyCSRFToken(csrfTokenFromHeader, csrfTokenFromCookie)) {
       console.warn('CSRF token verification failed')
       return NextResponse.json(
-        { error: 'Invalid request' },
+        { error: 'CSRF token validation failed' },
         { status: 403 }
       )
     }

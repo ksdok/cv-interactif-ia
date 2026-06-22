@@ -8,11 +8,7 @@
  * - Empty/invalid message structures
  */
 
-// Define the valid message types
-interface ChatMessage {
-  role: 'user' | 'assistant'
-  content: string
-}
+import type { ChatMessage } from './types'
 
 // Constants for validation
 const MAX_MESSAGE_LENGTH = 5000 // Maximum characters per message
