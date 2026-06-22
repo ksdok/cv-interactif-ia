@@ -87,6 +87,14 @@ Master Management des Systèmes d'Information — ESIEE Paris, Champs-sur-Marne 
 Licence Mathématiques et Informatique — Université de Marne-la-Vallée, Champs-sur-Marne (2011-2012)
 DUT Informatique — IUT de Villetaneuse, Paris 13 (2011)
 
+## Projets personnels
+
+Site CV interactif IA: Site web permettant aux recruteurs de discuter avec un assistant IA (Nicky) pour poser des questions sur le parcours du candidat. Réponses fondées sur le CV réel via CAG (Cache-Augmented Generation) — le CV complet est chargé depuis un fichier local et injecté dans le system prompt, avec prompt caching provider-side pour réduire le coût et la latence. Stack: Next.js 16, TypeScript, Tailwind CSS 4, Supabase (pgvector), Vercel. Multi-provider OpenAI/Gemini avec fallback automatique. Inclut un Job Matcher analysant l'adéquation CV/offre d'emploi (scoring skills/expérience). Sécurité: CSRF, rate limiting, validation des entrées, server-only secrets. GitHub: github.com/ksdok/cv-interactif-ia — Live: kimsandok.com
+
+YouTube Audio Converter: Script Bash modulaire pour extraire l'audio de vidéos YouTube et le convertir en MP3 (qualité maximale). Support multi-source (URL unique, multiple, fichier texte), mode playlist, anti-doublons, dry-run preview, assistant interactif. Basé sur yt-dlp + ffmpeg. Installable via install.sh. GitHub: github.com/ksdok/youtube-audio-converter
+
+Hermes Skills: Collection de skills pour Hermes Agent (agent IA par Nous Research). Chaque skill est un module réutilisable avec son fichier SKILL.md (YAML frontmatter + markdown). GitHub: github.com/ksdok/hermes-skills
+
 ## Intérêts
 
 Cyclisme: Parcourir les cols de montagne à vélo avec les amis
