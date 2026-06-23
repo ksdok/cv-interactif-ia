@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import ChatPreview from '@/components/ChatPreview'
 import ExperienceGrid from '@/components/ExperienceGrid'
 import Footer from '@/components/Footer'
-import JobMatcher from '@/components/JobMatcher'
+
+const JobMatcher = dynamic(() => import('@/components/JobMatcher'), { ssr: false })
 
 export default function Home() {
   const [csrfToken] = useState<string>(() => {

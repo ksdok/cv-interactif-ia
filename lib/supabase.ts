@@ -15,7 +15,15 @@ import 'server-only'
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-// Use service_role for server-side operations
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+if (!supabaseKey) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is required in production')
+  }
+  console.warn('SUPABASE_SERVICE_ROLE_KEY missing — falling back to anon key (dev only)')
+}
+
+const resolvedKey = supabaseKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+export const supabase = createClient(supabaseUrl, resolvedKey)
