@@ -28,7 +28,9 @@ export default function Home() {
         <Footer />
       </div>
 
-      <JobMatcher isOpen={jobMatcherOpen} onClose={() => setJobMatcherOpen(false)} />
+      {jobMatcherOpen && (
+        <JobMatcher isOpen onClose={() => setJobMatcherOpen(false)} />
+      )}
     </div>
   )
 }

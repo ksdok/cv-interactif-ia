@@ -182,17 +182,13 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - La fonction de purge existe mais n'est nulle part appelée → fuite mémoire potentielle sur serveur long-running
   - Appeler périodiquement (ex : à chaque requête avec un intervalle, ou via un cron job)
 
-- [ ] **SEC-005 — Supabase key fallback silencieux** `MEDIUM`
-  - `lib/supabase.ts` fait `SUPABASE_SERVICE_ROLE_KEY || NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - Si la clé service est absente en prod, l'app fallback silencieusement vers la clé anon
-  - Risque : opérations privilégiées échouent sans avertissement ou avec des permissions insuffisantes
-  - Correction : fail-fast si `SUPABASE_SERVICE_ROLE_KEY` est manquante en production
+- [x] **SEC-005 — Supabase key fallback silencieux** `MEDIUM`
+  - Fail-fast en production si `SUPABASE_SERVICE_ROLE_KEY` absente ; fallback anon key en dev avec warning console
 
 ### ⚡ Performance
 
-- [ ] **PERF-001 — Code splitting — import dynamique de `JobMatcher`** `LOW`
-  - `JobMatcher.tsx` est chargé dans le bundle initial mais masqué par défaut
-  - Migrer vers `next/dynamic` avec `{ ssr: false }` pour réduire le JS initial
+- [x] **PERF-001 — Code splitting — import dynamique de `JobMatcher`** `LOW`
+  - `next/dynamic(() => import('@/components/JobMatcher'), { ssr: false })` + rendu conditionnel (`jobMatcherOpen &&`)
 
 - [ ] **PERF-002 — Streaming des réponses AI** `MEDIUM`
   - `/api/chat` bloque pendant toute la durée de génération (latence perceptible)
@@ -204,9 +200,9 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Option 1 : `unstable_cache` Next.js (simple, sans infra supplémentaire)
   - Option 2 : Vercel KV (persist entre déploiements)
 
-- [ ] **PERF-004 — Image OpenGraph non optimisée** `LOW`
-  - `opengraph-image.png` pèse ~431 KB
-  - Convertir en WebP ou générer dynamiquement avec `@vercel/og`
+- [x] **PERF-004 — Image OpenGraph non optimisée** `LOW`
+  - PNG optimisé avec sharp (palette + compression 9) : 431 KB → 215 KB (−49%)
+  - Dimensions corrigées dans `layout.tsx` : 1200×630 → 1024×1024 (réelles)
 
 - [ ] **PERF-005 — Optimisations `next.config.ts`** `LOW`
   - Ajouter : `compress: true`
