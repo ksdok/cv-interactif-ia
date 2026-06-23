@@ -1,7 +1,7 @@
 # État du projet — cv-interactif-ia
 
 > Source de vérité pour le suivi des tâches et de la backlog.
-> Dernière mise à jour : 2026-06-23 — SEC-001 CSP stricte avec nonce + SEC-002 headers sécurité
+> Dernière mise à jour : 2026-06-23 — SEC-001/SEC-002 validés en revue externe
 
 ---
 
@@ -70,19 +70,19 @@ Le mode RAG est conservé comme fallback configurable pour le cas où le corpus 
 
 #### Découpage
 
-- [ ] **FEAT-CAG-001 — Définir l'architecture de source de contexte** `MEDIUM`
+- [x] **FEAT-CAG-001 — Définir l'architecture de source de contexte** `MEDIUM`
   - Introduire une config explicite : `CV_CONTEXT_SOURCE = 'cag'` (défaut) | `'rag'`
   - Périmètre V1 : `app/api/chat/route.ts` seulement
   - Conserver le RAG actuel par défaut tant que la version CAG n'est pas validée
   - Critère de fin : un switch unique permet de choisir la source de contexte sans modifier la logique du provider LLM
 
-- [ ] **FEAT-CAG-002 — Créer le fichier source CV et son loader serveur** `MEDIUM`
+- [x] **FEAT-CAG-002 — Créer le fichier source CV et son loader serveur** `MEDIUM`
   - Ajouter `data/cv.md` comme source de vérité éditable
   - Créer un helper serveur dédié (`lib/cvContext.ts`) qui lit le fichier une fois au démarrage (module-level), pas par requête
   - Gérer les erreurs proprement : fichier absent, vide, encodage invalide
   - Retourner une string normalisée prête à injecter dans le system prompt
 
-- [ ] **FEAT-CAG-003 — Brancher la route `/api/chat` sur la source CAG + prompt caching** `MEDIUM`
+- [x] **FEAT-CAG-003 — Brancher la route `/api/chat` sur la source CAG + prompt caching** `MEDIUM`
   - Remplacer ou encapsuler l'appel `searchDocuments(...)` dans une couche `getChatContext(...)`
   - En mode `cag` : injecter le contenu complet du fichier dans le prompt système
   - En mode `rag` : conserver le flux actuel inchangé
@@ -274,6 +274,9 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
 - [x] **Validation des entrées** — `lib/validation.ts`, protection injection (`7cfacc9`)
 - [x] **Supabase server-only** — clé service role inaccessible côté client (`7cfacc9`)
 - [x] **CVE Next.js / React** — dépendances mises à jour (`288411f`)
+- [x] **SEC-001 — CSP stricte avec nonce** — `proxy.ts` nonce dynamique, `script-src` sans `unsafe-inline`, `strict-dynamic`, `script-src-attr 'none'`, report-only supporté, endpoint `/api/csp-report` (6359845, 45a5286). Validé en revue externe : lint, build Node 22, 18 scripts Next noncés, JSON-LD noncé, aucun handler inline, headers HTTP confirmés.
+- [x] **SEC-002 — Headers sécurité next.config.ts** — `poweredByHeader: false`, `reactStrictMode: true`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin` (6359845). Validé en revue externe.
+- [x] **FEAT-CAG-001..003** — Architecture CAG configurable, loader `data/cv.md`, intégration `/api/chat` + prompt caching
 
 ### Accessibilité & SEO
 - [x] **Accessibilité WCAG AA** — `aria-label`, ratios de contraste (`e2f3769`)
