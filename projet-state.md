@@ -1,7 +1,7 @@
 # État du projet — cv-interactif-ia
 
 > Source de vérité pour le suivi des tâches et de la backlog.
-> Dernière mise à jour : 2026-06-22 — FEAT-CAG-005 documentation CAG/RAG
+> Dernière mise à jour : 2026-06-23 — SEC-001 CSP stricte avec nonce + SEC-002 headers sécurité
 
 ---
 
@@ -162,16 +162,17 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
 
 ### 🔒 Sécurité
 
-- [ ] **SEC-001 — Content Security Policy (CSP)** `MEDIUM`
-  - Ajouter une CSP stricte dans `next.config.ts` (headers) ou `middleware.ts`
-  - Restricter les sources de scripts, styles, et images
-  - Tester avec l'outil CSP Evaluator avant de merger
+- [x] **SEC-001 — Content Security Policy (CSP)** `MEDIUM`
+  - Implémentée dans `proxy.ts` avec nonce dynamique par requête (`x-nonce`) et CSP en header de réponse
+  - Production : pas de `script-src 'unsafe-inline'`, pas de `unsafe-eval`, `strict-dynamic`, `script-src-attr 'none'`
+  - Report-only supporté via `CSP_REPORT_ONLY=true` + endpoint `/api/csp-report` limité à 10 KB et 100 req/min/IP
+  - `report-uri /api/csp-report` actif en report-only et en enforcing
+  - Validé : `npm run lint`, `npm run build`, build/start production Node 22, HTML avec scripts Next + JSON-LD noncés, CSP Evaluator (2 findings info liés à `strict-dynamic`)
 
-- [ ] **SEC-002 — Configuration sécurité `next.config.ts` + headers HTTP** `MEDIUM`
-  - Ajouter dans `next.config.ts` : `poweredByHeader: false`, `reactStrictMode: true`
-  - Ajouter les headers HTTP de sécurité : `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`
-  - Configurer via `headers()` dans `next.config.ts`
-  - _(Fusionné depuis l'ancien SEC-002 + SEC-006 qui chevauchaient)_
+- [x] **SEC-002 — Configuration sécurité `next.config.ts` + headers HTTP** `MEDIUM`
+  - `next.config.ts` : `poweredByHeader: false`; `reactStrictMode: true` activé pour la qualité de code en développement (pas une mesure de sécurité runtime)
+  - Headers HTTP de sécurité posés dans `proxy.ts` : `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`
+  - `X-Powered-By` absent en validation HTTP production
 
 - [ ] **SEC-003 — Rate limiting persistant** `LOW`
   - L'implémentation actuelle (`lib/rateLimit.ts`) est en mémoire — réinitialisée à chaque déploiement

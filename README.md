@@ -52,6 +52,10 @@ GEMINI_API_KEY=...
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Security (optional)
+# Set to true to deploy CSP in report-only mode before enforcing.
+CSP_REPORT_ONLY=false
 ```
 
 ### Install & Run
@@ -241,6 +245,7 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
 | Layer | Implementation |
 |---|---|
 | CSRF | 64-char crypto token, httpOnly cookie, verified on every API request |
+| CSP | Nonce-based Content Security Policy in `proxy.ts`; `CSP_REPORT_ONLY=true` enables report-only mode |
 | Rate Limiting | In-memory, 200 req/day/IP, daily reset |
 | Input Validation | Message structure, length, count limits (`lib/validation.ts`) |
 | Injection Protection | HTML/XML/SQL pattern detection on job descriptions |
@@ -267,6 +272,7 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
 3. Add all environment variables in project settings:
    - `OPENAI_API_KEY`
    - `GEMINI_API_KEY`
+   - `CSP_REPORT_ONLY` (optional; set to `true` only for CSP report-only rollout)
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`

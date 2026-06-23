@@ -10,7 +10,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -68,7 +68,9 @@ export default async function RootLayout({
   // SECURITY: Extract CSRF token from secure httpOnly cookie
   // This runs on the server, so it's safe to access the cookie
   const cookieStore = await cookies()
+  const headersList = await headers()
   const csrfToken = cookieStore.get(CSRF_COOKIE_CONFIG.name)?.value || ''
+  const nonce = headersList.get('x-nonce') || undefined
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -95,6 +97,7 @@ export default async function RootLayout({
             it in the X-CSRF-Token header on API requests. */}
         <meta name="csrf-token" content={csrfToken} />
         <script
+          nonce={nonce}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
