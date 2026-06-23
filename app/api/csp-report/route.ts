@@ -74,8 +74,8 @@ async function readLimitedBody(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const contentLength = Number(request.headers.get('content-length') || 0)
-  if (contentLength > MAX_CSP_REPORT_BODY_BYTES) {
+  const contentLength = parseInt(request.headers.get('content-length') || '0', 10)
+  if (!isNaN(contentLength) && contentLength > MAX_CSP_REPORT_BODY_BYTES) {
     return new NextResponse(null, { status: 413 })
   }
 
@@ -87,7 +87,12 @@ export async function POST(request: Request) {
     })
   }
 
-  const { body, tooLarge } = await readLimitedBody(request)
+  let body: string, tooLarge: boolean
+  try {
+    ({ body, tooLarge } = await readLimitedBody(request))
+  } catch {
+    return new NextResponse(null, { status: 500 })
+  }
   if (tooLarge) {
     return new NextResponse(null, { status: 413 })
   }
