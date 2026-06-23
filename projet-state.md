@@ -1,7 +1,7 @@
 # État du projet — cv-interactif-ia
 
 > Source de vérité pour le suivi des tâches et de la backlog.
-> Dernière mise à jour : 2026-06-23 — SEC-001/SEC-002 validés en revue externe
+> Dernière mise à jour : 2026-06-23 — SEC-004, PERF-005, OBS-002 quick wins
 
 ---
 
@@ -178,9 +178,8 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - L'implémentation actuelle (`lib/rateLimit.ts`) est en mémoire — réinitialisée à chaque déploiement
   - Migration vers Vercel KV ou Upstash Redis si trafic augmente
 
-- [ ] **SEC-004 — `cleanupOldRecords()` jamais appelée dans `rateLimit.ts`** `LOW`
-  - La fonction de purge existe mais n'est nulle part appelée → fuite mémoire potentielle sur serveur long-running
-  - Appeler périodiquement (ex : à chaque requête avec un intervalle, ou via un cron job)
+- [x] **SEC-004 — `cleanupOldRecords()` jamais appelée dans `rateLimit.ts`** `LOW`
+  - Appel throttled (max 1x/heure) dans `checkRateLimit()` via `lastCleanup` + `CLEANUP_INTERVAL_MS`
 
 - [x] **SEC-005 — Supabase key fallback silencieux** `MEDIUM`
   - Fail-fast en production si `SUPABASE_SERVICE_ROLE_KEY` absente ; fallback anon key en dev avec warning console
@@ -204,9 +203,8 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - PNG optimisé avec sharp (palette + compression 9) : 431 KB → 215 KB (−49%)
   - Dimensions corrigées dans `layout.tsx` : 1200×630 → 1024×1024 (réelles)
 
-- [ ] **PERF-005 — Optimisations `next.config.ts`** `LOW`
-  - Ajouter : `compress: true`
-  - Envisager : `experimental.optimizePackageImports` pour `openai`
+- [x] **PERF-005 — Optimisations `next.config.ts`** `LOW`
+  - `compress: true` ajouté
   - _(Les configs `poweredByHeader` et `reactStrictMode` ont été déplacés vers SEC-002)_
 
 ### 📊 Observabilité — Maturité 2/10 (CRITIQUE)
@@ -216,8 +214,8 @@ _Tous les tickets_MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Intégrer **Sentry** (`@sentry/nextjs`) — setup ~30 min, alerting 500 immédiat
   - Ou Logtail / Vercel Logs pour structured logging JSON
 
-- [ ] **OBS-002 — Pas de health check endpoint** `LOW`
-  - Créer `GET /api/health` retournant `{ status: 'ok', timestamp }` pour monitoring externe
+- [x] **OBS-002 — Pas de health check endpoint** `LOW`
+  - `GET /api/health` créé — retourne `{ status: 'ok', timestamp }`, sans auth ni rate limit
 
 ### 🔄 CI/CD — Maturité 0/10 (CRITIQUE)
 

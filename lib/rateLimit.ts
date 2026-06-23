@@ -32,6 +32,9 @@ interface RateLimitRecord {
  */
 const requestCounts: { [ip: string]: RateLimitRecord } = {}
 
+let lastCleanup = 0
+const CLEANUP_INTERVAL_MS = 60 * 60 * 1000 // 1 hour
+
 /**
  * Rate limit configuration
  */
@@ -111,6 +114,13 @@ export function checkRateLimit(ip: string): {
 } {
   const today = getTodayUTC()
   const max = RATE_LIMIT_CONFIG.maxRequestsPerDay
+
+  // Periodic cleanup: remove old IP records at most once per hour
+  const now = Date.now()
+  if (now - lastCleanup >= CLEANUP_INTERVAL_MS) {
+    lastCleanup = now
+    cleanupOldRecords()
+  }
 
   // Initialize new IP or reset if it's a new day
   if (!requestCounts[ip] || requestCounts[ip].date !== today) {
