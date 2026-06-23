@@ -199,7 +199,9 @@ export function cleanupOldRecords(daysToKeep: number = 7): number {
     }
   }
 
-  console.log(`Cleaned up ${removedCount} old IP records`)
+  if (removedCount > 0) {
+    console.log(`Cleaned up ${removedCount} old IP records`)
+  }
   return removedCount
 }
 

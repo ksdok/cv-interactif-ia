@@ -57,8 +57,11 @@ export async function proxy(request: NextRequest) {
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
 
-  // Set CSRF cookie if not already present
-  if (!request.cookies.get(CSRF_COOKIE_CONFIG.name)) {
+  // Set CSRF cookie if not already present (skip for /api/health to avoid side effects)
+  if (
+    request.nextUrl.pathname !== '/api/health' &&
+    !request.cookies.get(CSRF_COOKIE_CONFIG.name)
+  ) {
     const token = await generateCSRFToken()
     response.cookies.set({
       name: CSRF_COOKIE_CONFIG.name,
