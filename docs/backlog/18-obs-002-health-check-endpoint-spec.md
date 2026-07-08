@@ -7,7 +7,7 @@ Add a minimal health endpoint for uptime monitoring and external probes.
 Current state in the repo:
 - there is no `GET /api/health` route
 - the only API routes today are `POST /api/chat` and `POST /api/job-match`
-- `projet-state.md` explicitly asks for a health endpoint returning `{ status: 'ok', timestamp }`
+- `project-state.md` explicitly asks for a health endpoint returning `{ status: 'ok', timestamp }`
 
 This makes basic external monitoring harder than it needs to be.
 
