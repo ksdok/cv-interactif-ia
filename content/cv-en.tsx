@@ -36,7 +36,7 @@ export default function CvContent() {
           business and IT on mission-critical trading &amp; post-trade systems.
         </p>
         <p className="text-secondary text-sm mt-6">
-          Paris, France · dokkimsan@gmail.com · +33 6 02 18 87 40 · kimsandok.com
+          Paris, France · dokkimsan@gmail.com · kimsandok.com
         </p>
       </header>
 
@@ -221,7 +221,6 @@ export default function CvContent() {
         </p>
         <ul className="mt-6 space-y-2 text-on-surface">
           <li>Email: <a className="underline decoration-surface-variant underline-offset-4 hover:text-secondary" href="mailto:dokkimsan@gmail.com">dokkimsan@gmail.com</a></li>
-          <li>Phone: +33 6 02 18 87 40</li>
           <li>Site: <a className="underline decoration-surface-variant underline-offset-4 hover:text-secondary" href="https://kimsandok.com">kimsandok.com</a></li>
         </ul>
         <p className="mt-10 text-secondary text-sm">

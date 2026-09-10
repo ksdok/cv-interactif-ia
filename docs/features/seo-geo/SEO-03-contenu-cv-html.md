@@ -1,6 +1,6 @@
 # SEO-03 — Rendre le contenu du CV visible en HTML
 
-- **Priorité** : P1 · **Effort** : M (½ journée) · **Statut** : 🟡 en cours (2026-09-10, fast-path EN — page `/cv` live + indexable, sitemap/footer/links faits, contenu en cours de figement)
+- **Priorité** : P1 · **Effort** : M (½ journée) · **Statut** : ✅ fait (2026-09-10, fast-path EN — bilingue `/fr/cv` + `/en/cv` reporté au Lot 0 / GEO-08)
 - **Dépendances** : SEO-01 (positionnement figé), GEO-08 ✅ (bilingue B — la page CV existe en `/fr/cv` et `/en/cv`).
 
 ## Pourquoi
@@ -27,6 +27,8 @@ statistiques chiffrées, données tabulaires, contenu « answer-first ».
      (cf. SEO-04).
 2. Enrichir `components/ExperienceGrid.tsx` : carte « Featured Role » avec 2-3 réalisations
    chiffrées + lien « Voir le CV complet » vers `/<lang>/cv`.
+   > **Décision 2026-09-10 (fast-path)** : la partie « réalisations chiffrées » est **droppée**
+   > sur demande produit — seul le lien « View full CV → » vers `/cv` est conservé.
 3. `app/sitemap.ts` : ajouter les URLs `/fr/cv` et `/en/cv` (priority 0.9, changeFrequency
    monthly) avec `alternates.languages` (cf. GEO-08).
 4. Lien « CV » dans le footer.
