@@ -15,18 +15,24 @@ import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 
 const inter = Inter({ subsets: ['latin'] })
 
+// SEO-01 (fast-path FR-only) : positionnement BA freelance finance de marché.
+// Title front-loaded (métier d'abord, nom en suffixe) pour éviter la troncature
+// Google (~60 char). Wording EN + hreflang au Lot 0 (i18n, cf. GEO-08).
+const SITE_URL = 'https://kimsandok.com'
+const SITE_TITLE =
+  'Business Analyst Senior Freelance (AMOA) — Finance de marché | Kim-san DOK'
+const SITE_DESCRIPTION =
+  "Kim-san DOK, Business Analyst Senior freelance en finance de marché (Paris, La Défense). " +
+  "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
+  "CV interactif avec assistant IA."
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://kimsandok.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché',
+    default: SITE_TITLE,
     template: '%s | Kim-san DOK',
   },
-  // SEO-01 (fast-path FR-only) : positionnement BA freelance finance de marché.
-  // Le wording EN + hreflang arrive au Lot 0 (i18n, cf. GEO-08).
-  description:
-    "Kim-san DOK, Business Analyst Senior freelance en finance de marché (Paris, La Défense). " +
-    "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
-    "CV interactif avec assistant IA.",
+  description: SITE_DESCRIPTION,
   keywords: [
     'Kim-san DOK',
     'Business Analyst',
@@ -44,30 +50,19 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://kimsandok.com',
-    title: 'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché',
-    description:
-      "Business Analyst Senior freelance en finance de marché (Paris). " +
-      "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
-      "CV interactif avec assistant IA.",
+    url: SITE_URL,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     siteName: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
-    images: [
-      {
-        url: '/opengraph-image.png',
-        width: 1024,
-        height: 1024,
-        alt: 'Kim-san DOK — Business Analyst Senior freelance, AMOA finance de marché (Paris)',
-      },
-    ],
+    // og:image + width/height/type + alt sont générés par la convention fichier
+    // app/opengraph-image.png + app/opengraph-image.alt.txt. Un tableau images[]
+    // ici serait ignoré par la convention fichier (alt piloté par .alt.txt).
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché',
-    description:
-      "Business Analyst Senior freelance en finance de marché (Paris). " +
-      "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
-      "CV interactif avec assistant IA.",
-    images: ['/opengraph-image.png'],
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    // twitter:image dérivé de la convention app/opengraph-image.png.
   },
   robots: {
     index: true,
@@ -101,22 +96,19 @@ export default async function RootLayout({
     '@graph': [
       {
         '@type': 'Person',
-        '@id': 'https://kimsandok.com/#person',
+        '@id': `${SITE_URL}/#person`,
         name: 'Kim-san DOK',
         jobTitle: 'Business Analyst Senior (AMOA)',
-        description:
-          "Business Analyst Senior freelance en finance de marché (Paris, La Défense). " +
-          "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
-          "CV interactif avec assistant IA.",
-        url: 'https://kimsandok.com',
+        description: SITE_DESCRIPTION,
+        url: SITE_URL,
         email: 'dokkimsan@gmail.com',
         homeLocation: {
           '@type': 'PostalAddress',
           addressLocality: 'Paris',
-          addressRegion: 'Île-de-France',
+          addressRegion: 'FR-IDF',
           addressCountry: 'FR',
         },
-        areaServed: 'France',
+        areaServed: 'FR',
         knowsLanguage: ['fr', 'en'],
         sameAs: [
           'https://www.linkedin.com/in/kim-san-dok',
@@ -136,14 +128,14 @@ export default async function RootLayout({
       },
       {
         '@type': 'ProfessionalService',
-        '@id': 'https://kimsandok.com/#service',
+        '@id': `${SITE_URL}/#service`,
         name: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
         description:
           'Consulting en business analysis et AMOA pour la finance de marché. ' +
           'Intervention en freelance sur Paris et en remote.',
-        areaServed: 'France',
-        url: 'https://kimsandok.com',
-        founder: { '@id': 'https://kimsandok.com/#person' },
+        areaServed: 'FR',
+        url: SITE_URL,
+        founder: { '@id': `${SITE_URL}/#person` },
       },
     ],
   }
