@@ -28,7 +28,7 @@ export default function Hero() {
         <div className="md:col-start-2 md:col-span-5">
           <p className="text-[23px] text-on-surface leading-relaxed font-light">
             Explore my professional journey through a conversational interface — Senior Business
-            Analyst in <span className="font-medium italic">market finance</span> (Paris) with more thant 10 years of experience,
+            Analyst in <span className="font-medium italic">market finance</span> (Paris) with more than 10 years of experience,
             specialized in Securities Lending, Repo, and Forex. Ask about my background, technical
             stack, or recent projects.
           </p>
