@@ -161,6 +161,9 @@ export default async function RootLayout({
         <meta name="csrf-token" content={csrfToken} />
         <script
           nonce={nonce}
+          // nonce est server-only (injecté par proxy.ts via x-nonce) ; le client
+          // n'en dispose pas à l'hydration -> diff d'attribut attendu, on le supprime.
+          suppressHydrationWarning
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
