@@ -87,9 +87,9 @@ profil citable ; les visiteurs qui n'utilisent pas le chat peuvent lire le CV.
 ## Décision produit : téléphone
 
 Le téléphone est retiré du **HTML public** (`/cv` + header subtitle) pour ne pas l'exposer
-aux crawlers/LLM. Il est **conservé dans `data/cv.md`** (source du chatbot) — Nicky peut
-donc toujours le donner en chat si on lui demande. Si l'intention est un retrait complet,
-retirer aussi la ligne `Contact: … 06 02 18 87 40 …` de `data/cv.md`.
+aux crawlers/LLM. Il est **conservé dans `data/cv.md`** (source du chatbot) — décision
+confirmée 2026-09-10 : Nicky peut donc toujours le donner en chat si on lui demande,
+tout en restant invisible des crawlers/LLM. Cohérent avec l'usage recruteur via le chat.
 
 ## KPI / Mesure
 
