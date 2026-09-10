@@ -15,12 +15,11 @@ import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 
 const inter = Inter({ subsets: ['latin'] })
 
-// SEO-01 (fast-path FR-only) : positionnement BA freelance finance de marché.
-// Title front-loaded (métier d'abord, nom en suffixe) pour éviter la troncature
-// Google (~60 char). Wording EN + hreflang au Lot 0 (i18n, cf. GEO-08).
+// Title : nom d'abord (préférence utilisateur), puis métier. Wording EN + hreflang
+// au Lot 0 (i18n, cf. GEO-08).
 const SITE_URL = 'https://kimsandok.com'
 const SITE_TITLE =
-  'Business Analyst Senior Freelance (AMOA) — Finance de marché | Kim-san DOK'
+  'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché'
 const SITE_DESCRIPTION =
   "Kim-san DOK, Business Analyst Senior freelance en finance de marché (Paris, La Défense). " +
   "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
