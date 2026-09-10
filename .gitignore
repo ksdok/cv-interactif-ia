@@ -49,3 +49,9 @@ CLAUDE.md
 nul
 .vscode/settings.json
 .github/copilot-instructions.md
+.aider*
+
+# scratch / agent workflow (hors app — voir nettoyage 2026-09-10)
+agents/
+/development_workflow.sh
+/README_WORKFLOW.md
