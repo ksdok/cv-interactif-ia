@@ -34,6 +34,22 @@ function buildCspHeader(nonce: string): string {
 }
 
 export async function proxy(request: NextRequest) {
+  // SEO-04 : redirect 301 du domaine vercel.app (deployment production) vers le
+  // domaine canonique pour éviter le duplicate content. Conditionné sur
+  // VERCEL_ENV=production pour préserver les branch previews (VERCEL_ENV=preview)
+  // accessibles aux reviewers. Pas de boucle : kimsandok.com ne matche pas vercel.app.
+  // Local dev ignoré (host=localhost, VERCEL_ENV non défini).
+  const host = (request.headers.get('host') || '').toLowerCase()
+  const isVercelHost = host === 'vercel.app' || host.endsWith('.vercel.app')
+  if (isVercelHost && process.env.VERCEL_ENV === 'production') {
+    const target = new URL(
+      request.nextUrl.pathname + request.nextUrl.search,
+      'https://kimsandok.com',
+    )
+    // 301 pour les GET (standard SEO), 308 pour les autres méthodes (préserve le verbe).
+    return NextResponse.redirect(target, request.method === 'GET' ? 301 : 308)
+  }
+
   const nonce = generateNonce()
   const cspHeader = buildCspHeader(nonce)
   const reportOnly = process.env.CSP_REPORT_ONLY === 'true'

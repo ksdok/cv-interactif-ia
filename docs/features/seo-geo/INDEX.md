@@ -20,7 +20,7 @@
 | SEO-01 | Corriger le positionnement (metadata + JSON-LD) | P0 | S | — | ✅ (2026-09-10, fast-path FR) | [SEO-01-positionnement-metadata-jsonld.md](SEO-01-positionnement-metadata-jsonld.md) |
 | SEO-02 | Restructurer le Hero (H1 = nom + métier) | P0 | S | SEO-01, GEO-08 | ✅ (2026-09-10, fast-path EN) | [SEO-02-hero-h1.md](SEO-02-hero-h1.md) |
 | SEO-03 | Rendre le contenu du CV visible en HTML (`/cv` + homepage) | P1 | M | SEO-01, GEO-08 | ✅ (2026-09-10, fast-path EN) | [SEO-03-contenu-cv-html.md](SEO-03-contenu-cv-html.md) |
-| SEO-04 | Canonical + déduplication du domaine vercel.app | P1 | S | — | ⬜ | [SEO-04-canonical-dedup-vercel.md](SEO-04-canonical-dedup-vercel.md) |
+| SEO-04 | Canonical + déduplication du domaine vercel.app | P1 | S | — | ✅ (2026-09-10, option B — redirect 301) | [SEO-04-canonical-dedup-vercel.md](SEO-04-canonical-dedup-vercel.md) |
 | SEO-05 | Section FAQ + schema FAQPage | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-05-faq-faqpage.md](SEO-05-faq-faqpage.md) |
 | GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ⬜ | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
 | GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ⬜ | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |

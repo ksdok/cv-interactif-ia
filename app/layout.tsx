@@ -74,6 +74,12 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // SEO-04 : canonical du domaine canonique. Le domaine preview vercel.app est
+  // redirigé (301) vers kimsandok.com dans proxy.ts — pas de duplicate content.
+  // Les pages qui surchargent (ex. /cv) définissent leur propre canonical.
+  alternates: {
+    canonical: SITE_URL,
+  },
 }
 
 export default async function RootLayout({

@@ -1,6 +1,6 @@
 # SEO-04 — Canonical + déduplication du domaine vercel.app
 
-- **Priorité** : P1 · **Effort** : S (< 1 h) · **Statut** : ⬜
+- **Priorité** : P1 · **Effort** : S (< 1 h) · **Statut** : ✅ fait (2026-09-10, option B — redirect 301 vercel.app → kimsandok.com + canonical par page)
 - **Dépendances** : aucune
 
 ## Pourquoi
@@ -22,12 +22,14 @@ vers kimsandok.com, mais rien n'empêche l'indexation du domaine vercel.app.
      `kimsandok.com` dans `proxy.ts`. Plus propre que noindex et consolide le jus de lien.
      > **301 vs 308** : pour des redirects de pages GET, **301 est le standard SEO** et Google
      > le traite identiquement à 308 (permanent). 308 (preserve method) n'apporte rien pour
-     > des GET et est moins attendu côté monitoring/outils. On retient donc 301.
-   - **Portée du redirect** : combiner `host` **et** `VERCEL_ENV` plutôt que le host seul,
-     pour (a) ne pas rediriger `kimsandok.com` lui-même (pas de boucle) et (b) couvrir aussi
-     les Vercel branch previews (`*.vercel.app` hors prod) — ces dernières étant ainsi
-     implicitement noindexées par redirect. S'assurer que l'environnement de revue interne
-     reste accessible aux reviewers (ex. whitelist d'un sous-domaine si besoin).
+     > des GET et est moins attendu côté monitoring/outils. On retient donc 301 pour les GET ;
+     > **308 pour les autres méthodes** (POST etc.) afin de préserver le verbe.
+   - **Portée du redirect (implémenté)** : `host` en suffixe (`host === 'vercel.app' ||
+     host.endsWith('.vercel.app')`, casse insensible) **ET** `VERCEL_ENV === 'production'`.
+     Ainsi seul le **deployment production** servi sur `*.vercel.app` est redirigé vers
+     `kimsandok.com` ; les **branch previews** (`VERCEL_ENV=preview`) **ne le sont pas** et
+     restent accessibles aux reviewers. Pas de boucle : `kimsandok.com` ne matche pas le
+     suffixe `vercel.app`. Local dev ignoré (host=localhost, `VERCEL_ENV` non défini).
 3. Soumettre uniquement kimsandok.com dans Search Console.
 
 ## Fichiers impactés
