@@ -27,6 +27,7 @@
 | GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B (impl. à faire) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
 | GEO-09 | Présence off-page (Malt, LinkedIn, citations) | P3 | continu | SEO-01 | ⬜ | [GEO-09-presence-off-page.md](GEO-09-presence-off-page.md) |
 | TECH-10 | Dédoublonner la meta viewport | P3 | XS | — | ⬜ | [TECH-10-meta-viewport.md](TECH-10-meta-viewport.md) |
+| INFRA-11 | Adresse contact@kimsandok.com (transfert vers Gmail) | P3 | S | — | ⬜ | [INFRA-11-contact-email-forwarding.md](INFRA-11-contact-email-forwarding.md) |
 
 Légende effort : XS < 15 min · S < 1 h · M ½ journée · L > 1 journée.
 Statuts : ⬜ à faire · 🟡 en cours · 🟧 décidé (impl. à faire) · ✅ fait.
