@@ -7,6 +7,12 @@ export default function Footer() {
         </p>
         <div className="flex space-x-12">
           <a
+            href="/cv"
+            className="text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors"
+          >
+            CV
+          </a>
+          <a
             href="https://www.linkedin.com/in/kim-san-dok"
             target="_blank"
             rel="noopener noreferrer"

@@ -10,6 +10,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: 'weekly',
             priority: 1,
         },
-        // Add other routes here if you have them (e.g., /blog, /projects)
+        // SEO-03 — page CV indexable. hreflang FR/EN ajouté au Lot 0 (GEO-08).
+        {
+            url: `${baseUrl}/cv`,
+            lastModified: new Date(),
+            changeFrequency: 'monthly',
+            priority: 0.9,
+        },
     ]
 }

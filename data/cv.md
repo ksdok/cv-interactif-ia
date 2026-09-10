@@ -75,11 +75,12 @@ Membre du groupe d'études "New Financial Services" dirigé par le Prof. Fethi R
 
 ## Compétences
 
-Certification: Professional Scrum Master I (PSM I), BDD (Behavior-driven development)
+Certification: Professional Scrum Master I (PSM I)
 Langages: SQL, Unix shell, Java, HTML, CSS
 Logiciels: SFCM Broadridge, Kondor+, TIBCO BusinessWorks
 Langues: Anglais (courant, TOEIC 895), Khmer (courant), Français (courant), Japonais (débutant, en cours d'apprentissage)
 Soft skills: Communication non violente (initiation)
+Test skills: BDD (Behavior-driven development)
 
 ## Formation
 
@@ -91,6 +92,8 @@ DUT Informatique — IUT de Villetaneuse, Paris 13 (2011)
 
 Site CV interactif IA: Site web permettant aux recruteurs de discuter avec un assistant IA (Nicky) pour poser des questions sur le parcours du candidat. Réponses fondées sur le CV réel via CAG (Cache-Augmented Generation) — le CV complet est chargé depuis un fichier local et injecté dans le system prompt, avec prompt caching provider-side pour réduire le coût et la latence. Stack: Next.js 16, TypeScript, Tailwind CSS 4, Supabase (pgvector), Vercel. Multi-provider OpenAI/Gemini avec fallback automatique. Inclut un Job Matcher analysant l'adéquation CV/offre d'emploi (scoring skills/expérience). Sécurité: CSRF, rate limiting, validation des entrées, server-only secrets. GitHub: github.com/ksdok/cv-interactif-ia — Live: kimsandok.com
 
+Menu Renzu (menu-translator-ia): Application iOS de traduction de menus de restaurant par IA — photographier une carte dans n'importe quel pays et commander en toute confiance, même sans lire la langue locale. Analyse multi-photos par vision IA (Gemini 2.5 Flash-Lite Vision, fallback GPT-4o Vision) : texte original, romanisation, traduction, catégorisation, prix, détection de doublons. Commande vocale lue à voix haute dans la langue du menu (TTS OpenAI / ElevenLabs). Architecture MVVM Swift/SwiftUI (iOS 16+), BYOK (clés API en Keychain) ou proxy Cloudflare Workers sécurisé par App Attest. Localisation EN/FR/KM. Couverture : 599 tests Swift + 243 tests Worker. GitHub: github.com/ksdok/menu-translator-ia — Live: menurenzu.app
+
 YouTube Audio Converter: Script Bash modulaire pour extraire l'audio de vidéos YouTube et le convertir en MP3 (qualité maximale). Support multi-source (URL unique, multiple, fichier texte), mode playlist, anti-doublons, dry-run preview, assistant interactif. Basé sur yt-dlp + ffmpeg. Installable via install.sh. GitHub: github.com/ksdok/youtube-audio-converter
 
 Hermes Skills: Collection de skills pour Hermes Agent (agent IA par Nous Research). Chaque skill est un module réutilisable avec son fichier SKILL.md (YAML frontmatter + markdown). GitHub: github.com/ksdok/hermes-skills
@@ -99,3 +102,7 @@ Hermes Skills: Collection de skills pour Hermes Agent (agent IA par Nous Researc
 
 Cyclisme: Parcourir les cols de montagne à vélo avec les amis
 Course: Marathon de Paris, semi-marathon de Paris, Oxy'Trail, 10KM de Paris
+
+
+## Pourquoi Nicky ?
+C'est parce que je suis fan de City Hunter et le personnage principal se nomme Nicky dans la version française
