@@ -18,7 +18,7 @@
 | ID | Titre | Priorité | Effort | Dépendances | Statut | Fichier |
 |----|-------|----------|--------|-------------|--------|---------|
 | SEO-01 | Corriger le positionnement (metadata + JSON-LD) | P0 | S | — | ✅ (2026-09-10, fast-path FR) | [SEO-01-positionnement-metadata-jsonld.md](SEO-01-positionnement-metadata-jsonld.md) |
-| SEO-02 | Restructurer le Hero (H1 = nom + métier) | P0 | S | SEO-01, GEO-08 | ⬜ | [SEO-02-hero-h1.md](SEO-02-hero-h1.md) |
+| SEO-02 | Restructurer le Hero (H1 = nom + métier) | P0 | S | SEO-01, GEO-08 | ✅ (2026-09-10, fast-path EN) | [SEO-02-hero-h1.md](SEO-02-hero-h1.md) |
 | SEO-03 | Rendre le contenu du CV visible en HTML (`/cv` + homepage) | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-03-contenu-cv-html.md](SEO-03-contenu-cv-html.md) |
 | SEO-04 | Canonical + déduplication du domaine vercel.app | P1 | S | — | ⬜ | [SEO-04-canonical-dedup-vercel.md](SEO-04-canonical-dedup-vercel.md) |
 | SEO-05 | Section FAQ + schema FAQPage | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-05-faq-faqpage.md](SEO-05-faq-faqpage.md) |
@@ -76,3 +76,8 @@ GEO-09 (continu, dès SEO-01 terminé)
 - 🔗 SEO-03 absorbe et précise l'item backlog existant n°10
   (`docs/backlog/10-enrich-indexable-static-content-plan.md`), dont le keyword cible
   (« Product Designer ») est à remplacer par le positionnement BA freelance.
+- 🌐 **Langue du fast-path** : le site étant actuellement en anglais (ChatPreview,
+  ExperienceGrid, Footer), les tickets de wording livrés en fast-path le sont en **EN**
+  pour préserver la cohérence visuelle avec la prod. La déclinaison FR (et la bascule
+  bilingue complète) reste au Lot 0 (GEO-08, routing i18n `app/[lang]/` + dictionnaires).
+  Les tickets SEO-01/SEO-02 notent « fast-path EN » dans leur statut.

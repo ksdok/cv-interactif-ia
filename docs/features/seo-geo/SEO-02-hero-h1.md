@@ -1,6 +1,6 @@
 # SEO-02 — Restructurer le Hero (H1 = nom + métier)
 
-- **Priorité** : P0 · **Effort** : S (< 1 h) · **Statut** : ⬜
+- **Priorité** : P0 · **Effort** : S (< 1 h) · **Statut** : ✅ fait (2026-09-10, fast-path EN — wording FR reporté au Lot 0 / GEO-08)
 - **Dépendances** : SEO-01 (mots-clés arrêtés), GEO-08 ✅ (bilingue B — H1 traduit FR/EN via dictionnaire).
 
 ## Pourquoi
@@ -20,8 +20,9 @@ Dans `components/Hero.tsx` :
    `Kim-san DOK — Business Analyst Senior freelance en finance de marché`
    (sous-titre : « CV interactif propulsé par une IA — posez vos questions à Nicky »).
    **Version EN à définir symétriquement** (ex. `Kim-san DOK — Senior Business Analyst
-   Freelance | Market Finance`) et portée par le dictionnaire `lib/i18n/` (cf. GEO-08) ; en
-   fast-path FR-only, livrer uniquement la version FR et tracer la déclinaison EN dans GEO-08.
+   Freelance | Market Finance`) et portée par le dictionnaire `lib/i18n/` (cf. GEO-08). Le site
+   étant actuellement en anglais, le fast-path est livré en **EN** pour préserver la cohérence
+   visuelle avec la prod ; la déclinaison FR est tracée dans GEO-08 (Lot 0).
 3. Dans le paragraphe d'intro, remplacer « the human behind » par du texte avec mots-clés
    naturels : nom, métier, spécialités, localisation.
 4. Vérifier qu'il n'y a qu'**un seul** `<h1>` sur la page.
