@@ -1,6 +1,6 @@
 # SEO-03 — Rendre le contenu du CV visible en HTML
 
-- **Priorité** : P1 · **Effort** : M (½ journée) · **Statut** : ⬜
+- **Priorité** : P1 · **Effort** : M (½ journée) · **Statut** : 🟡 en cours (2026-09-10, fast-path EN — page `/cv` live + indexable, sitemap/footer/links faits, contenu en cours de figement)
 - **Dépendances** : SEO-01 (positionnement figé), GEO-08 ✅ (bilingue B — la page CV existe en `/fr/cv` et `/en/cv`).
 
 ## Pourquoi
