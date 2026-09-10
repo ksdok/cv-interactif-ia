@@ -1,6 +1,6 @@
 # SEO-01 — Corriger le positionnement (metadata + JSON-LD)
 
-- **Priorité** : P0 · **Effort** : S (< 1 h) · **Statut** : ⬜
+- **Priorité** : P0 · **Effort** : S (< 1 h) · **Statut** : ✅ fait (2026-09-10, fast-path FR — wording EN reporté au Lot 0 / GEO-08)
 - **Dépendances** : GEO-08 ✅ (bilingue B) — le wording doit exister **en FR et en EN** avec les mêmes entités, porté par `lib/i18n/`.
 
 ## Pourquoi

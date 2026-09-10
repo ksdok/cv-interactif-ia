@@ -17,7 +17,7 @@
 
 | ID | Titre | Priorité | Effort | Dépendances | Statut | Fichier |
 |----|-------|----------|--------|-------------|--------|---------|
-| SEO-01 | Corriger le positionnement (metadata + JSON-LD) | P0 | S | — | ⬜ | [SEO-01-positionnement-metadata-jsonld.md](SEO-01-positionnement-metadata-jsonld.md) |
+| SEO-01 | Corriger le positionnement (metadata + JSON-LD) | P0 | S | — | ✅ (2026-09-10, fast-path FR) | [SEO-01-positionnement-metadata-jsonld.md](SEO-01-positionnement-metadata-jsonld.md) |
 | SEO-02 | Restructurer le Hero (H1 = nom + métier) | P0 | S | SEO-01, GEO-08 | ⬜ | [SEO-02-hero-h1.md](SEO-02-hero-h1.md) |
 | SEO-03 | Rendre le contenu du CV visible en HTML (`/cv` + homepage) | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-03-contenu-cv-html.md](SEO-03-contenu-cv-html.md) |
 | SEO-04 | Canonical + déduplication du domaine vercel.app | P1 | S | — | ⬜ | [SEO-04-canonical-dedup-vercel.md](SEO-04-canonical-dedup-vercel.md) |
