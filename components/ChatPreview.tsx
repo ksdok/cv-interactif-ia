@@ -214,7 +214,7 @@ export default function ChatPreview({
             onKeyDown={handleKeyDown}
             placeholder="Ask Nicky about Kim-san's experience..."
             aria-label="Ask Nicky about Kim-san's experience"
-            className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-[#5f5e5e] rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-xl transition-all duration-200 ease-in-out"
+            className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-[#5f5e5e] rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-[max(20px,1.25rem)] transition-all duration-200 ease-in-out"
             disabled={isLoading}
             enterKeyHint="send"
           />

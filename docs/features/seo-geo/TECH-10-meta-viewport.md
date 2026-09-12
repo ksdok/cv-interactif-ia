@@ -1,6 +1,6 @@
 # TECH-10 — Dédoublonner la meta viewport
 
-- **Priorité** : P3 · **Effort** : XS (< 15 min) · **Statut** : ✅ (2026-09-12 — viewport via export Next.js, maximumScale retiré, JobMatcher textarea passé à text-base)
+- **Priorité** : P3 · **Effort** : XS (< 15 min) · **Statut** : 🟡 en cours (2026-09-12 — code livré local, commit 6e856cb : viewport via export Next.js, maximumScale retiré, JobMatcher textarea à 16px plancher garanti ; vérification prod des critères 2/3 à faire après déploiement)
 - **Dépendances** : aucune — groupable avec SEO-01 (même fichier)
 
 ## Pourquoi
@@ -29,8 +29,11 @@ de qualité faible + comportement viewport imprévisible selon l'ordre de parsin
 ## Fichiers impactés
 
 - `app/layout.tsx`
-- `components/ChatPreview.tsx` (et tout composant contenant un `<input>` / `<textarea>`)
-  — passage à `font-size ≥ 16px` pour compenser le retrait de `maximumScale`
+- `components/JobMatcher.tsx` — seul champ sous le seuil iOS 16px à la relecture
+  (textarea `text-sm` → `text-base`)
+- `components/ChatPreview.tsx` — **déjà conforme** (input `text-xl` = 20px), aucune
+  modif nécessaire ; conservé ici pour tracer le périmètre « tout champ de saisie »
+  et le plancher `max()` ajouté en review
 
 ## Résultat attendu
 
@@ -39,7 +42,10 @@ iOS involontaire sur focus input (via font-size 16px).
 
 ## Critères d'acceptation
 
-1. `curl -s https://kimsandok.com | grep -c 'name="viewport"'` → 1.
+1. `curl -s https://kimsandok.com | grep -o 'name="viewport"' | wc -l` → **1**.
+   ⚠️ Ne pas utiliser `grep -c` : il compte les **lignes**, pas les occurrences — le HTML
+   Next est minifié sur une seule ligne, donc le critère initial passait à 1 même avec
+   2 metas (défaut détecté en review).
 2. Pas de zoom iOS sur focus de l'input chat (test device réel ou simulateur) — **grâce à la
    `font-size ≥ 16px`** des inputs, non plus via `maximumScale`.
 3. Lighthouse Accessibility ne signale plus `maximum-scale=1, user-scalable=no` comme
@@ -53,5 +59,18 @@ iOS involontaire sur focus input (via font-size 16px).
   c'était le seul champ sous le seuil iOS 16px (l'input chat était déjà en `text-xl`).
 - Vérifié en local (build prod + `next start`) : 1 seule meta viewport dans le HTML,
   ni `maximum-scale` ni `user-scalable`, meta CSRF intacte, `npm run lint` ✅.
+- **État prod au 2026-09-12** : le domaine canonique sert encore l'ancien layout
+  (2 metas viewport, `maximum-scale=1`) — commit non déployé. Critère 1 à re-vérifier
+  après déploiement (avec la commande corrigée ci-dessus).
+- Review 2026-09-12 (commit initial e5600d2, amendé en 6e856cb) :
+  - critère n°1 réécrit (`grep -c` comptait les lignes, pas les occurrences) ;
+  - statut ✅ → 🟡 : 2 critères sur 3 non vérifiés en prod au moment du statut initial ;
+  - durcissement F6 : plancher `text-[max(Npx,Mrem)]` sur les 2 champs (ChatPreview
+    `text-[max(20px,1.25rem)]`, JobMatcher `text-[max(16px,1rem)]`) — remplace la
+    proposition `input, textarea { font-size: max(16px, 1rem) }` qui, non layée dans
+    globals.css, aurait **écrasé** les utilitaires Tailwind (`text-xl` du chat serait
+    passé de 20px à 16px), et dans `@layer base` aurait été silencieusement battue par
+    les utilitaires (cascade layers). Les valeurs arbitraires garantissent le plancher
+    sans toucher à la spécificité.
 - Reste à vérifier manuellement : zoom iOS au focus des champs sur device réel
   (critère 2) et score Lighthouse Accessibility (critère 3) — après déploiement.

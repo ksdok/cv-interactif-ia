@@ -163,7 +163,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value.slice(0, 5000))}
                   placeholder="Paste the job description here..."
-                  className="w-full h-40 sm:h-48 px-6 py-4 bg-surface-container-low text-on-surface placeholder:text-[#5f5e5e] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none text-base leading-relaxed"
+                  className="w-full h-40 sm:h-48 px-6 py-4 bg-surface-container-low text-on-surface placeholder:text-[#5f5e5e] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none text-[max(16px,1rem)] leading-relaxed"
                   disabled={isLoading}
                   maxLength={5000}
                 />
