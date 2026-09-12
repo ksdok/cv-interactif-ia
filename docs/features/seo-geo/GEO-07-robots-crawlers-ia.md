@@ -1,6 +1,6 @@
 # GEO-07 — Règles explicites crawlers IA dans robots.txt
 
-- **Priorité** : P2 · **Effort** : S (< 1 h) · **Statut** : ⬜
+- **Priorité** : P2 · **Effort** : S (< 1 h) · **Statut** : 🟡 en cours (2026-09-12 — code livré, critères 1/2/4 vérifiés en local ; critère 3 post-déploiement)
 - **Dépendances** : aucune
 
 ## Pourquoi

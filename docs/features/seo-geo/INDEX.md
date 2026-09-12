@@ -23,7 +23,7 @@
 | SEO-04 | Canonical + déduplication du domaine vercel.app | P1 | S | — | ✅ (2026-09-10, option B — redirect 301) | [SEO-04-canonical-dedup-vercel.md](SEO-04-canonical-dedup-vercel.md) |
 | SEO-05 | Section FAQ + schema FAQPage | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-05-faq-faqpage.md](SEO-05-faq-faqpage.md) |
 | GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ⬜ | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
-| GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ⬜ | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
+| GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | 🟡 code livré, vérif prod après déploiement (2026-09-12) | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
 | GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B (impl. à faire) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
 | GEO-09 | Présence off-page (Malt, LinkedIn, citations) | P3 | continu | SEO-01 | ⬜ | [GEO-09-presence-off-page.md](GEO-09-presence-off-page.md) |
 | TECH-10 | Dédoublonner la meta viewport | P3 | XS | — | 🟡 critère 1 ✅ en prod ; critères 2/3 (device iOS + Lighthouse) à vérifier (2026-09-12) | [TECH-10-meta-viewport.md](TECH-10-meta-viewport.md) |
