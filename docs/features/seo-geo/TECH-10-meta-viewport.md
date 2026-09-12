@@ -1,6 +1,6 @@
 # TECH-10 — Dédoublonner la meta viewport
 
-- **Priorité** : P3 · **Effort** : XS (< 15 min) · **Statut** : ⬜
+- **Priorité** : P3 · **Effort** : XS (< 15 min) · **Statut** : ✅ (2026-09-12 — viewport via export Next.js, maximumScale retiré, JobMatcher textarea passé à text-base)
 - **Dépendances** : aucune — groupable avec SEO-01 (même fichier)
 
 ## Pourquoi
@@ -44,3 +44,14 @@ iOS involontaire sur focus input (via font-size 16px).
    `font-size ≥ 16px`** des inputs, non plus via `maximumScale`.
 3. Lighthouse Accessibility ne signale plus `maximum-scale=1, user-scalable=no` comme
    blocage de zoom.
+
+## Résultat livré (2026-09-12)
+
+- `app/layout.tsx` : meta manuelle supprimée, export `export const viewport: Viewport =
+  { width: 'device-width', initialScale: 1 }` ajouté (sans `maximumScale`).
+- `components/JobMatcher.tsx` : textarea passé de `text-sm` (14px) à `text-base` (16px) —
+  c'était le seul champ sous le seuil iOS 16px (l'input chat était déjà en `text-xl`).
+- Vérifié en local (build prod + `next start`) : 1 seule meta viewport dans le HTML,
+  ni `maximum-scale` ni `user-scalable`, meta CSRF intacte, `npm run lint` ✅.
+- Reste à vérifier manuellement : zoom iOS au focus des champs sur device réel
+  (critère 2) et score Lighthouse Accessibility (critère 3) — après déploiement.

@@ -7,13 +7,22 @@
  * The actual token is stored securely in httpOnly cookie by middleware.
  */
 
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { cookies, headers } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 
 const inter = Inter({ subsets: ['latin'] })
+
+// TECH-10 : viewport déclaré via l'export Next.js (une seule meta dans le HTML servi).
+// Pas de maximumScale/user-scalable (WCAG 1.4.4 — zoom utilisateur préservé) ;
+// le zoom iOS sur focus input est évité par font-size ≥ 16px sur les champs de
+// saisie (ChatPreview text-xl, JobMatcher text-base).
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+}
 
 // Title : nom d'abord (préférence utilisateur), puis métier. Wording EN + hreflang
 // au Lot 0 (i18n, cf. GEO-08).
@@ -148,9 +157,8 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <head>
-        {/* Prevent zoom on iOS when focusing on input fields */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-
+        {/* TECH-10 : la meta viewport est générée par l'export `viewport` ci-dessus —
+            ne pas remettre une meta manuelle (doublon + maximum-scale bloque le zoom). */}
         {/* SECURITY: CSRF token exposed to client via meta tag (double-submit cookie pattern).
             The token is stored in an httpOnly cookie (server-side verification) and mirrored
             in this meta tag's content attribute so client components can read it and include
