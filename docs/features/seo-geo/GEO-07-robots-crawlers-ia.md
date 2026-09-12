@@ -1,6 +1,6 @@
 # GEO-07 — Règles explicites crawlers IA dans robots.txt
 
-- **Priorité** : P2 · **Effort** : S (< 1 h) · **Statut** : 🟡 en cours (2026-09-12 — code livré, critères 1/2/4 vérifiés en local ; critère 3 post-déploiement)
+- **Priorité** : P2 · **Effort** : S (< 1 h) · **Statut** : ✅ (2026-09-12 — deploy a8f6072 : critères 1/2/3 vérifiés en prod, critère 4 vérifié dans le code ; review F1-F6 intégrée)
 - **Dépendances** : aucune
 
 ## Pourquoi
@@ -91,6 +91,8 @@ robots.txt explicite, auditable, aligné avec la stratégie de visibilité IA.
   - **F6** : `
 ` final rétabli en fin de fichier.
 - Vérifié en local (build prod + `next start`) : robots.txt conforme aux critères 1/2/4,
-  `curl -A GPTBot` → 200. Critère 3 post-déploiement restant.
+  `curl -A GPTBot` → 200. **Vérifié en prod après deploy (a8f6072)** : critère 1 par
+  intention ✅, sitemap ✅, `curl -A "OAI-SearchBot"` et `curl -A "GPTBot"` → HTTP 200
+  (absence de blocage au bord).
 - Suivi (hors périmètre) : Google expose un opt-out dédié AI Overviews / AI Mode dans
   Search Console, distinct de Google-Extended — candidat à un ticket dédié.
