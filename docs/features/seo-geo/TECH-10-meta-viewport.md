@@ -59,9 +59,9 @@ iOS involontaire sur focus input (via font-size 16px).
   c'était le seul champ sous le seuil iOS 16px (l'input chat était déjà en `text-xl`).
 - Vérifié en local (build prod + `next start`) : 1 seule meta viewport dans le HTML,
   ni `maximum-scale` ni `user-scalable`, meta CSRF intacte, `npm run lint` ✅.
-- **État prod au 2026-09-12** : le domaine canonique sert encore l'ancien layout
-  (2 metas viewport, `maximum-scale=1`) — commit non déployé. Critère 1 à re-vérifier
-  après déploiement (avec la commande corrigée ci-dessus).
+- **État prod au 2026-09-12 (après deploy 5fb593a)** : ✅ critère n°1 vérifié —
+  `grep -o 'name="viewport"' | wc -l` → 1, `maximum-scale` absent. Critères 2/3
+  restent à vérifier (device iOS + Lighthouse).
 - Review 2026-09-12 (commit initial e5600d2, amendé en 6e856cb) :
   - critère n°1 réécrit (`grep -c` comptait les lignes, pas les occurrences) ;
   - statut ✅ → 🟡 : 2 critères sur 3 non vérifiés en prod au moment du statut initial ;
