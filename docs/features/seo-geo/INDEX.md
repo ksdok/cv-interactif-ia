@@ -24,7 +24,15 @@
 | SEO-05 | Section FAQ + schema FAQPage | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-05-faq-faqpage.md](SEO-05-faq-faqpage.md) |
 | GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ⬜ | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
 | GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ✅ (2026-09-12, vérifié en prod) | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
-| GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B (impl. à faire) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
+| GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B ; **découpé en 08a→08h** (2026-09-12) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
+| GEO-08a | Fondation routing i18n : `app/[lang]/` | P2 | M | — | ⬜ | [GEO-08a-fondation-routing-i18n.md](GEO-08a-fondation-routing-i18n.md) |
+| GEO-08b | Dictionnaires `lib/i18n/` + composants en props | P2 | M | GEO-08a | ⬜ | [GEO-08b-dictionnaires-i18n.md](GEO-08b-dictionnaires-i18n.md) |
+| GEO-08c | Détection locale + redirect 307 + `x-locale` (`proxy.ts`) | P2 | S | GEO-08a | ⬜ | [GEO-08c-proxy-detection-locale.md](GEO-08c-proxy-detection-locale.md) |
+| GEO-08d | Metadata + JSON-LD + hreflang bilingues | P2 | S | GEO-08b | ⬜ | [GEO-08d-metadata-jsonld-hreflang-bilingue.md](GEO-08d-metadata-jsonld-hreflang-bilingue.md) |
+| GEO-08e | Sitemap bilingue + `alternates.languages` | P2 | XS | GEO-08a (08d reco) | ⬜ | [GEO-08e-sitemap-bilingue.md](GEO-08e-sitemap-bilingue.md) |
+| GEO-08f | Switcher de langue Header (lien crawlable) | P2 | XS | GEO-08b | ⬜ | [GEO-08f-switcher-langue-header.md](GEO-08f-switcher-langue-header.md) |
+| GEO-08g | Chat Nicky multilingue + fidélité EN | P2 | S | GEO-08b | ⬜ | [GEO-08g-chat-nicky-multilingue.md](GEO-08g-chat-nicky-multilingue.md) |
+| GEO-08h | Migration `/cv` bilingue (`/fr/cv`, `/en/cv`) + 301 | P2 | S | GEO-08a, 08b, 08d | ⬜ | [GEO-08h-migration-cv-bilingue.md](GEO-08h-migration-cv-bilingue.md) |
 | GEO-09 | Présence off-page (Malt, LinkedIn, citations) | P3 | continu | SEO-01 | ⬜ | [GEO-09-presence-off-page.md](GEO-09-presence-off-page.md) |
 | TECH-10 | Dédoublonner la meta viewport | P3 | XS | — | 🟡 critère 1 ✅ en prod ; critères 2/3 (device iOS + Lighthouse) à vérifier (2026-09-12) | [TECH-10-meta-viewport.md](TECH-10-meta-viewport.md) |
 | INFRA-11 | Adresse contact@kimsandok.com (transfert vers Gmail) | P3 | S | — | ⬜ | [INFRA-11-contact-email-forwarding.md](INFRA-11-contact-email-forwarding.md) |
@@ -49,6 +57,13 @@ ensuite reporté tel quel dans les dictionnaires `lib/i18n/` lors du Lot 0. Ce f
 contredit pas la décision bilingue : il la pré-câble.
 
 ```
+⛔ PÉRIMÉ depuis le découpage du 2026-09-12 — le diagramme et les Lots 0-3 ci-dessous
+sont remplacés par le bloc « Mise à jour 2026-09-12 » en fin de section (revue M8 :
+les deux plans coexistaient et se contredisaient). Conservé pour l'historique du
+fast-path uniquement.
+```
+
+```
 Fast-path (FR-only, structure actuelle) : SEO-01 + SEO-02 + TECH-10 + GEO-07 + SEO-04 (canonical)
                                               │
                                               ▼  (report du wording dans lib/i18n/)
@@ -66,6 +81,15 @@ GEO-09 (continu, dès SEO-01 terminé)
 - **Lot 1** : SEO-01 + SEO-02 (re-déclinaison bilingue) + SEO-04 (hreflang dans le layout)
 - **Lot 2** : SEO-03 (`/fr/cv` + `/en/cv`) + GEO-06
 - **Lot 3** : SEO-05 + GEO-09
+
+> **Mise à jour 2026-09-12** : GEO-08 est découpé en 8 sous-tickets (08a→08h) —
+> **Lot 0 = GEO-08a (routing, option A : root layout conservé + `x-locale`) + GEO-08b
+> (dictionnaires)**, livrés ensemble si possible (sinon redirect temporaire `/` → `/fr`),
+> puis GEO-08c (proxy) · **Lot 1 = GEO-08d**
+> (metadata/hreflang, absorbe la re-déclinaison SEO-01/02 + SEO-04 hreflang) ·
+> **Lot 2 = GEO-08e (sitemap) + GEO-08f (switcher) + GEO-08h (migration `/cv` bilingue,**
+> **absorbe la re-déclinaison SEO-03)** + GEO-06 ·
+> **Lot 3 = GEO-08g (chat EN)** + SEO-05 + GEO-09.
 
 ## Conventions du corpus
 
