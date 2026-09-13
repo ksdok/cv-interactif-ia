@@ -57,6 +57,15 @@ export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-nonce', nonce)
 
+  // GEO-08a (option A) : pose du header x-locale consommé par app/layout.tsx
+  // pour <html lang> (même pattern que x-nonce). Détection minimale par préfixe
+  // de chemin ; la détection Accept-Language + le redirect 307 de / sont la
+  // spécification de GEO-08c (livré après). Fallback 'fr' (marché cible) pour
+  // toute route sans préfixe de locale (/cv, /api, fichiers...).
+  const pathname = request.nextUrl.pathname
+  const locale = pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'fr'
+  requestHeaders.set('x-locale', locale)
+
   const response = NextResponse.next({
     request: {
       headers: requestHeaders,

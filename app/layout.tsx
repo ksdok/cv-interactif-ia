@@ -13,6 +13,19 @@ import './globals.css'
 import { cookies, headers } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 
+// GEO-08a (option A) : la locale est injectée par proxy.ts via le header
+// x-locale (même pattern que x-nonce). Le root layout est conservé minimal —
+// déplacer <html> sous app/[lang]/ casserait app/cv (pas de root layout, erreur
+// fatale Next 16). Fallback 'fr' (marché cible) si le header est absent
+// (ex. rendu sans proxy, tests).
+const SUPPORTED_LOCALES = ['fr', 'en'] as const
+
+function resolveLocale(headerValue: string | null): string {
+  return SUPPORTED_LOCALES.includes(headerValue as (typeof SUPPORTED_LOCALES)[number])
+    ? (headerValue as string)
+    : 'fr'
+}
+
 const inter = Inter({ subsets: ['latin'] })
 
 // TECH-10 : viewport déclaré via l'export Next.js (une seule meta dans le HTML servi).
@@ -102,6 +115,7 @@ export default async function RootLayout({
   const headersList = await headers()
   const csrfToken = cookieStore.get(CSRF_COOKIE_CONFIG.name)?.value || ''
   const nonce = headersList.get('x-nonce') || undefined
+  const lang = resolveLocale(headersList.get('x-locale'))
 
   // SEO-01 : entité Person (@id requis pour le cross-référencement par ProfessionalService)
   // + bloc ProfessionalService. Wording FR (fast-path), EN au Lot 0 (GEO-08).
@@ -155,7 +169,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="fr">
+    <html lang={lang}>
       <head>
         {/* TECH-10 : la meta viewport est générée par l'export `viewport` ci-dessus —
             ne pas remettre une meta manuelle (doublon + maximum-scale bloque le zoom). */}

@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 interface ExperienceGridProps {
   onOpenJobMatcher: () => void
 }
@@ -20,9 +22,9 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
             <p className="max-w-md text-on-surface leading-relaxed">
               Value driven solutions with a human-centered approach, adapted to the evolving landscape of finance and technology. I bridge the gap between complex data and actionable insights, ensuring that every project not only meets business objectives but also resonates with the people it serves.
             </p>
-            <a href="/cv" className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors">
+            <Link href="/cv" className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors">
               View full CV →
-            </a>
+            </Link>
           </div>
           {/* Decorative background icon */}
           <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none select-none">

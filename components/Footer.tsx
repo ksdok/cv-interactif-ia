@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Footer() {
   return (
     <footer className="w-full py-12 bg-transparent">
@@ -6,12 +8,12 @@ export default function Footer() {
           © 2026 Kim-san DOK. Curated Minimalism.
         </p>
         <div className="flex space-x-12">
-          <a
+          <Link
             href="/cv"
             className="text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors"
           >
             CV
-          </a>
+          </Link>
           <a
             href="https://www.linkedin.com/in/kim-san-dok"
             target="_blank"
