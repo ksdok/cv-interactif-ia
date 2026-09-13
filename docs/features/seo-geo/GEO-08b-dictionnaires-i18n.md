@@ -1,6 +1,7 @@
 # GEO-08b — Dictionnaires i18n `lib/i18n/` + composants en props
 
-- **Priorité** : P2 · **Effort** : M · **Statut** : ⬜
+- **Priorité** : P2 · **Effort** : M · **Statut** : ✅ (2026-09-12, branche
+  `feat/geo-08-i18n` ; déviations documentées ci-dessous)
 - **Parent** : [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) ·
   **Dépendances** : GEO-08a (le routing doit exister pour consommer le dictionnaire)
 
@@ -59,3 +60,34 @@ locale active, y compris les messages d'erreur (mappés côté client depuis un 
    (test manuel : retirer une clé de `en.ts` → erreur, puis restaurer).
 4. Une erreur API (`429` rate limit) affichée côté client dans `/fr` est rendue en
    français via le mapping `errorCode` → dictionnaire (review M4).
+
+## Notes d'implémentation (2026-09-12)
+
+- **`as const` non utilisé dans `fr.ts`** : avec `as const`, `typeof fr` donnerait
+  des types littéraux et `const en: Dictionary = {...}` exigerait des chaînes
+  strictement identiques au FR — l'intention review N4 (clé manquante en `en.ts`
+  = erreur de compilation) est préservée par le match structurel sur valeurs
+  élargies `string`. Testé : retrait de la clé `notFound.back` en `en.ts` →
+  `error TS2741`, puis restauration.
+- **`lib/i18n/dictionaries.ts` ajouté** (hors liste « Fichiers impactés » de la
+  spec) : `getDictionary(lang)` — évite d'importer `fr`/`en` dans `config.ts`
+  (qui est aussi bundle edge via `proxy.ts`). Usage serveur uniquement ; les
+  composants client reçoivent le dict en props.
+- **Wording metadata/JSON-LD non déplacé dans le dictionnaire** (spec point 2) :
+  il vit dans `lib/site.ts` (source unique, leçon M1 de la review 08a) — sa
+  déclinaison par locale est GEO-08d. Dupliquer dans le dictionnaire créerait
+  deux sources de vérité.
+- **`/cv`** reçoit le dictionnaire EN en import serveur direct (`import en from
+  '@/lib/i18n/en'`) — page EN fast-path jusqu'à GEO-08h.
+- **Règle ESLint `react/jsx-no-literals`** activée sur `app/` + `components/`
+  (children texte uniquement, `ignoreProps: true`), allow-list : `—`, `%`,
+  `404`, `*`. Probe de validation : un composant temporaire avec texte en dur
+  a bien été flaggé, puis supprimé.
+- **Critère 4 — rendu client** : la partie serveur est mesurée (429 →
+  `errorCode: "RATE_LIMIT"`) ; le rendu FR côté navigateur (mapping
+  `dictionary.apiErrors`) est vérifié par lecture du code — la vérification
+  navigateur complète attend un déclenchement réel côté prod.
+- **Mailto « Contact Me »** (JobMatcher) : corps d'e-mail EN conservé tel quel
+  (template literal dans href, non visible en UI) — à réévaluer à GEO-08h.
+- **`language: locale`** envoyé par JobMatcher mais ignoré par la route
+  job-match : l'analyse IA reste EN — à traiter avec GEO-08g (chat multilingue).
