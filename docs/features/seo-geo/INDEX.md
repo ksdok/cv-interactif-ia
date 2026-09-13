@@ -25,11 +25,11 @@
 | GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ⬜ | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
 | GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ✅ (2026-09-12, vérifié en prod) | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
 | GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B ; **découpé en 08a→08h** (2026-09-12) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
-| GEO-08a | Fondation routing i18n : `app/[lang]/` | P2 | M | — | ✅ (2026-09-12, option A + `x-locale` ; note : statut HTTP 200 sur les 404, préexistant) | [GEO-08a-fondation-routing-i18n.md](GEO-08a-fondation-routing-i18n.md) |
+| GEO-08a | Fondation routing i18n : `app/[lang]/` | P2 | M | — | ✅ (2026-09-12, option A ; review B1 traitée — cause racine corrigée, cf. ticket) | [GEO-08a-fondation-routing-i18n.md](GEO-08a-fondation-routing-i18n.md) |
 | GEO-08b | Dictionnaires `lib/i18n/` + composants en props | P2 | M | GEO-08a | ⬜ | [GEO-08b-dictionnaires-i18n.md](GEO-08b-dictionnaires-i18n.md) |
-| GEO-08c | Détection locale + redirect 307 + `x-locale` (`proxy.ts`) | P2 | S | GEO-08a | ⬜ | [GEO-08c-proxy-detection-locale.md](GEO-08c-proxy-detection-locale.md) |
+| GEO-08c | Détection locale + redirect 307 + `x-locale` (`proxy.ts`) | P2 | S | GEO-08a | ✅ (2026-09-12, livré avec 08a+08e — review B2 ; étape 2 corrigée M2) | [GEO-08c-proxy-detection-locale.md](GEO-08c-proxy-detection-locale.md) |
 | GEO-08d | Metadata + JSON-LD + hreflang bilingues | P2 | S | GEO-08b | ⬜ | [GEO-08d-metadata-jsonld-hreflang-bilingue.md](GEO-08d-metadata-jsonld-hreflang-bilingue.md) |
-| GEO-08e | Sitemap bilingue + `alternates.languages` | P2 | XS | GEO-08a (08d reco) | ⬜ | [GEO-08e-sitemap-bilingue.md](GEO-08e-sitemap-bilingue.md) |
+| GEO-08e | Sitemap bilingue + `alternates.languages` | P2 | XS | GEO-08a (08d reco) | ✅ (2026-09-12, livré avec 08a+08c — review B2) | [GEO-08e-sitemap-bilingue.md](GEO-08e-sitemap-bilingue.md) |
 | GEO-08f | Switcher de langue Header (lien crawlable) | P2 | XS | GEO-08b | ⬜ | [GEO-08f-switcher-langue-header.md](GEO-08f-switcher-langue-header.md) |
 | GEO-08g | Chat Nicky multilingue + fidélité EN | P2 | S | GEO-08b | ⬜ | [GEO-08g-chat-nicky-multilingue.md](GEO-08g-chat-nicky-multilingue.md) |
 | GEO-08h | Migration `/cv` bilingue (`/fr/cv`, `/en/cv`) + 301 | P2 | S | GEO-08a, 08b, 08d | ⬜ | [GEO-08h-migration-cv-bilingue.md](GEO-08h-migration-cv-bilingue.md) |
@@ -90,6 +90,12 @@ GEO-09 (continu, dès SEO-01 terminé)
 > **Lot 2 = GEO-08e (sitemap) + GEO-08f (switcher) + GEO-08h (migration `/cv` bilingue,**
 > **absorbe la re-déclinaison SEO-03)** + GEO-06 ·
 > **Lot 3 = GEO-08g (chat EN)** + SEO-05 + GEO-09.
+>
+> **Complément 2026-09-12 (review post-implémentation)** : GEO-08a + GEO-08c +
+> GEO-08e sont livrés ensemble sur `feat/geo-08-i18n` (review B2 — un déploiement
+> isolé de 08a seul aurait publié `/` en 404 sans point d'entrée). GEO-08b
+> (dictionnaires) reste à livrer ; d'ici là, `/fr` et `/en` servent le même
+> contenu EN en dur (assumé, temporaire) avec canonical par locale (B3).
 
 ## Conventions du corpus
 

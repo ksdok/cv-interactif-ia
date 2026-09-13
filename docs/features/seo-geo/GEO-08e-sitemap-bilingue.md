@@ -1,6 +1,7 @@
 # GEO-08e — Sitemap bilingue avec `alternates.languages`
 
-- **Priorité** : P2 · **Effort** : XS · **Statut** : ⬜
+- **Priorité** : P2 · **Effort** : XS · **Statut** : ✅ (2026-09-12, branche
+  `feat/geo-08-i18n`, livré avec 08a + 08c — review B2)
 - **Parent** : [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) ·
   **Dépendances** : GEO-08a (les routes `/fr`, `/en` doivent exister) ;
   GEO-08d recommandé (hreflang cohérent avec le sitemap)
