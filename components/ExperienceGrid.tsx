@@ -1,10 +1,13 @@
+import Link from 'next/link'
+import type { Dictionary } from '@/lib/i18n/types'
+
 interface ExperienceGridProps {
+  dictionary: Dictionary
   onOpenJobMatcher: () => void
 }
 
-export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps) {
-  const stack = ['Agentic Coding', 'React', 'TypeScript', 'Next.js', 'Tailwind', 'Python', 'Supabase']
-  const humanStack = ['Empathy driven', 'Adaptable', 'Collaborative', 'AI Enthusiast']
+export default function ExperienceGrid({ dictionary, onOpenJobMatcher }: ExperienceGridProps) {
+  const { experience } = dictionary
   return (
     <section className="w-full px-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
@@ -12,17 +15,17 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
         {/* Featured Role — 2 cols */}
         <div className="md:col-span-2 bg-surface-container-low rounded-lg p-10 flex flex-col justify-between group overflow-hidden relative min-h-[400px]">
           <div className="z-10">
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">Featured Role</span>
-            <h3 className="text-3xl font-bold mt-4 mb-2 text-on-surface">Business Analyst</h3>
-            <p className="text-secondary">@ Société Générale — 2016–Present</p>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.featuredLabel}</span>
+            <h3 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.featuredTitle}</h3>
+            <p className="text-secondary">{experience.featuredCompany}</p>
           </div>
           <div className="mt-8 z-10">
             <p className="max-w-md text-on-surface leading-relaxed">
-              Value driven solutions with a human-centered approach, adapted to the evolving landscape of finance and technology. I bridge the gap between complex data and actionable insights, ensuring that every project not only meets business objectives but also resonates with the people it serves.
+              {experience.featuredBody}
             </p>
-            <a href="/cv" className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors">
-              View full CV →
-            </a>
+            <Link href="/cv" className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors">
+              {experience.featuredCta}
+            </Link>
           </div>
           {/* Decorative background icon */}
           <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none select-none">
@@ -35,19 +38,19 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
         {/* Technical Stack — 1 col */}
         <div className="bg-surface-container-highest rounded-lg p-10 flex flex-col justify-between">
           <div>
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">Human Stack</span>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.humanStackLabel}</span>
             <div className="mt-6 flex flex-wrap gap-2">
-              {humanStack.map((humanStack) => (
-                <span key={humanStack} className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface">
-                  {humanStack}
+              {experience.humanStack.map((item) => (
+                <span key={item} className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface">
+                  {item}
                 </span>
               ))}
             </div>
           </div>
           <div className="mt-8">
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">Project Technical Stack</span>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.techStackLabel}</span>
             <div className="mt-6 flex flex-wrap gap-2">
-              {stack.map((skill) => (
+              {experience.techStack.map((skill) => (
                 <span key={skill} className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface">
                   {skill}
                 </span>
@@ -61,7 +64,7 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
               rel="noopener noreferrer"
               className="text-xs font-bold uppercase tracking-wider flex items-center gap-2 text-on-surface hover:text-secondary transition-colors underline underline-offset-8"
             >
-              View GitHub
+              {experience.githubCta}
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
@@ -71,11 +74,11 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
 
         {/* Burning passions — 1 col */}
         <div className="bg-surface-container-lowest rounded-lg p-10 md:col-span-1 shadow-sm flex flex-col group overflow-hidden relative">
-          <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-6">Burning passions</span>
-          <p className="text-lg font-bold text-on-surface">Bike &amp; Food</p>
-          <p className="text-secondary text-sm">Ride, sweat and eat</p>
-          <p className="text-lg font-bold text-on-surface">Cats</p>
-          <p className="text-secondary text-sm">In Cat Distribution System I trust</p>
+          <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-6">{experience.passionsLabel}</span>
+          <p className="text-lg font-bold text-on-surface">{experience.passion1Title}</p>
+          <p className="text-secondary text-sm">{experience.passion1Body}</p>
+          <p className="text-lg font-bold text-on-surface">{experience.passion2Title}</p>
+          <p className="text-secondary text-sm">{experience.passion2Body}</p>
           {/* Decorative background flame */}
           <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none select-none">
             <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface">
@@ -87,19 +90,19 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
         {/* Job Matcher — 2 cols */}
         <div className="md:col-span-2 bg-surface-container-low rounded-lg p-10 flex flex-col justify-between group overflow-hidden relative">
           <div className="z-10">
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">Test Your Fit</span>
-            <h3 className="text-3xl font-bold mt-4 mb-2 text-on-surface">Match a Job</h3>
-            <p className="text-secondary text-sm">AI-powered resume analysis</p>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.matcherLabel}</span>
+            <h3 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.matcherTitle}</h3>
+            <p className="text-secondary text-sm">{experience.matcherSubtitle}</p>
           </div>
           <div className="mt-8 z-10">
             <p className="max-w-md text-on-surface leading-relaxed mb-8">
-              Paste any job description and get an instant analysis of how well your profile matches the role.
+              {experience.matcherBody}
             </p>
             <button
               onClick={onOpenJobMatcher}
               className="px-8 py-4 bg-primary text-on-primary rounded-full text-sm font-bold hover:opacity-80 active:scale-95 transition-all"
             >
-              Open Matcher
+              {experience.matcherCta}
             </button>
           </div>
           {/* Decorative background icon */}
@@ -113,16 +116,16 @@ export default function ExperienceGrid({ onOpenJobMatcher }: ExperienceGridProps
         {/* CTA — 3 cols full width, dark card */}
         <div className="md:col-span-3 bg-on-background rounded-lg p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
           <div className="max-w-md">
-            <h3 className="text-2xl font-bold mb-4 text-on-primary">Ready to collaborate?</h3>
+            <h3 className="text-2xl font-bold mb-4 text-on-primary">{experience.ctaTitle}</h3>
             <p className="text-secondary-fixed-dim text-sm leading-relaxed">
-              I&apos;m not yet available but open for opportunities.
+              {experience.ctaBody}
             </p>
           </div>
           <a
             href="mailto:dokkimsan@gmail.com"
             className="shrink-0 bg-surface-container-lowest text-on-surface px-8 py-4 rounded font-bold hover:bg-surface-container-low transition-colors text-sm"
           >
-            Say Hello
+            {experience.ctaButton}
           </a>
         </div>
 

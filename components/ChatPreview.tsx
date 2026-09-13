@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import TypingEffect from './TypingEffect'
 import LinkifiedText from './LinkifiedText'
+import type { ApiErrorCode, Dictionary } from '@/lib/i18n/types'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -14,17 +15,20 @@ interface ChatPreviewProps {
   isExpanded?: boolean
   onExpand?: () => void
   csrfToken: string
+  dictionary: Dictionary
 }
-
-const INITIAL_AI_MESSAGE = "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience.\n\nWhat would you like to know first?"
 
 export default function ChatPreview({
   isExpanded = false,
   onExpand,
-  csrfToken
+  csrfToken,
+  dictionary
 }: ChatPreviewProps) {
+  // Review F5 (GEO-08b) : dérivé de greeting1/greeting2 (pas de clé dupliquée —
+  // une divergence ferait se contredire la bulle d'accueil et le 1er message).
+  const initialMessage = `${dictionary.chat.greeting1}\n\n${dictionary.chat.greeting2}`
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: INITIAL_AI_MESSAGE }
+    { role: 'assistant', content: initialMessage }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -94,12 +98,21 @@ export default function ChatPreview({
       })
 
       if (!response.headers.get('content-type')?.includes('application/json')) {
-        throw new Error(`Server error: ${response.status}`)
+        throw new Error(dictionary.apiErrors.SERVER)
       }
       const data = await response.json()
 
       if (data.error) {
-        throw new Error(data.error)
+        // Review M4 : l'API renvoie un errorCode agnostique de la langue ; le
+        // client mappe vers le message localisé. Exception F3 (review GEO-08b) :
+        // pour VALIDATION, le message serveur est actionnable (longueur,
+        // structure) — le générique du dictionnaire effacerait le détail.
+        const mapped = typeof data.errorCode === 'string'
+          ? dictionary.apiErrors[data.errorCode as ApiErrorCode]
+          : undefined
+        throw new Error(
+          data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error)
+        )
       }
 
       setMessages((prev) => [
@@ -112,7 +125,10 @@ export default function ChatPreview({
         ...prev,
         {
           role: 'assistant',
-          content: 'Failed to get response. Please try again.',
+          content:
+            error instanceof Error && error.message
+              ? error.message
+              : dictionary.chat.errorMessage,
         },
       ])
     } finally {
@@ -147,10 +163,10 @@ export default function ChatPreview({
             </div>
             <div className="space-y-4">
               <p className="text-on-surface text-lg leading-relaxed opacity-70">
-                Hello, I&apos;m Nicky, Kim-san&apos;s digital twin. I&apos;m here to help you navigate through years of experience.
+                {dictionary.chat.greeting1}
               </p>
               <p className="text-on-surface text-lg leading-relaxed opacity-70">
-                What would you like to know first?
+                {dictionary.chat.greeting2}
               </p>
             </div>
           </div>
@@ -212,8 +228,8 @@ export default function ChatPreview({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Nicky about Kim-san's experience..."
-            aria-label="Ask Nicky about Kim-san's experience"
+            placeholder={dictionary.chat.placeholder}
+            aria-label={dictionary.chat.placeholderAria}
             className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-[#5f5e5e] rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-[max(20px,1.25rem)] transition-all duration-200 ease-in-out"
             disabled={isLoading}
             enterKeyHint="send"
@@ -222,9 +238,9 @@ export default function ChatPreview({
             type="button"
             onClick={doSend}
             disabled={!isTokenReady || isLoading || !input.trim()}
-            aria-label="Send message"
+            aria-label={dictionary.chat.sendAria}
             className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-on-primary rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-            title={!isTokenReady ? 'Loading...' : ''}
+            title={!isTokenReady ? dictionary.chat.loadingTitle : ''}
           >
             {isLoading ? (
               <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">

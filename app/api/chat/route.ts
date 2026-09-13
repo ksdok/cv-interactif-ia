@@ -74,6 +74,8 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: 'Rate limit exceeded: 200 requests per day maximum',
+          // GEO-08b (review M4) : code agnostique de la langue, mappé côté client.
+          errorCode: 'RATE_LIMIT',
           retryAfter: retryAfterSeconds,
           resetTime: rateLimit.resetTime,
         },
@@ -102,7 +104,7 @@ export async function POST(req: Request) {
         tokenLength: csrfTokenFromRequest?.length || 0,
       })
       return NextResponse.json(
-        { error: 'CSRF token validation failed' },
+        { error: 'CSRF token validation failed', errorCode: 'CSRF' },
         { status: 403 }
       )
     }
@@ -121,7 +123,7 @@ export async function POST(req: Request) {
     if (!validation.isValid) {
       console.warn('Invalid message format:', validation.error)
       return NextResponse.json(
-        { error: `Invalid request: ${validation.error}` },
+        { error: `Invalid request: ${validation.error}`, errorCode: 'VALIDATION' },
         { status: 400 }
       )
     }
@@ -154,7 +156,7 @@ export async function POST(req: Request) {
     // Log the error server-side for debugging and return a generic 500 error to the client.
     console.error('API error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate response. Please try again.' },
+      { error: 'Failed to generate response. Please try again.', errorCode: 'SERVER' },
       { status: 500 }
     )
   }

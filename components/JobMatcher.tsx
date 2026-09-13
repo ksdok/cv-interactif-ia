@@ -1,6 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import type { ApiErrorCode, Dictionary } from '@/lib/i18n/types'
+import type { Lang } from '@/lib/i18n/config'
 
 interface JobMatchResult {
   overallMatch: number
@@ -14,9 +16,11 @@ interface JobMatchResult {
 interface JobMatcherProps {
   isOpen: boolean
   onClose: () => void
+  dictionary: Dictionary
+  locale: Lang
 }
 
-export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
+export default function JobMatcher({ isOpen, onClose, dictionary, locale }: JobMatcherProps) {
   const [jobDescription, setJobDescription] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<JobMatchResult | null>(null)
@@ -68,14 +72,14 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
 
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
-      setError('Please enter a job description')
+      setError(dictionary.jobMatcher.errors.empty)
       return
     }
 
-    if (jobDescription.length > 10000) {
-      setError('Job description is too long (max 10,000 characters)')
-      return
-    }
+    // Review F4 (GEO-08b) : pas de garde client >10000 (branche morte — le
+    // textarea est borné à 5000 via maxLength + slice) ni de clé tooLong
+    // fausse dans le dictionnaire : le serveur parle (VALIDATION, message
+    // actionnable affiché tel quel via le passthrough F3).
 
     setIsLoading(true)
     setError('')
@@ -85,7 +89,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
       const csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute('content') : null
 
       if (!csrfToken) {
-        setError('Security error: CSRF token not found. Please refresh the page.')
+        setError(dictionary.jobMatcher.errors.csrfMissing)
         setIsLoading(false)
         return
       }
@@ -96,19 +100,29 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
           'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken,
         },
-        body: JSON.stringify({ jobDescription, language: 'en' }),
+        // GEO-08b : la locale de l'UI est transmise à l'API (au lieu du 'en' en
+        // dur). NB : la route ignore encore ce champ — l'analyse EN reste
+        // assumée jusqu'à la localisation de l'analyse IA (GEO-08g adjacent).
+        body: JSON.stringify({ jobDescription, language: locale }),
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to analyze job match')
+        // Review M4 + F3 (GEO-08b) : mapping errorCode -> message localisé,
+        // sauf VALIDATION (message serveur actionnable, ex. longueur min/max).
+        const mapped = typeof data.errorCode === 'string'
+          ? dictionary.apiErrors[data.errorCode as ApiErrorCode]
+          : undefined
+        throw new Error(
+          data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error ?? dictionary.jobMatcher.errors.apiFallback)
+        )
       }
 
       setResult(data)
       setJobDescription('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while analyzing the job match')
+      setError(err instanceof Error && err.message ? err.message : dictionary.jobMatcher.errors.unexpected)
     } finally {
       setIsLoading(false)
     }
@@ -135,12 +149,12 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
         {/* Header */}
         <div className="sticky top-0 bg-surface-container-lowest p-6 flex items-center justify-between">
           <div>
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">AI Analysis</span>
-            <h2 id="job-matcher-title" className="text-2xl font-bold text-on-surface mt-1">Job Match</h2>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{dictionary.jobMatcher.aiLabel}</span>
+            <h2 id="job-matcher-title" className="text-2xl font-bold text-on-surface mt-1">{dictionary.jobMatcher.title}</h2>
           </div>
           <button
             onClick={handleClose}
-            aria-label="Close dialog"
+            aria-label={dictionary.jobMatcher.closeAria}
             className="text-secondary hover:text-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,19 +170,19 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
             <div className="space-y-6">
               <div>
                 <label htmlFor="job-desc" className="block text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">
-                  Job Description
+                  {dictionary.jobMatcher.descLabel}
                 </label>
                 <textarea
                   id="job-desc"
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value.slice(0, 5000))}
-                  placeholder="Paste the job description here..."
+                  placeholder={dictionary.jobMatcher.descPlaceholder}
                   className="w-full h-40 sm:h-48 px-6 py-4 bg-surface-container-low text-on-surface placeholder:text-[#5f5e5e] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary resize-none text-[max(16px,1rem)] leading-relaxed"
                   disabled={isLoading}
                   maxLength={5000}
                 />
                 <p className="text-xs text-secondary mt-2">
-                  {jobDescription.length}/5,000 characters
+                  {jobDescription.length}{dictionary.jobMatcher.charsCount}
                 </p>
               </div>
 
@@ -189,10 +203,10 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span>Analyzing...</span>
+                    <span>{dictionary.jobMatcher.analyzing}</span>
                   </div>
                 ) : (
-                  'Analyze Match'
+                  dictionary.jobMatcher.analyzeCta
                 )}
               </button>
             </div>
@@ -202,27 +216,27 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
               {/* Score cards — no borders, surface color shift */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-surface-container rounded-lg p-5">
-                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">Overall</p>
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">{dictionary.jobMatcher.overall}</p>
                   <p className="text-4xl font-bold text-on-surface">{result.overallMatch}%</p>
                 </div>
                 <div className="bg-surface-container rounded-lg p-5">
-                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">Skills</p>
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">{dictionary.jobMatcher.skills}</p>
                   <p className="text-4xl font-bold text-on-surface">{result.skillsMatch}%</p>
                 </div>
                 <div className="bg-surface-container rounded-lg p-5">
-                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">Experience</p>
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">{dictionary.jobMatcher.experience}</p>
                   <p className="text-4xl font-bold text-on-surface">{result.experienceMatch}%</p>
                 </div>
               </div>
 
               <div>
-                <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">Analysis</p>
+                <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">{dictionary.jobMatcher.analysis}</p>
                 <p className="text-on-surface leading-relaxed text-sm">{result.analysis}</p>
               </div>
 
               {result.strengths.length > 0 && (
                 <div>
-                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">Strengths</p>
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">{dictionary.jobMatcher.strengths}</p>
                   <ul className="space-y-2">
                     {result.strengths.map((strength, idx) => (
                       <li key={idx} className="text-on-surface text-sm flex gap-3">
@@ -236,7 +250,7 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
 
               {result.improvements.length > 0 && (
                 <div>
-                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">Areas for Improvement</p>
+                  <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-3">{dictionary.jobMatcher.improvements}</p>
                   <ul className="space-y-2">
                     {result.improvements.map((improvement, idx) => (
                       <li key={idx} className="text-on-surface text-sm flex gap-3">
@@ -253,19 +267,19 @@ export default function JobMatcher({ isOpen, onClose }: JobMatcherProps) {
                   onClick={handleReset}
                   className="flex-1 bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
-                  Analyze Another Job
+                  {dictionary.jobMatcher.anotherCta}
                 </button>
                 <a
                   href={`mailto:dokkimsan@gmail.com?subject=Job%20Match%20Analysis%20Results&body=Hello%20Kim-san,%0A%0AI%20have%20analyzed%20the%20profile%20with%20the%20job%20description%20and%20would%20like%20to%20discuss%20the%20results:%0A%0AOverall%20Match:%20${result.overallMatch}%25%0ASkills%20Match:%20${result.skillsMatch}%25%0AExperience%20Match:%20${result.experienceMatch}%25%0A%0AAnalysis:%0A${encodeURIComponent(result.analysis)}%0A%0AStrengths:%0A${result.strengths.join('%0A')}%0A%0AAreas%20for%20Improvement:%0A${result.improvements.join('%0A')}%0A%0AI%20look%20forward%20to%20hearing%20from%20you.`}
                   className="flex-1 flex items-center justify-center bg-primary text-on-primary font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
-                  Contact Me
+                  {dictionary.jobMatcher.contactCta}
                 </a>
                 <button
                   onClick={handleClose}
                   className="flex-1 bg-surface-container text-on-surface font-semibold px-6 py-3 rounded-full transition-all active:scale-95 hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
                 >
-                  Close
+                  {dictionary.jobMatcher.closeCta}
                 </button>
               </div>
             </div>
