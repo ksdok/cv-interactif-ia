@@ -96,6 +96,12 @@ GEO-09 (continu, dès SEO-01 terminé)
 > un déploiement isolé de 08a seul aurait publié `/` en 404 sans point d'entrée).
 > **Le Lot 0 est complet** : `/fr` s'affiche en français, `/en` en anglais, zéro
 > chaîne visible en dur, canonical par locale (B3). Suite : Lot 1 = GEO-08d.
+>
+> **Review Lot 0 (2026-09-12) : ✅ APPROUVÉ** — typecheck/lint/build verts,
+> critères revérifiés en conditions réelles. Findings M1–M6 tous non-bloquants,
+> traités : M1 (note sitemap /cv conservé), M2 (`localeFromHeaders`), M3 (type
+> `generateMetadata` honnête), M4 (commentaire nuancé `__next_error__`),
+> M5 (tracé à GEO-08h), M6 (déjà tracé). Suite : Lot 1 = GEO-08d.
 
 ## Conventions du corpus
 

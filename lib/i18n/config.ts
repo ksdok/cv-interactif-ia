@@ -27,3 +27,13 @@ export function localeFromPathname(pathname: string): Lang | null {
   const segment = pathname.split('/')[1]
   return isLocale(segment) ? segment : null
 }
+
+/**
+ * Locale pour les composants serveur hors segment [lang] (root layout,
+ * not-found racine) : lit le header x-locale posé par proxy.ts, fallback
+ * marché cible. Review M2 (GEO-08b) : factorisation de la logique
+ * `isLocale(header) ?? DEFAULT_LOCALE` dupliquée par chaque consommateur.
+ */
+export function localeFromHeaders(headerValue: string | null): Lang {
+  return isLocale(headerValue) ? headerValue : DEFAULT_LOCALE
+}

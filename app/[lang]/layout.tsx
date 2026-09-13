@@ -33,10 +33,14 @@ export function generateStaticParams(): { lang: Lang }[] {
 // /fr et /en. GEO-08d absorbera/refactorera (hreflang, title/description par
 // locale) ; openGraph est re-déclaré en entier car le merge de metadata Next
 // est superficiel (un openGraph partiel écraserait title/description).
+// Review M3 (Lot 0) : `lang` typé `string` — au runtime, generateMetadata peut
+// être appelé avec un param non encore validé (ex. /de) ; le type ne doit pas
+// mentir (sur /de, le canonical générique est inoffensif : page 404 non indexée,
+// la validation du LangLayout rejette avant rendu du contenu).
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ lang: Lang }>
+  params: Promise<{ lang: string }>
 }): Promise<Metadata> {
   const { lang } = await params
   const pageUrl = `${SITE_URL}/${lang}`
@@ -64,11 +68,16 @@ export default async function LangLayout({
 }) {
   // GEO-08a/B1 (review, itérations 1→3) + F8 (GEO-08b) : validation du param
   // AU LAYOUT, source unique — un notFound() levé ici rend la frontière
-  // not-found du segment PARENT (app/not-found.tsx) dans le shell root layout
-  // complet (<html lang>, meta CSRF). Le même notFound() levé dans la page
-  // produisait le document d'erreur minimal __next_error__ (sans layout).
-  // page.tsx ne refait PAS ce check au runtime (le sien ne sert qu'au narrowing
-  // type pour getDictionary).
+  // not-found du segment PARENT (app/not-found.tsx). Le même notFound() levé
+  // dans la page produisait le document d'erreur minimal __next_error__ (sans
+  // layout). page.tsx ne refait PAS ce check au runtime (le sien ne sert
+  // qu'au narrowing type pour getDictionary).
+  // Review M4 (Lot 0) — précision : pour une ROUTE MANQUANTE sous une locale
+  // valide (/fr/cv), le shell complet est servi (lang, CSRF, 404 localisé dans
+  // le HTML brut, mesuré). Pour un PARAM INVALIDE (/de), Next 16 sert le
+  // document d'erreur minimal __next_error__ : la 404 localisée est livrée via
+  // le payload RSC (rendue par les navigateurs après hydratation) —
+  // comportement structurel Next 16 documenté dans le ticket GEO-08a.
   const { lang } = await params
   if (!isLocale(lang)) notFound()
   return children

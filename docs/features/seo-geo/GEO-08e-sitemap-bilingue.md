@@ -34,6 +34,13 @@ entrée.
 
 ## Critères d'acceptation
 
+> 🔄 **Note d'implémentation (2026-09-12, review Lot 0 M1)** : mesuré **3**
+> entrées `<loc>` — `/fr`, `/en` **et `/cv`** (préexistante sur main, conservée
+> tant que GEO-08h n'a pas migré la page CV : la retirer priverait d'indexation
+> une page indexée). Le critère « 2 entrées » ci-dessous s'entend pour les
+> entrées localisées ; GEO-08h portera le total à 5 (`/fr/cv`, `/en/cv` en plus,
+> retrait de `/cv`).
+
 1. `curl -s localhost:3000/sitemap.xml` contient 2 entrées `<loc>` (une `/fr`, une `/en`)
    — review N3 : compter les `<loc>` (grep -o '<loc>' | wc -l), pas `grep -o '/fr'`
    (qui compte aussi les entrées alternates).

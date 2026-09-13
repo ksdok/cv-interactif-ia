@@ -37,6 +37,10 @@ corpus, note 🔗 SEO-03).
 - `app/sitemap.ts` (entrées CV bilingues)
 - `lib/i18n/*` (contenu CV localisé)
 
+> 🔄 **Ajout 2026-09-12 (review Lot 0, M5)** : `/cv` lit encore
+> `process.env.NEXT_PUBLIC_SITE_URL` (préexistant sur main, exception à la
+> source unique `lib/site.ts`) — résorber ici lors de la migration.
+
 ## Résultat attendu
 
 `/fr/cv` et `/en/cv` indexables, liées par hreflang ; l'URL `/cv` déjà indexée est

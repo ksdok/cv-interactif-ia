@@ -1,6 +1,6 @@
 import { headers } from 'next/headers'
 import Link from 'next/link'
-import { DEFAULT_LOCALE, isLocale } from '@/lib/i18n/config'
+import { localeFromHeaders } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 
 /**
@@ -18,8 +18,7 @@ import { getDictionary } from '@/lib/i18n/dictionaries'
  */
 export default async function NotFound() {
   const headerList = await headers()
-  const headerLocale = headerList.get('x-locale')
-  const lang = isLocale(headerLocale) ? headerLocale : DEFAULT_LOCALE
+  const lang = localeFromHeaders(headerList.get('x-locale'))
   const dictionary = getDictionary(lang)
 
   return (

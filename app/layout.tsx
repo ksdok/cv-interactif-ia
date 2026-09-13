@@ -12,7 +12,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { cookies, headers } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
-import { DEFAULT_LOCALE, isLocale, type Lang } from '@/lib/i18n/config'
+import { localeFromHeaders, type Lang } from '@/lib/i18n/config'
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -109,7 +109,7 @@ export default async function RootLayout({
   // conservé minimal — déplacer <html> sous app/[lang]/ casserait app/cv (pas
   // de root layout, erreur fatale Next 16). Fallback fr si le header est absent.
   const headerLocale = headersList.get('x-locale')
-  const lang: Lang = isLocale(headerLocale) ? headerLocale : DEFAULT_LOCALE
+  const lang = localeFromHeaders(headerLocale)
 
   // SEO-01 : entité Person (@id requis pour le cross-référencement par ProfessionalService)
   // + bloc ProfessionalService. Wording FR (fast-path), EN au GEO-08d.
