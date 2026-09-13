@@ -92,10 +92,10 @@ GEO-09 (continu, dès SEO-01 terminé)
 > **Lot 3 = GEO-08g (chat EN)** + SEO-05 + GEO-09.
 >
 > **Complément 2026-09-12 (review post-implémentation)** : GEO-08a + GEO-08c +
-> GEO-08e sont livrés ensemble sur `feat/geo-08-i18n` (review B2 — un déploiement
-> isolé de 08a seul aurait publié `/` en 404 sans point d'entrée). GEO-08b
-> (dictionnaires) reste à livrer ; d'ici là, `/fr` et `/en` servent le même
-> contenu EN en dur (assumé, temporaire) avec canonical par locale (B3).
+> GEO-08e + **GEO-08b** sont livrés ensemble sur `feat/geo-08-i18n` (review B2 —
+> un déploiement isolé de 08a seul aurait publié `/` en 404 sans point d'entrée).
+> **Le Lot 0 est complet** : `/fr` s'affiche en français, `/en` en anglais, zéro
+> chaîne visible en dur, canonical par locale (B3). Suite : Lot 1 = GEO-08d.
 
 ## Conventions du corpus
 
