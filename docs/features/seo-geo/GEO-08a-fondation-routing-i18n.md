@@ -1,6 +1,7 @@
 # GEO-08a — Fondation routing i18n : `app/[lang]/` (option A : root layout conservé)
 
-- **Priorité** : P2 · **Effort** : M · **Statut** : ⬜
+- **Priorité** : P2 · **Effort** : M · **Statut** : ✅ (2026-09-12, branche
+  `feat/geo-08-i18n`, option A + x-locale par préfixe de chemin)
 - **Parent** : [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) (décision
   Option B, 2026-09-10) · **Dépendances** : aucune (premier maillon de la chaîne)
 
@@ -63,6 +64,12 @@ Next 16), et un layout nested ne peut pas porter `<html>`.
 API ne sont pas affectées.
 
 ## Critères d'acceptation
+
+> ⚠️ **Note de vérification (2026-09-12)** : le statut HTTP des pages not-found est **200**
+> (et non 404) — comportement **préexistant sur main**, lié au rewrite de headers de requête
+> par `proxy.ts` (`x-nonce`, pattern NextResponse.next) qui fait perdre le code 404 de Next.
+> La page not-found localisée est correctement rendue ; le statut exact est une limite
+> plateforme à traiter séparément si besoin (hors périmètre GEO-08a).
 
 1. **Couple** (review M1 — la prod sert déjà `lang="fr"` aujourd'hui, le critère seul est
    faible) : `/fr` → 200 + `<html lang="fr">` **et** `/en` → 200 + `<html lang="en">`

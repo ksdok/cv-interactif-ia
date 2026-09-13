@@ -25,7 +25,7 @@
 | GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ⬜ | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
 | GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ✅ (2026-09-12, vérifié en prod) | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
 | GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B ; **découpé en 08a→08h** (2026-09-12) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
-| GEO-08a | Fondation routing i18n : `app/[lang]/` | P2 | M | — | ⬜ | [GEO-08a-fondation-routing-i18n.md](GEO-08a-fondation-routing-i18n.md) |
+| GEO-08a | Fondation routing i18n : `app/[lang]/` | P2 | M | — | ✅ (2026-09-12, option A + `x-locale` ; note : statut HTTP 200 sur les 404, préexistant) | [GEO-08a-fondation-routing-i18n.md](GEO-08a-fondation-routing-i18n.md) |
 | GEO-08b | Dictionnaires `lib/i18n/` + composants en props | P2 | M | GEO-08a | ⬜ | [GEO-08b-dictionnaires-i18n.md](GEO-08b-dictionnaires-i18n.md) |
 | GEO-08c | Détection locale + redirect 307 + `x-locale` (`proxy.ts`) | P2 | S | GEO-08a | ⬜ | [GEO-08c-proxy-detection-locale.md](GEO-08c-proxy-detection-locale.md) |
 | GEO-08d | Metadata + JSON-LD + hreflang bilingues | P2 | S | GEO-08b | ⬜ | [GEO-08d-metadata-jsonld-hreflang-bilingue.md](GEO-08d-metadata-jsonld-hreflang-bilingue.md) |
