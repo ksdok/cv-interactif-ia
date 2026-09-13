@@ -41,6 +41,14 @@ cache et taux de hit divisé (README : caching OpenAI dès ~1 024 tokens).
 - `lib/validation.ts` (validation du champ `lang`, fallback `fr`)
 - `scripts/validate-cag.mjs` (mode EN), `scripts/measure-cache.mjs` (mesure EN)
 
+> 🔄 **Étendu 2026-09-12 (review F9 GEO-08b)** : ce ticket couvre AUSSI la
+> localisation de l'analyse job-match — sans lui, `/fr` afficherait une UI FR
+> avec une sortie IA EN sans propriétaire :
+> - `app/api/job-match/route.ts` (lire le champ `language` déjà envoyé par le
+>   client — aujourd'hui ignoré — et consigner l'analyse dans la langue)
+> - `components/JobMatcher.tsx` (envoie déjà `language: locale` depuis GEO-08b,
+>   mais la route l'ignore)
+
 ## Résultat attendu
 
 Le chat répond dans la langue de la page, sans déformation des données du CV, sans

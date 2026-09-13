@@ -55,6 +55,10 @@ locale active, y compris les messages d'erreur (mappés côté client depuis un 
    (`react/jsx-no-literals` ou équivalent) avec allow-list explicite (noms propres,
    « Nicky »). Le grep simple ne fait pas foi.
 2. `/fr` : les textes du Hero/Footer/chat sont en FR ; `/en` : en EN.
+   ⚠️ **Rescoré 2026-09-12 (review F2)** : le critère porte sur le **corps
+   visible** — le `<head>` de `/en` reste hérité du root layout en FR
+   (title/description/JSON-LD) : c'est exactement le périmètre GEO-08d,
+   assumé et tracé (commentaire de `app/[lang]/layout.tsx` et `lib/site.ts`).
 3. `npx tsc --noEmit` (review N4 — pas de script `typecheck` dans `package.json`, à
    ajouter ou appeler via npx) échoue si une clé manque dans un des deux dictionnaires
    (test manuel : retirer une clé de `en.ts` → erreur, puis restaurer).
@@ -90,4 +94,33 @@ locale active, y compris les messages d'erreur (mappés côté client depuis un 
 - **Mailto « Contact Me »** (JobMatcher) : corps d'e-mail EN conservé tel quel
   (template literal dans href, non visible en UI) — à réévaluer à GEO-08h.
 - **`language: locale`** envoyé par JobMatcher mais ignoré par la route
-  job-match : l'analyse IA reste EN — à traiter avec GEO-08g (chat multilingue).
+  job-match : l'analyse IA reste EN — **étendu à GEO-08g** (review F9 : la
+  spec 08g couvre désormais `/api/job-match` + `JobMatcher`).
+
+## Mise à jour review 2026-09-12 (F1–F9)
+
+- **F1 (SEO, corrigé)** : `/FR`, `/Fr` étaient servies 200 auto-canoniques
+  (canonical = `SITE_URL/FR`, duplicate content, og:locale incohérent) —
+  `isLocale` n'était pas strict (toLowerCase dans le type-guard).
+  Correctif : `isLocale` **strict** (type-guard sound) + redirect **308 de
+  normalisation de casse** dans `proxy.ts` (avant la pose x-locale).
+  Mesuré : `/FR`, `/Fr`, `/fR` → 308 `/fr` ; `/EN` → 308 `/en`.
+  Le fallback `?? dictionaries.fr` de `getDictionary` (inatteignable en
+  typage, masquait le bug) a été retiré.
+- **F3** : `errorCode: 'VALIDATION'` → le message serveur actionnable
+  (longueur min/max) s'affiche tel quel ; les autres codes restent mappés.
+- **F4** : branche morte `>10000` supprimée + clé `errors.tooLong` retirée des
+  deux dictionnaires (valeur fausse : serveur = 5000, textarea borné à 5000).
+- **F5** : clé `chat.initialMessage` supprimée (dupliquée exactement avec
+  `greeting1 + \n\n + greeting2`) — dérivée dans ChatPreview.
+- **F6** : `scripts/check-locale.mjs` — test de résidu de locale par
+  sentinelles (`node scripts/check-locale.mjs [baseURL]`), vert.
+  Limites ESLint documentées dans `eslint.config.mjs` (attributs, const
+  hissées, `content/**` à GEO-08h).
+- **F7** : `eslint-plugin-react` ajouté en devDependencies (n'était résolu que
+  transitivement) ; spread `nextVitals/nextTs` dupliqué dédoublonné.
+- **F8** : validation du param `[lang]` — source unique dans `LangLayout` ; le
+  check de `page.tsx` ne sert plus qu'au narrowing (commentaires réalignés
+  dans layout/page/proxy).
+- **F9** : spec GEO-08g étendue (job-match + JobMatcher).
+- Nits : commentaires « Lot 0 » périmés réorientés (08d/08h).
