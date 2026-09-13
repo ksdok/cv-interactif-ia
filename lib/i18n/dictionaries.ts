@@ -13,6 +13,9 @@ import en from './en'
 
 const dictionaries: Record<Lang, Dictionary> = { fr, en }
 
+// Review F1 (GEO-08b) : pas de fallback silencieux — le Record<Lang, Dictionary>
+// est total et l'appelant a validé la locale (layout) ; un fallback `?? fr`
+// masquerait une valeur non normalisée en amont.
 export function getDictionary(lang: Lang): Dictionary {
-  return dictionaries[lang] ?? dictionaries.fr
+  return dictionaries[lang]
 }

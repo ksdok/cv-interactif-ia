@@ -32,7 +32,7 @@ export const viewport: Viewport = {
 }
 
 // Title : nom d'abord (préférence utilisateur), puis métier. Wording EN + hreflang
-// au Lot 0 (i18n, cf. GEO-08). Constantes wordées dans lib/site.ts (source unique,
+// au GEO-08d (metadata bilingues, i18n). Constantes wordées dans lib/site.ts (source unique,
 // partagées avec app/[lang]/layout.tsx et app/sitemap.ts).
 
 export const metadata: Metadata = {
@@ -112,7 +112,7 @@ export default async function RootLayout({
   const lang: Lang = isLocale(headerLocale) ? headerLocale : DEFAULT_LOCALE
 
   // SEO-01 : entité Person (@id requis pour le cross-référencement par ProfessionalService)
-  // + bloc ProfessionalService. Wording FR (fast-path), EN au Lot 0 (GEO-08).
+  // + bloc ProfessionalService. Wording FR (fast-path), EN au GEO-08d.
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [

@@ -24,8 +24,11 @@ export default function ChatPreview({
   csrfToken,
   dictionary
 }: ChatPreviewProps) {
+  // Review F5 (GEO-08b) : dérivé de greeting1/greeting2 (pas de clé dupliquée —
+  // une divergence ferait se contredire la bulle d'accueil et le 1er message).
+  const initialMessage = `${dictionary.chat.greeting1}\n\n${dictionary.chat.greeting2}`
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: dictionary.chat.initialMessage }
+    { role: 'assistant', content: initialMessage }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -101,11 +104,15 @@ export default function ChatPreview({
 
       if (data.error) {
         // Review M4 : l'API renvoie un errorCode agnostique de la langue ; le
-        // client mappe vers le message localisé. Fallback : message brut de l'API.
+        // client mappe vers le message localisé. Exception F3 (review GEO-08b) :
+        // pour VALIDATION, le message serveur est actionnable (longueur,
+        // structure) — le générique du dictionnaire effacerait le détail.
         const mapped = typeof data.errorCode === 'string'
           ? dictionary.apiErrors[data.errorCode as ApiErrorCode]
           : undefined
-        throw new Error(mapped ?? data.error)
+        throw new Error(
+          data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error)
+        )
       }
 
       setMessages((prev) => [

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { generateCSRFToken, CSRF_COOKIE_CONFIG } from './lib/csrf'
-import { DEFAULT_LOCALE, localeFromPathname } from './lib/i18n/config'
+import { DEFAULT_LOCALE, isLocale, localeFromPathname } from './lib/i18n/config'
 
 function generateNonce(): string {
   const bytes = new Uint8Array(16)
@@ -52,21 +52,37 @@ export async function proxy(request: NextRequest) {
   }
 
   // Ordre imposé par la spec GEO-08c (review B3) : ① redirect host (ci-dessus)
-  // → ② pose x-locale → ③ redirect / → ④ nonce/CSP. Les redirections return
-  // avant la génération du nonce pour ne pas en gaspiller (revue M3).
+  // → ② normalisation de casse de la locale → ③ pose x-locale → ④ redirect /
+  // → ⑤ nonce/CSP. Les redirections return avant la génération du nonce pour
+  // ne pas en gaspiller (revue M3).
 
-  // ② GEO-08a (option A) + GEO-08c étape 2 (revue M2 corrigée) : le préfixe de
+  // ② F1 (review GEO-08b) : normalisation de casse du préfixe de locale.
+  // /FR, /Fr → 308 vers /fr (URL équivalente → code permanent approprié).
+  // Sinon : URL auto-canonique en casse mixte (canonical = SITE_URL/FR),
+  // duplicate content pour Google, et og:locale incohérent. isLocale est
+  // strict (pas de toLowerCase) : on détecte la casse mixte via le segment
+  // minuscule avant de rediriger ; une casse invalide (/Fr avec isLocale
+  // strict) est déjà couverte car 'fr' est bien une locale.
+  const pathname = request.nextUrl.pathname
+  const segment = pathname.split('/')[1]
+  const segmentLower = segment?.toLowerCase()
+  if (segment && segmentLower && isLocale(segmentLower) && segment !== segmentLower) {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.replace(`/${segment}`, `/${segmentLower}`)
+    return NextResponse.redirect(url, 308)
+  }
+
+  // ③ GEO-08a (option A) + GEO-08c étape 2 (revue M2 corrigée) : le préfixe de
   // chemin gagne TOUJOURS pour x-locale (<html lang> suit l'URL, critère 1 de
   // 08a) — Accept-Language ne sert qu'à choisir la cible du redirect de /.
   // Fallback fr (marché cible). /cv est en contenu EN (fast-path SEO-03) tant
   // que GEO-08h n'est pas livré : on aligne lang sur le contenu (revue M4).
-  const pathname = request.nextUrl.pathname
   const pathLocale = localeFromPathname(pathname)
   const locale = pathLocale ?? (pathname === '/cv' ? 'en' : DEFAULT_LOCALE)
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-locale', locale)
 
-  // ③ GEO-08c étape 3 : redirect de / vers la locale négociée. 307 (pas de
+  // ④ GEO-08c étape 3 : redirect de / vers la locale négociée. 307 (pas de
   // 308/301 : la cible dépend d'un header de négociation, non cacheable par
   // les intermédiaires — review B2) + Vary: Accept-Language. Pas de branche
   // cookie NEXT_LOCALE (review M3 du corpus — code mort, GEO-08f ne le pose pas).
@@ -81,14 +97,13 @@ export async function proxy(request: NextRequest) {
   }
 
   // GEO-08a/B1 : la protection anti-soft-404 est assurée par la validation du
-  // param dans app/[lang]/page.tsx (notFound() avant tout rendu → 404 + body
-  // propre). Un rewrite 404 côté proxy a été testé puis retiré : le statut
-  // forcé par NextResponse.rewrite(url, {status: 404}) fait servir le 404
-  // PAR DÉFAUT de Next (frontières custom bypassées) et le corps streamé
-  // contenait la homepage (rendu [lang] avant résolution du 404 en flight).
-  // → voir review B1 ; validation page > rewrite proxy.
+  // param dans app/[lang]/layout.tsx (notFound() au niveau layout → frontière
+  // not-found racine rendue dans le shell complet ; un notFound() posé dans la
+  // page produisait le document d'erreur minimal __next_error__, et un rewrite
+  // 404 côté proxy a été testé puis retiré — statut correct mais frontières
+  // custom bypassées et corps streamé dégradé. → review B1, itérations 1→3.)
 
-  // ④ nonce/CSP — inchangés, placés après les redirections (return early).
+  // ⑤ nonce/CSP — inchangés, placés après les redirections (return early).
   const nonce = generateNonce()
   const cspHeader = buildCspHeader(nonce)
   const reportOnly = process.env.CSP_REPORT_ONLY === 'true'

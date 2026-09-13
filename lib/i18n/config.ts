@@ -14,14 +14,16 @@ export type Lang = (typeof LANGUAGES)[number]
 export const DEFAULT_LOCALE: Lang = 'fr'
 
 export function isLocale(value: unknown): value is Lang {
-  return (
-    typeof value === 'string' &&
-    (LANGUAGES as readonly string[]).includes(value.toLowerCase())
-  )
+  // Review F1 (GEO-08b) : STRICT — pas de toLowerCase. `isLocale('FR')` doit
+  // retourner false pour que le type-guard soit sound (sinon le runtime reçoit
+  // une valeur non-Lang malgré le narrowing) et pour que /FR ne soit jamais
+  // servie comme page valide. La normalisation de casse est faite en amont par
+  // proxy.ts (redirect 308 vers la forme minuscule).
+  return typeof value === 'string' && (LANGUAGES as readonly string[]).includes(value)
 }
 
 /** Locale d'un chemin préfixé (/en, /en/cv...) ; null si pas de préfixe valide. */
 export function localeFromPathname(pathname: string): Lang | null {
   const segment = pathname.split('/')[1]
-  return isLocale(segment) ? (segment.toLowerCase() as Lang) : null
+  return isLocale(segment) ? segment : null
 }

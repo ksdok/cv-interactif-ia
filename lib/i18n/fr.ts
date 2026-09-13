@@ -32,8 +32,6 @@ const fr = {
     greeting1:
       'Bonjour, je suis Nicky, le jumeau numérique de Kim-san. Je suis là pour vous aider à naviguer à travers des années d’expérience.',
     greeting2: 'Que souhaitez-vous savoir en premier ?',
-    initialMessage:
-      'Bonjour, je suis Nicky, le jumeau numérique de Kim-san. Je suis là pour vous aider à naviguer à travers des années d’expérience.\n\nQue souhaitez-vous savoir en premier ?',
     placeholder:
       'Demandez à Nicky ce que vous voulez savoir sur l’expérience de Kim-san...',
     placeholderAria:
@@ -80,7 +78,6 @@ const fr = {
     charsCount: '/5 000 caractères',
     errors: {
       empty: 'Veuillez saisir une description de poste.',
-      tooLong: 'La description du poste est trop longue (10 000 caractères maximum).',
       csrfMissing: 'Erreur de sécurité : jeton CSRF introuvable. Veuillez recharger la page.',
       apiFallback: 'Échec de l’analyse du match. Veuillez réessayer.',
       unexpected: 'Une erreur est survenue pendant l’analyse du match.',

@@ -1,6 +1,7 @@
 // app/cv/page.tsx
 // SEO-03 — Full CV rendered as indexable HTML (fast-path EN at /cv).
-// Bilingue /fr/cv + /en/cv reporté au Lot 0 (GEO-08, routing app/[lang]/).
+// Bilingue /fr/cv + /en/cv reporté à GEO-08h (routing app/[lang]/ livré, GEO-08b
+// dictionnaires en place).
 //
 // Contenu éditorial co-rédigé dans content/cv-en.tsx (distinct de data/cv.md,
 // source FR du chatbot). Cette page ne gère que le metadata + le shell.
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
     'Paris',
   ],
   alternates: {
-    // Fast-path EN — canonical /cv. hreflang FR/EN ajouté au Lot 0 (GEO-08).
+    // Fast-path EN — canonical /cv. hreflang FR/EN ajouté à GEO-08d/h.
     canonical: `${SITE_URL}/cv`,
   },
   openGraph: {

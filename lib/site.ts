@@ -1,7 +1,9 @@
 /**
  * lib/site.ts
  * Constantes du site partagées root layout / [lang] / sitemap (GEO-08d).
- * Source unique du wording SEO-01 (FR fast-path ; déclinaison EN au GEO-08b/08d).
+ * Source unique du wording SEO-01 (FR fast-path) — la déclinaison EN des
+ * metadata (title/description/JSON-LD) est GEO-08d (review F2 GEO-08b :
+ * 08b n'a pas décliné le <head>, seulement le corps visible).
  */
 
 export const SITE_URL = 'https://kimsandok.com'

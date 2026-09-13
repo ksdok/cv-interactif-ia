@@ -76,10 +76,10 @@ export default function JobMatcher({ isOpen, onClose, dictionary, locale }: JobM
       return
     }
 
-    if (jobDescription.length > 10000) {
-      setError(dictionary.jobMatcher.errors.tooLong)
-      return
-    }
+    // Review F4 (GEO-08b) : pas de garde client >10000 (branche morte — le
+    // textarea est borné à 5000 via maxLength + slice) ni de clé tooLong
+    // fausse dans le dictionnaire : le serveur parle (VALIDATION, message
+    // actionnable affiché tel quel via le passthrough F3).
 
     setIsLoading(true)
     setError('')
@@ -109,11 +109,14 @@ export default function JobMatcher({ isOpen, onClose, dictionary, locale }: JobM
       const data = await response.json()
 
       if (!response.ok) {
-        // Review M4 : mapping errorCode -> message localisé, fallback message API.
+        // Review M4 + F3 (GEO-08b) : mapping errorCode -> message localisé,
+        // sauf VALIDATION (message serveur actionnable, ex. longueur min/max).
         const mapped = typeof data.errorCode === 'string'
           ? dictionary.apiErrors[data.errorCode as ApiErrorCode]
           : undefined
-        throw new Error(mapped ?? data.error ?? dictionary.jobMatcher.errors.apiFallback)
+        throw new Error(
+          data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error ?? dictionary.jobMatcher.errors.apiFallback)
+        )
       }
 
       setResult(data)

@@ -31,8 +31,6 @@ const en: Dictionary = {
     greeting1:
       "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience.",
     greeting2: 'What would you like to know first?',
-    initialMessage:
-      "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience.\n\nWhat would you like to know first?",
     placeholder: "Ask Nicky about Kim-san's experience...",
     placeholderAria: "Ask Nicky about Kim-san's experience",
     sendAria: 'Send message',
@@ -77,7 +75,6 @@ const en: Dictionary = {
     charsCount: '/5,000 characters',
     errors: {
       empty: 'Please enter a job description',
-      tooLong: 'Job description is too long (max 10,000 characters)',
       csrfMissing: 'Security error: CSRF token not found. Please refresh the page.',
       apiFallback: 'Failed to analyze job match',
       unexpected: 'An error occurred while analyzing the job match',
