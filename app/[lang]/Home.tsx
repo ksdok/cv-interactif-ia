@@ -1,0 +1,36 @@
+'use client'
+
+import { useState } from 'react'
+import dynamic from 'next/dynamic'
+import Header from '@/components/Header'
+import Hero from '@/components/Hero'
+import ChatPreview from '@/components/ChatPreview'
+import ExperienceGrid from '@/components/ExperienceGrid'
+import Footer from '@/components/Footer'
+
+const JobMatcher = dynamic(() => import('@/components/JobMatcher'), { ssr: false })
+
+export default function Home() {
+  const [csrfToken] = useState<string>(() => {
+    if (typeof document === 'undefined') return ''
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+  })
+  const [jobMatcherOpen, setJobMatcherOpen] = useState(false)
+
+  return (
+    <div className="min-h-screen bg-surface flex flex-col">
+      <Header />
+
+      <div className="w-full pt-16">
+        <Hero />
+        <ChatPreview csrfToken={csrfToken} />
+        <ExperienceGrid onOpenJobMatcher={() => setJobMatcherOpen(true)} />
+        <Footer />
+      </div>
+
+      {jobMatcherOpen && (
+        <JobMatcher isOpen onClose={() => setJobMatcherOpen(false)} />
+      )}
+    </div>
+  )
+}

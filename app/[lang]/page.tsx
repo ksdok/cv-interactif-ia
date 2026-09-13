@@ -1,36 +1,25 @@
-'use client'
+import { notFound } from 'next/navigation'
+import { isLocale } from '@/lib/i18n/config'
+import Home from './Home'
 
-import { useState } from 'react'
-import dynamic from 'next/dynamic'
-import Header from '@/components/Header'
-import Hero from '@/components/Hero'
-import ChatPreview from '@/components/ChatPreview'
-import ExperienceGrid from '@/components/ExperienceGrid'
-import Footer from '@/components/Footer'
-
-const JobMatcher = dynamic(() => import('@/components/JobMatcher'), { ssr: false })
-
-export default function Home() {
-  const [csrfToken] = useState<string>(() => {
-    if (typeof document === 'undefined') return ''
-    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-  })
-  const [jobMatcherOpen, setJobMatcherOpen] = useState(false)
-
-  return (
-    <div className="min-h-screen bg-surface flex flex-col">
-      <Header />
-
-      <div className="w-full pt-16">
-        <Hero />
-        <ChatPreview csrfToken={csrfToken} />
-        <ExperienceGrid onOpenJobMatcher={() => setJobMatcherOpen(true)} />
-        <Footer />
-      </div>
-
-      {jobMatcherOpen && (
-        <JobMatcher isOpen onClose={() => setJobMatcherOpen(false)} />
-      )}
-    </div>
-  )
+/**
+ * app/[lang]/page.tsx — wrapper server du segment [lang].
+ *
+ * GEO-08a/B1 (review) : la validation explicite du paramètre + notFound() levé
+ * AVANT tout rendu remplace dynamicParams = false (voir layout) : sur une route
+ * dynamique (root layout avec cookies/headers), dynamicParams=false rejetait
+ * le param après le flush du shell (contenu homepage dans le HTML brut, swap
+ * client) puis, en itération 2, produisait un document d'erreur minimal sans
+ * root layout. notFound() ici → 404 + shell complet + frontière not-found
+ * racine (app/not-found.tsx, locale-aware via x-locale).
+ * Le contenu client vit dans Home.tsx ('use client').
+ */
+export default async function LangPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
+  if (!isLocale(lang)) notFound()
+  return <Home />
 }

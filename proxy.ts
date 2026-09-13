@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { generateCSRFToken, CSRF_COOKIE_CONFIG } from './lib/csrf'
+import { DEFAULT_LOCALE, localeFromPathname } from './lib/i18n/config'
 
 function generateNonce(): string {
   const bytes = new Uint8Array(16)
@@ -50,21 +51,49 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(target, request.method === 'GET' ? 301 : 308)
   }
 
+  // Ordre imposé par la spec GEO-08c (review B3) : ① redirect host (ci-dessus)
+  // → ② pose x-locale → ③ redirect / → ④ nonce/CSP. Les redirections return
+  // avant la génération du nonce pour ne pas en gaspiller (revue M3).
+
+  // ② GEO-08a (option A) + GEO-08c étape 2 (revue M2 corrigée) : le préfixe de
+  // chemin gagne TOUJOURS pour x-locale (<html lang> suit l'URL, critère 1 de
+  // 08a) — Accept-Language ne sert qu'à choisir la cible du redirect de /.
+  // Fallback fr (marché cible). /cv est en contenu EN (fast-path SEO-03) tant
+  // que GEO-08h n'est pas livré : on aligne lang sur le contenu (revue M4).
+  const pathname = request.nextUrl.pathname
+  const pathLocale = localeFromPathname(pathname)
+  const locale = pathLocale ?? (pathname === '/cv' ? 'en' : DEFAULT_LOCALE)
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set('x-locale', locale)
+
+  // ③ GEO-08c étape 3 : redirect de / vers la locale négociée. 307 (pas de
+  // 308/301 : la cible dépend d'un header de négociation, non cacheable par
+  // les intermédiaires — review B2) + Vary: Accept-Language. Pas de branche
+  // cookie NEXT_LOCALE (review M3 du corpus — code mort, GEO-08f ne le pose pas).
+  if (pathname === '/') {
+    const acceptLanguage = (request.headers.get('accept-language') || '').toLowerCase()
+    const target = acceptLanguage.startsWith('en') ? 'en' : DEFAULT_LOCALE
+    const url = request.nextUrl.clone()
+    url.pathname = `/${target}`
+    const redirect = NextResponse.redirect(url, 307)
+    redirect.headers.set('Vary', 'Accept-Language')
+    return redirect
+  }
+
+  // GEO-08a/B1 : la protection anti-soft-404 est assurée par la validation du
+  // param dans app/[lang]/page.tsx (notFound() avant tout rendu → 404 + body
+  // propre). Un rewrite 404 côté proxy a été testé puis retiré : le statut
+  // forcé par NextResponse.rewrite(url, {status: 404}) fait servir le 404
+  // PAR DÉFAUT de Next (frontières custom bypassées) et le corps streamé
+  // contenait la homepage (rendu [lang] avant résolution du 404 en flight).
+  // → voir review B1 ; validation page > rewrite proxy.
+
+  // ④ nonce/CSP — inchangés, placés après les redirections (return early).
   const nonce = generateNonce()
   const cspHeader = buildCspHeader(nonce)
   const reportOnly = process.env.CSP_REPORT_ONLY === 'true'
 
-  const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-nonce', nonce)
-
-  // GEO-08a (option A) : pose du header x-locale consommé par app/layout.tsx
-  // pour <html lang> (même pattern que x-nonce). Détection minimale par préfixe
-  // de chemin ; la détection Accept-Language + le redirect 307 de / sont la
-  // spécification de GEO-08c (livré après). Fallback 'fr' (marché cible) pour
-  // toute route sans préfixe de locale (/cv, /api, fichiers...).
-  const pathname = request.nextUrl.pathname
-  const locale = pathname === '/en' || pathname.startsWith('/en/') ? 'en' : 'fr'
-  requestHeaders.set('x-locale', locale)
 
   const response = NextResponse.next({
     request: {

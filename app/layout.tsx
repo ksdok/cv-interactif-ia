@@ -12,19 +12,13 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { cookies, headers } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
-
-// GEO-08a (option A) : la locale est injectée par proxy.ts via le header
-// x-locale (même pattern que x-nonce). Le root layout est conservé minimal —
-// déplacer <html> sous app/[lang]/ casserait app/cv (pas de root layout, erreur
-// fatale Next 16). Fallback 'fr' (marché cible) si le header est absent
-// (ex. rendu sans proxy, tests).
-const SUPPORTED_LOCALES = ['fr', 'en'] as const
-
-function resolveLocale(headerValue: string | null): string {
-  return SUPPORTED_LOCALES.includes(headerValue as (typeof SUPPORTED_LOCALES)[number])
-    ? (headerValue as string)
-    : 'fr'
-}
+import { DEFAULT_LOCALE, isLocale, type Lang } from '@/lib/i18n/config'
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TITLE,
+  SITE_URL,
+} from '@/lib/site'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -38,14 +32,8 @@ export const viewport: Viewport = {
 }
 
 // Title : nom d'abord (préférence utilisateur), puis métier. Wording EN + hreflang
-// au Lot 0 (i18n, cf. GEO-08).
-const SITE_URL = 'https://kimsandok.com'
-const SITE_TITLE =
-  'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché'
-const SITE_DESCRIPTION =
-  "Kim-san DOK, Business Analyst Senior freelance en finance de marché (Paris, La Défense). " +
-  "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
-  "CV interactif avec assistant IA."
+// au Lot 0 (i18n, cf. GEO-08). Constantes wordées dans lib/site.ts (source unique,
+// partagées avec app/[lang]/layout.tsx et app/sitemap.ts).
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -74,7 +62,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    siteName: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
+    siteName: SITE_NAME,
     // og:image + width/height/type + alt sont générés par la convention fichier
     // app/opengraph-image.png + app/opengraph-image.alt.txt. Un tableau images[]
     // ici serait ignoré par la convention fichier (alt piloté par .alt.txt).
@@ -115,7 +103,13 @@ export default async function RootLayout({
   const headersList = await headers()
   const csrfToken = cookieStore.get(CSRF_COOKIE_CONFIG.name)?.value || ''
   const nonce = headersList.get('x-nonce') || undefined
-  const lang = resolveLocale(headersList.get('x-locale'))
+  // GEO-08a (option A) : la locale est injectée par proxy.ts via le header
+  // x-locale (même pattern que x-nonce), toujours dérivée du préfixe de chemin
+  // (revue M2 — le préfixe gagne, pas Accept-Language). Le root layout est
+  // conservé minimal — déplacer <html> sous app/[lang]/ casserait app/cv (pas
+  // de root layout, erreur fatale Next 16). Fallback fr si le header est absent.
+  const headerLocale = headersList.get('x-locale')
+  const lang: Lang = isLocale(headerLocale) ? headerLocale : DEFAULT_LOCALE
 
   // SEO-01 : entité Person (@id requis pour le cross-référencement par ProfessionalService)
   // + bloc ProfessionalService. Wording FR (fast-path), EN au Lot 0 (GEO-08).
