@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
+import type { Dictionary } from '@/lib/i18n/types'
+import type { Lang } from '@/lib/i18n/config'
 import Header from '@/components/Header'
 import Hero from '@/components/Hero'
 import ChatPreview from '@/components/ChatPreview'
@@ -10,7 +12,12 @@ import Footer from '@/components/Footer'
 
 const JobMatcher = dynamic(() => import('@/components/JobMatcher'), { ssr: false })
 
-export default function Home() {
+interface HomeProps {
+  dictionary: Dictionary
+  locale: Lang
+}
+
+export default function Home({ dictionary, locale }: HomeProps) {
   const [csrfToken] = useState<string>(() => {
     if (typeof document === 'undefined') return ''
     return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
@@ -19,17 +26,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-surface flex flex-col">
-      <Header />
+      <Header dictionary={dictionary} />
 
       <div className="w-full pt-16">
-        <Hero />
-        <ChatPreview csrfToken={csrfToken} />
-        <ExperienceGrid onOpenJobMatcher={() => setJobMatcherOpen(true)} />
-        <Footer />
+        <Hero dictionary={dictionary} />
+        <ChatPreview csrfToken={csrfToken} dictionary={dictionary} />
+        <ExperienceGrid dictionary={dictionary} onOpenJobMatcher={() => setJobMatcherOpen(true)} />
+        <Footer dictionary={dictionary} />
       </div>
 
       {jobMatcherOpen && (
-        <JobMatcher isOpen onClose={() => setJobMatcherOpen(false)} />
+        <JobMatcher isOpen onClose={() => setJobMatcherOpen(false)} dictionary={dictionary} locale={locale} />
       )}
     </div>
   )

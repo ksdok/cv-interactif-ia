@@ -83,6 +83,8 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           error: 'Rate limit exceeded: 200 analyses per day maximum',
+          // GEO-08b (review M4) : code agnostique de la langue, mappé côté client.
+          errorCode: 'RATE_LIMIT',
           retryAfter: retryAfterSeconds,
           resetTime: rateLimit.resetTime,
         },
@@ -106,7 +108,7 @@ export async function POST(req: Request) {
     if (!verifyCSRFToken(csrfTokenFromHeader, csrfTokenFromCookie)) {
       console.warn('CSRF token verification failed')
       return NextResponse.json(
-        { error: 'CSRF token validation failed' },
+        { error: 'CSRF token validation failed', errorCode: 'CSRF' },
         { status: 403 }
       )
     }
@@ -120,7 +122,7 @@ export async function POST(req: Request) {
     if (!jobDescription || typeof jobDescription !== 'string') {
       console.warn('Invalid input: jobDescription is missing or not a string')
       return NextResponse.json(
-        { error: 'Job description is required' },
+        { error: 'Job description is required', errorCode: 'VALIDATION' },
         { status: 400 }
       )
     }
@@ -129,7 +131,7 @@ export async function POST(req: Request) {
     if (trimmedJob.length < VALIDATION.MIN_LENGTH) {
       console.warn(`Job description too short: ${trimmedJob.length}/${VALIDATION.MIN_LENGTH}`)
       return NextResponse.json(
-        { error: `Job description must be at least ${VALIDATION.MIN_LENGTH} characters` },
+        { error: `Job description must be at least ${VALIDATION.MIN_LENGTH} characters`, errorCode: 'VALIDATION' },
         { status: 400 }
       )
     }
@@ -137,7 +139,7 @@ export async function POST(req: Request) {
     if (trimmedJob.length > VALIDATION.MAX_LENGTH) {
       console.warn(`Job description too long: ${trimmedJob.length}/${VALIDATION.MAX_LENGTH}`)
       return NextResponse.json(
-        { error: `Job description must be less than ${VALIDATION.MAX_LENGTH} characters` },
+        { error: `Job description must be less than ${VALIDATION.MAX_LENGTH} characters`, errorCode: 'VALIDATION' },
         { status: 400 }
       )
     }
@@ -147,7 +149,7 @@ export async function POST(req: Request) {
     if (!validateJobDescriptionContent(trimmedJob)) {
       console.warn('Job description failed content validation')
       return NextResponse.json(
-        { error: 'Invalid input' },
+        { error: 'Invalid input', errorCode: 'VALIDATION' },
         { status: 400 }
       )
     }
@@ -276,6 +278,7 @@ Be honest and specific. Consider:
     return NextResponse.json(
       {
         error: 'Failed to analyze job match. Please try again.',
+        errorCode: 'SERVER',
       },
       { status: 500 }
     )

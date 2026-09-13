@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { isLocale } from '@/lib/i18n/config'
+import { getDictionary } from '@/lib/i18n/dictionaries'
 import Home from './Home'
 
 /**
@@ -13,6 +14,10 @@ import Home from './Home'
  * root layout. notFound() ici → 404 + shell complet + frontière not-found
  * racine (app/not-found.tsx, locale-aware via x-locale).
  * Le contenu client vit dans Home.tsx ('use client').
+ *
+ * GEO-08b : le dictionnaire de la locale active est chargé ici (serveur) et
+ * passé en props — les composants client n'importent jamais le dictionnaire
+ * directement (pattern minimal du plan GEO-08, pas de next-intl).
  */
 export default async function LangPage({
   params,
@@ -21,5 +26,6 @@ export default async function LangPage({
 }) {
   const { lang } = await params
   if (!isLocale(lang)) notFound()
-  return <Home />
+  const dictionary = getDictionary(lang)
+  return <Home dictionary={dictionary} locale={lang} />
 }

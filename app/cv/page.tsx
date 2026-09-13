@@ -9,6 +9,10 @@ import type { Metadata } from 'next'
 import CvContent from '@/content/cv-en'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import en from '@/lib/i18n/en'
+
+// GEO-08b : /cv reste EN (fast-path SEO-03) — dictionnaire EN passé directement
+// (import serveur, page server) jusqu'à la migration bilingue GEO-08h.
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kimsandok.com'
 
@@ -50,11 +54,11 @@ export const metadata: Metadata = {
 export default function CvPage() {
   return (
     <div className="min-h-screen bg-surface flex flex-col">
-      <Header />
+      <Header dictionary={en} />
       <main className="w-full pt-16 flex-1">
         <CvContent />
       </main>
-      <Footer />
+      <Footer dictionary={en} />
     </div>
   )
 }
