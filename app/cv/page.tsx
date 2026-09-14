@@ -7,10 +7,12 @@
 // source FR du chatbot). Cette page ne gère que le metadata + le shell.
 
 import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 import CvContent from '@/content/cv-en'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import en from '@/lib/i18n/en'
+import { buildEntityJsonLd } from '@/lib/jsonLd'
 
 // GEO-08b : /cv reste EN (fast-path SEO-03) — dictionnaire EN passé directement
 // (import serveur, page server) jusqu'à la migration bilingue GEO-08h.
@@ -49,12 +51,36 @@ export const metadata: Metadata = {
       '10 years in market finance at Société Générale — Securities Lending, Repo, Forex, Hedging. 14M tx/yr, ×4 scalability, 500 000€/yr savings.',
     url: `${SITE_URL}/cv`,
     type: 'profile',
+    // Review M3 (Lot 1 GEO-08d) : la convention fichier (app/opengraph-image.png)
+    // ne s'applique qu'aux segments qui ne redéclarent PAS openGraph — /cv la
+    // redéclare, donc images explicites (pré-existant sans image sur main).
+    images: [
+      {
+        url: '/opengraph-image.png',
+        width: 1024,
+        height: 1024,
+        alt: en.metadata.ogImageAlt,
+      },
+    ],
   },
 }
 
-export default function CvPage() {
+export default async function CvPage() {
+  // Review M2 (Lot 1 GEO-08d) : JSON-LD restauré sur /cv via le builder
+  // mutualisé (en EN, comme le contenu) — il avait été perdu avec la
+  // suppression du bloc racine FR-only du root layout. Même nonce server-only
+  // (x-nonce de proxy.ts) que le root layout ; suppressHydrationWarning car
+  // le client n'a pas le nonce à l'hydration.
+  const nonce = (await headers()).get('x-nonce') || undefined
+  const jsonLd = buildEntityJsonLd(en)
   return (
     <div className="min-h-screen bg-surface flex flex-col">
+      <script
+        nonce={nonce}
+        suppressHydrationWarning
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header dictionary={en} />
       <main className="w-full pt-16 flex-1">
         <CvContent />

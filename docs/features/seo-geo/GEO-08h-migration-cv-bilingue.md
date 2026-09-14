@@ -55,3 +55,12 @@ préservée par un 301 permanent.
    (`metadataBase` — prérequis 08a).
 4. `sitemap.xml` contient `/fr/cv` et `/en/cv` (avec alternates) et **ne liste plus** `/cv`.
 5. `npm run lint` + `npm run build` propres.
+## Notes tracées à la review du Lot 1 (GEO-08d, 2026-09-12)
+
+- **N3** : sur /cv (pré-existant), `og:title`/`og:description` sont EN (page) mais
+  `twitter:title`/`twitter:description` restent FR (root layout), et `og:locale`
+  vaut `fr_FR` — à aligner sur EN lors de la migration (ou à remplacer par le
+  metadata du segment [lang] une fois `/cv` sous `[lang]`).
+- La page `/cv` redéclare `openGraph` sans images jusqu'à maintenant : corrigé au
+  passage de la review M3 (images explicites) ; après migration, le metadata
+  `[lang]`/page reprendra la main (og:image alt traduit, alternateLocale).

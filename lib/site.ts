@@ -20,3 +20,7 @@ export const SITE_DESCRIPTION = fr.metadata.description
 
 // og:siteName (root layout, wording SEO-01)
 export const SITE_NAME = fr.metadata.siteName
+
+// Meta keywords du root layout (review M4 Lot 1 : dérivées, pas recopiées —
+// certains moteurs IA lisent la meta keywords ; Google l'ignore, coût quasi nul)
+export const SITE_KEYWORDS = fr.metadata.keywords

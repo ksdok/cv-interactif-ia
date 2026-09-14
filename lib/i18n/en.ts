@@ -20,6 +20,10 @@ const en: Dictionary = {
       '10 years of experience in IT transformation, Securities Lending, Repo, Forex. ' +
       'Interactive resume with an AI assistant.',
     siteName: 'Kim-san DOK — Freelance Business Analyst (AMOA)',
+    // Review M3 (Lot 1): translated og:image alt (the file-convention
+    // .alt.txt is FR-only).
+    ogImageAlt:
+      'Kim-san DOK — Senior freelance Business Analyst, AMOA market finance (Paris)',
     keywords: [
       'Kim-san DOK',
       'Business Analyst',

@@ -15,6 +15,7 @@ import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { localeFromHeaders } from '@/lib/i18n/config'
 import {
   SITE_DESCRIPTION,
+  SITE_KEYWORDS,
   SITE_NAME,
   SITE_TITLE,
   SITE_URL,
@@ -45,30 +46,27 @@ export const metadata: Metadata = {
     template: '%s | Kim-san DOK',
   },
   description: SITE_DESCRIPTION,
-  keywords: [
-    'Kim-san DOK',
-    'Business Analyst',
-    'freelance',
-    'consultant indépendant',
-    'AMOA',
-    'finance de marché',
-    'Securities Lending',
-    'Forex',
-    'transformation SI',
-    'Paris',
-  ],
+  // Review M4 (Lot 1) : keywords dérivés du dictionnaire (lib/site.ts),
+  // pas recopiés — source unique du wording.
+  keywords: SITE_KEYWORDS,
   authors: [{ name: 'Kim-san DOK' }],
   creator: 'Kim-san DOK',
   openGraph: {
     type: 'website',
+    // Fallback FR : le root layout ne sert plus que des routes hors [lang]
+    // (/cv est EN mais son og:locale FR est pré-existant — wording twitter FR
+    // idem, tracé à GEO-08h, review N3/N4 Lot 1) et les 404.
     locale: 'fr_FR',
     url: SITE_URL,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     siteName: SITE_NAME,
-    // og:image + width/height/type + alt sont générés par la convention fichier
-    // app/opengraph-image.png + app/opengraph-image.alt.txt. Un tableau images[]
-    // ici serait ignoré par la convention fichier (alt piloté par .alt.txt).
+    // og:image : la convention fichier (app/opengraph-image.png + .alt.txt)
+    // s'applique QU'AUX segments qui ne redéclarent PAS openGraph (cas du
+    // root layout : /de, 404 — image servie, mesuré review M3 Lot 1). Un
+    // segment qui redéclare openGraph fait tomber l'image et doit la
+    // déclarer explicitement : app/[lang]/layout.tsx et app/cv/page.tsx
+    // le font (review M3) — l'alt y est traduit (alt.txt est FR-only).
   },
   twitter: {
     card: 'summary_large_image',

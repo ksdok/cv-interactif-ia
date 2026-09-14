@@ -21,6 +21,10 @@ const fr = {
       "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
       'CV interactif avec assistant IA.',
     siteName: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
+    // Review M3 (Lot 1) : alt traduit de l'og:image déclarée explicitement
+    // (l'alt.txt de la convention fichier est FR-only). Aligné sur alt.txt.
+    ogImageAlt:
+      'Kim-san DOK — Business Analyst Senior freelance, AMOA finance de marché (Paris)',
     keywords: [
       'Kim-san DOK',
       'Business Analyst',
@@ -35,10 +39,11 @@ const fr = {
     ],
   },
 
-  // GEO-08d — wording JSON-LD (blocs Person + ProfessionalService). Les champs
-  // non traduits (name, email, homeLocation, sameAs, knowsLanguage) et les
-  // @id sont posés dans app/[lang]/layout.tsx ; personDescription réutilise
-  // metadata.description (SEO-01 : « identique à la meta description »).
+  // GEO-08d — wording JSON-LD (blocs Person + ProfessionalService), consommé
+  // par le builder mutualisé lib/jsonLd.ts (review M2). Les champs non
+  // traduits (name, email, homeLocation, sameAs, knowsLanguage) et les @id
+  // sont posés dans le builder ; personDescription n'existe pas ici — la
+  // description Person réutilise metadata.description dans le builder.
   jsonLd: {
     jobTitle: 'Business Analyst Senior (AMOA)',
     knowsAbout: [

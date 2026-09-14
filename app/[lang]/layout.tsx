@@ -17,6 +17,7 @@ import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { isLocale, LANGUAGES, type Lang } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
+import { buildEntityJsonLd } from '@/lib/jsonLd'
 import { SITE_URL } from '@/lib/site'
 
 // generateStaticParams déclare fr/en au build (critère 3 GEO-08a). Testé
@@ -90,19 +91,40 @@ export async function generateMetadata({
     openGraph: {
       type: 'website',
       locale: locale === 'fr' ? 'fr_FR' : 'en_US',
+      // N2 (review Lot 1) : og:locale:alternate — signal OG bilingue.
+      alternateLocale: [locale === 'fr' ? 'en_US' : 'fr_FR'],
       url: pageUrl,
       title: dictionary.metadata.title,
       description: dictionary.metadata.description,
       siteName: dictionary.metadata.siteName,
-      // og:image reste piloté par la convention fichier app/opengraph-image.png
-      // (+ .alt.txt, wording BA freelance) — un tableau images[] ici serait
-      // ignoré par la convention fichier.
+      // Review M3 (Lot 1) : la convention fichier (app/opengraph-image.png)
+      // ne s'applique QU'AUX segments qui ne redéclarent PAS openGraph —
+      // redéclarer openGraph fait tomber l'image, il faut la déclarer
+      // explicitement (URL relative résolue via metadataBase du root layout).
+      // Alt traduit par locale (l'alt.txt de la convention est FR-only).
+      images: [
+        {
+          url: '/opengraph-image.png',
+          width: 1024,
+          height: 1024,
+          alt: dictionary.metadata.ogImageAlt,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: dictionary.metadata.title,
       description: dictionary.metadata.description,
-      // twitter:image dérivé de la convention app/opengraph-image.png.
+      // Review M3 (Lot 1) : image déclarée explicitement (même règle que
+      // og:image) — summary_large_image sans image = aperçu X dégradé.
+      images: [
+        {
+          url: '/opengraph-image.png',
+          width: 1024,
+          height: 1024,
+          alt: dictionary.metadata.ogImageAlt,
+        },
+      ],
     },
     // robots (index/follow) est hérité du root layout.
   }
@@ -132,48 +154,13 @@ export default async function LangLayout({
   const dictionary = getDictionary(lang)
 
   // GEO-08d point 3 : le JSON-LD sort du root layout (FR-only) et devient une
-  // fonction de params.lang. Une entité Person unique, traduite par page,
-  // avec les MÊMES @id (https://kimsandok.com/#person, /#service) sur les
-  // deux locales — critère 3 : c'est ce qui garantit que Google traite /fr et
-  // /en comme une seule entité bilingue, pas deux entités concurrentes.
-  // Les @id/url/sameAs/email/homeLocation sont des identifiants d'entité :
-  // volontairement identiques sur les deux locales, NON traduits.
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Person',
-        '@id': `${SITE_URL}/#person`,
-        name: 'Kim-san DOK',
-        jobTitle: dictionary.jsonLd.jobTitle,
-        description: dictionary.metadata.description,
-        url: SITE_URL,
-        email: 'dokkimsan@gmail.com',
-        homeLocation: {
-          '@type': 'PostalAddress',
-          addressLocality: 'Paris',
-          addressRegion: 'FR-IDF',
-          addressCountry: 'FR',
-        },
-        areaServed: 'FR',
-        knowsLanguage: ['fr', 'en'],
-        sameAs: [
-          'https://www.linkedin.com/in/kim-san-dok',
-          'https://github.com/ksdok',
-        ],
-        knowsAbout: dictionary.jsonLd.knowsAbout,
-      },
-      {
-        '@type': 'ProfessionalService',
-        '@id': `${SITE_URL}/#service`,
-        name: dictionary.jsonLd.serviceName,
-        description: dictionary.jsonLd.serviceDescription,
-        areaServed: 'FR',
-        url: SITE_URL,
-        founder: { '@id': `${SITE_URL}/#person` },
-      },
-    ],
-  }
+  // fonction de params.lang. Builder mutualisé (review M2 Lot 1) — une entité
+  // Person unique, traduite par page, avec les MÊMES @id
+  // (https://kimsandok.com/#person, /#service) sur les deux locales — critère
+  // 3 : c'est ce qui garantit que Google traite /fr et /en comme une seule
+  // entité bilingue, pas deux entités concurrentes. /cv consomme le même
+  // builder (en EN) via app/cv/page.tsx.
+  const jsonLd = buildEntityJsonLd(dictionary)
 
   // nonce est server-only (injecté par proxy.ts via x-nonce, même pattern que
   // le root layout) ; le client n'en dispose pas à l'hydration -> diff

@@ -78,3 +78,30 @@ HTML porte les annotations hreflang fr/en/x-default.
 - SEO-02 (re-déclinaison bilingue du H1) : **déjà couvert par le Lot 0** — le Hero est
   traduit via le dictionnaire depuis GEO-08b (`hero.titleName`/`titleRole`) ; rien à faire.
 - Typecheck / lint / build verts ; /fr, /en : metadata 200 + 404 (/de, /fr/xyz) inchangés.
+
+## Review Lot 1 (2026-09-12) : ✅ APPROUVÉ — M1–M4 traités dans la branche
+
+- **M1** : `app/sitemap.ts` — `x-default` du sitemap aligné sur `/fr` (le
+  `https://kimsandok.com` racine est le redirect 307 de négociation, jamais un
+  candidat x-default ; deux x-default divergents dans un même cluster font
+  risquer le rejet de l'annotation entière par Google). Décideur = GEO-08d.
+- **M2 (option a)** : JSON-LD mutualisé dans `lib/jsonLd.ts` (builder piloté par
+  dictionnaire), consommé par `app/[lang]/layout.tsx` **et** `app/cv/page.tsx`
+  → le JSON-LD de /cv est **restauré immédiatement** (EN, comme son contenu),
+  pas seulement tracé à GEO-08h. Critère 3 inchangé (mêmes `@id` partout).
+- **M3** : le commentaire « convention fichier ignorée par un tableau images[] »
+  était faux (c'est l'inverse : redéclarer openGraph fait tomber l'image de la
+  convention). `og:image`/`twitter:image` déclarés explicitement dans
+  `[lang]/layout` et `/cv` (1024×1024, alt traduit via `metadata.ogImageAlt` —
+  l'alt.txt de la convention est FR-only). `/fr` et `/en` retrouvent un
+  `og:image` (absent depuis le Lot 0 — défaut pré-existant, pas une régression
+  de GEO-08d).
+- **M4** : keywords du root layout dérivés du dictionnaire (`SITE_KEYWORDS`,
+  `lib/site.ts`) — plus de recopie verbatim ; commentaire `og:locale` honnêtisé.
+- **N1** : commentaire `lib/i18n/fr.ts` corrigé (personDescription n'existe pas,
+  la réutilisation de metadata.description se fait dans le builder).
+- **N2** : `openGraph.alternateLocale` (og:locale:alternate) ajouté sur /fr, /en.
+- **N4** (pré-existant, tracé ici) : sur les 404 sous locale valide (/fr/xyz),
+  canonical → `https://kimsandok.com` (URL qui 307) + deux meta robots
+  contradictoires (noindex de la frontière gagne sur index,follow du root).
+  À nettoyer lors d'un passage sur les 404 (GEO-08h ou ticket dédié).
