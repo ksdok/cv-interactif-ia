@@ -34,6 +34,7 @@ const en: Dictionary = {
       'Securities Lending',
       'Forex',
       'IT transformation',
+      'migration',
       'Paris',
     ],
   },
@@ -52,6 +53,7 @@ const en: Dictionary = {
       'Forex',
       'Collateral',
       'IT Transformation',
+      'Migration',
       'SQL',
     ],
     serviceName: 'Kim-san DOK — Freelance Business Analyst (AMOA)',
@@ -103,6 +105,8 @@ const en: Dictionary = {
       'Broadridge',
       'Kondor+',
       'PSM I',
+      'IT Transformation',
+      'Migration',
       'Paris',
     ],
   },
@@ -115,7 +119,7 @@ const en: Dictionary = {
       'Explore my professional journey through a conversational interface — Senior Business Analyst in ',
     introHighlight: 'market finance',
     introRest:
-      ' (Paris) with more than 10 years of experience, specialized in Securities Lending, Repo, and Forex. Ask about my background, technical stack, or recent projects.',
+      ' (Paris) with more than 10 years of experience, specialized in Securities Lending, Repo, and Forex.',
     aside:
       'This experimental interface bridges the gap between static documents and human conversation, powered by custom LLM integration.',
   },
@@ -133,8 +137,8 @@ const en: Dictionary = {
 
   experience: {
     featuredLabel: 'Featured Role',
-    featuredTitle: 'Business Analyst',
-    featuredCompany: '@ Société Générale — 2016–Present',
+    featuredTitle: 'Free of any contract',
+    featuredCompany: 'Technology watch and freelance opportunities',
     featuredBody:
       'Value driven solutions with a human-centered approach, adapted to the evolving landscape of finance and technology. I bridge the gap between complex data and actionable insights, ensuring that every project not only meets business objectives but also resonates with the people it serves.',
     featuredCta: 'View full CV →',
@@ -146,16 +150,16 @@ const en: Dictionary = {
     passionsLabel: 'Burning passions',
     passion1Title: 'Bike & Food',
     passion1Body: 'Ride, sweat and eat',
-    passion2Title: 'Cats',
-    passion2Body: 'In Cat Distribution System I trust',
+    passion2Title: 'Artificial Intelligence',
+    passion2Body: 'play, test, learn and share',
     matcherLabel: 'Test Your Fit',
     matcherTitle: 'Match a Job',
-    matcherSubtitle: 'AI-powered resume analysis',
+    matcherSubtitle: 'AI-powered job analysis',
     matcherBody:
-      'Paste any job description and get an instant analysis of how well your profile matches the role.',
+      'Paste any job description and get an instant analysis of how well my profile matches the role.',
     matcherCta: 'Open Matcher',
     ctaTitle: 'Ready to collaborate?',
-    ctaBody: "I'm not yet available but open for opportunities.",
+    ctaBody: "I'm available for opportunities.",
     ctaButton: 'Say Hello',
   },
 

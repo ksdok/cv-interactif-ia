@@ -35,6 +35,7 @@ const fr = {
       'Securities Lending',
       'Forex',
       'transformation SI',
+      'migration',
       'Paris',
     ],
   },
@@ -55,6 +56,7 @@ const fr = {
       'Forex',
       'Collatéral',
       'Transformation SI',
+      'Migration',
       'SQL',
     ],
     serviceName: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
@@ -65,7 +67,7 @@ const fr = {
 
   header: {
     name: 'Kim-san DOK',
-    tagline: 'design par kim-san / code par l’IA',
+    tagline: 'design par kim-san / codé par l’IA',
     // GEO-08f — switcher de langue : les deux locales sont affichées (FR / EN),
     // highlight sur la langue active (préférence utilisateur, 2026-09-14).
     // Les labels FR/EN sont des codes ISO — dans le composant, pas ici.
@@ -107,19 +109,20 @@ const fr = {
       'Broadridge',
       'Kondor+',
       'PSM I',
+      'Migration',
       'Paris',
     ],
   },
 
   hero: {
-    label: 'Vitrine de portfolio',
+    label: 'Portfolio',
     titleName: 'Kim-san DOK',
     titleRole: 'Business Analyst Freelance',
     introLead:
       'Explorez mon parcours professionnel à travers une interface conversationnelle — Business Analyst senior en ',
     introHighlight: 'finance de marché',
     introRest:
-      ' (Paris) avec plus de 10 ans d’expérience, spécialisé en Securities Lending, Repo et Forex. Interrogez librement mon parcours, ma stack technique ou mes projets récents.',
+      ' (Paris) avec plus de 10 ans d’expérience, spécialisé en Securities Lending, Repo et Forex.',
     aside:
       'Cette interface expérimentale fait le pont entre documents statiques et conversation humaine, propulsée par une intégration LLM sur mesure.',
   },
@@ -138,9 +141,9 @@ const fr = {
   },
 
   experience: {
-    featuredLabel: 'Rôle à la une',
-    featuredTitle: 'Business Analyst',
-    featuredCompany: '@ Société Générale — 2016–aujourd’hui',
+    featuredLabel: 'Poste actuel',
+    featuredTitle: 'Libre de tout contrat',
+    featuredCompany: 'Veille active et opportunités freelance',
     featuredBody:
       'Des solutions orientées valeur avec une approche centrée humain, adaptée aux évolutions de la finance et de la technologie. Je fais le lien entre données complexes et décisions actionnables, pour que chaque projet atteigne ses objectifs métier tout en gardant du sens pour ses utilisateurs.',
     featuredCta: 'Voir le CV complet →',
@@ -152,17 +155,17 @@ const fr = {
     passionsLabel: 'Passions brûlantes',
     passion1Title: 'Vélo & Cuisine',
     passion1Body: 'Rouler, transpirer et manger',
-    passion2Title: 'Chats',
-    passion2Body: 'Je crois au Cat Distribution System',
+    passion2Title: 'Intelligence Artificielle',
+    passion2Body: 'Jouer, tester, apprendre et partager',
     matcherLabel: 'Testez votre match',
     matcherTitle: 'Matchez un poste',
-    matcherSubtitle: 'Analyse de CV par IA',
+    matcherSubtitle: 'Analyse de poste par IA',
     matcherBody:
-      'Collez une fiche de poste et obtenez une analyse instantanée de l’adéquation entre votre profil et le rôle.',
+      'Collez une fiche de poste et obtenez une analyse instantanée de l’adéquation entre mon profil et le poste.',
     matcherCta: 'Ouvrir le matcher',
     ctaTitle: 'Prêt à collaborer ?',
-    ctaBody: 'Je ne suis pas encore disponible mais ouvert aux opportunités.',
-    ctaButton: 'Dites bonjour',
+    ctaBody: 'Je suis disponible et ouvert aux opportunités.',
+    ctaButton: 'C\'est par là',
   },
 
   jobMatcher: {

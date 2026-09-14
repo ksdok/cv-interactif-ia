@@ -63,8 +63,7 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
           <table className="w-full text-left text-sm">
             <tbody className="divide-y divide-surface-variant">
               <Figure figure="10 ans" context="Business Analyst en finance de marché" />
-              <Figure figure="14 M de transactions/an" context="Plateforme Securities Lending / Repo / Triparty — scalabilité ×4 cadrée" />
-              <Figure figure="500 000€/an d’économies" context="Remplacement de Kondor+ et K+TP (Front + Back Office) par des solutions internes" />
+              <Figure figure="Simplification du SI & 500 000€/an d’économies" context="Remplacement de Kondor+ et K+TP (Front + Back Office) par des solutions internes" />
               <Figure figure="Ouverture de nouvelles activités" context="Migration de 4Sight Financial vers SFCM (Repo, Triparty)" />
             </tbody>
           </table>
@@ -178,7 +177,7 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
       </Section>
 
       {/* ---------------------------------------------------------------- Personal projects */}
-      <Section id="projets" kicker="Projets personnels" title="Construits en dehors du poste">
+      <Section id="projets" kicker="Projets personnels" title="Expérimentations et outils">
         <div className="space-y-8">
           <Project
             name="Site CV interactif IA"
@@ -212,11 +211,12 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
         <ul className="space-y-3 text-on-surface-variant">
           <li><span className="text-on-surface font-medium">Cyclisme</span> — les cols de montagne avec les amis.</li>
           <li><span className="text-on-surface font-medium">Course</span> — Marathon de Paris, semi-marathon de Paris, Oxy’Trail, 10KM de Paris.</li>
+          <li><span className="text-on-surface font-medium">Intelligence Artificielle</span> — gestion d’agents IA, recherche en apprentissage automatique.</li>
         </ul>
       </Section>
 
       {/* ---------------------------------------------------------------- Contact */}
-      <Section id="contact" kicker="Contact" title="Discutons">
+      <Section id="contact" kicker="Contact" title="Discutons ensemble">
         <p className={BODY}>
           Disponible pour des missions freelance Business Analyst / AMOA en finance de marché.
           Contactez-moi pour évoquer vos besoins :

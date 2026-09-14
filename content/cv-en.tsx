@@ -63,7 +63,7 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
           <table className="w-full text-left text-sm">
             <tbody className="divide-y divide-surface-variant">
               <Figure figure="10 years" context="Market finance Business Analyst" />
-              <Figure figure="500 000€/yr saved" context="Replacing Kondor+ and K+TP (Front + Back Office) with in-house solutions" />
+              <Figure figure="IS simplified & 500 000€/yr saved" context="Replacing Kondor+ and K+TP (Front + Back Office) with in-house solutions" />
               <Figure figure="Opening new business lines" context="Migrating 4Sight Financial to SFCM" />
             </tbody>
           </table>
@@ -215,7 +215,7 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
       </Section>
 
       {/* ---------------------------------------------------------------- Contact */}
-      <Section id="contact" kicker="Contact" title="Let’s talk">
+      <Section id="contact" kicker="Contact" title="Let’s talk together">
         <p className={BODY}>
           Available for Business Analyst / AMOA freelance missions in market finance. Reach out
           to discuss your needs:
