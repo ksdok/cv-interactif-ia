@@ -63,11 +63,13 @@ const en: Dictionary = {
   header: {
     name: 'Kim-san DOK',
     tagline: 'designed by kim-san / coded by AI',
-    // GEO-08f — language switcher (crawlable link to the other locale).
-    // aria-label in the TARGET language: the link carries lang="fr", so screen
-    // readers announce it with the matching voice.
-    switcherLabel: 'FR',
-    switcherAria: 'Passer en français',
+    // GEO-08f — language switcher: both locales displayed (FR / EN), highlight
+    // on the active one (user preference, 2026-09-14). FR/EN labels are ISO
+    // codes — they live in the component, not here. aria-label in the TARGET
+    // language: the link carries lang={altLang}, so screen readers announce it
+    // with the matching voice.
+    switcherAriaFr: 'Passer en français',
+    switcherAriaEn: 'English version',
   },
 
   // GEO-08h — CV page metadata (BA freelance wording, corpus convention 🔗
