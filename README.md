@@ -99,22 +99,22 @@ cv-interactif-ia/
 │   ├── [lang]/
 │   │   ├── layout.tsx             # Per-locale metadata, hreflang, JSON-LD (GEO-08d)
 │   │   ├── page.tsx               # Server wrapper (locale validation, dictionary)
-│   │   └── Home.tsx               # Homepage client content (dictionary via props)
+│   │   ├── Home.tsx               # Homepage client content (dictionary via props)
+│   │   └── cv/page.tsx            # Bilingual indexable CV (SEO-03 + GEO-08h)
+│   ├── layout.tsx                 # Root layout: CSRF token, fallback FR metadata
+│   ├── not-found.tsx              # 404 boundary (root — also covers invalid [lang] params, GEO-08a/B1)
+│   ├── globals.css                # Design tokens + animations
 │   ├── api/
 │   │   ├── chat/route.ts          # Chat endpoint (CAG/RAG + AI)
 │   │   ├── job-match/route.ts     # Job matching endpoint
 │   │   ├── csp-report/route.ts    # CSP violation report collector
 │   │   └── health/route.ts        # Health check
-│   ├── cv/page.tsx                # Indexable HTML CV (SEO-03, EN-only until GEO-08h)
-│   ├── layout.tsx                 # Root layout: CSRF token, fallback FR metadata
-│   ├── not-found.tsx              # 404 boundary (root — also covers invalid [lang] params, GEO-08a/B1)
-│   ├── globals.css                # Design tokens + animations
 │   ├── sitemap.ts                 # Bilingual sitemap + hreflang alternates (GEO-08e)
 │   ├── robots.ts                  # robots.txt incl. AI crawlers rules (GEO-07)
 │   ├── opengraph-image.png        # OG card image + opengraph-image.alt.txt (alt per-locale since Lot 1)
 │   └── favicon.ico
 ├── components/                    # All wording injected via dictionary props (GEO-08b)
-│   ├── Header.tsx                 # Sticky header, logo only (language switcher: GEO-08f)
+│   ├── Header.tsx                 # Sticky header, logo + language switcher (GEO-08f)
 │   ├── Hero.tsx                   # Editorial hero — H1 = name + role (SEO-02)
 │   ├── ChatPreview.tsx            # Collapsible AI chat interface
 │   ├── ExperienceGrid.tsx         # Bento-style experience cards
@@ -123,7 +123,8 @@ cv-interactif-ia/
 │   ├── TypingEffect.tsx           # Typewriter animation
 │   └── LinkifiedText.tsx          # URL → clickable link renderer
 ├── content/
-│   └── cv-en.tsx                  # EN editorial CV content served at /cv
+│   ├── cv-en.tsx                  # EN editorial CV content served at /en/cv
+│   └── cv-fr.tsx                  # FR editorial CV content served at /fr/cv (from data/cv.md)
 ├── lib/
 │   ├── i18n/                      # config.ts (locales), dictionaries.ts, fr.ts, en.ts, types.ts
 │   ├── modelConfig.ts             # ← Edit here to switch AI provider/context
@@ -148,12 +149,16 @@ cv-interactif-ia/
 ├── proxy.ts                       # Proxy (runtime Node.js — ex-middleware, Next 16):
 │                                  # 301 (GET) / 308 (other methods) vercel.app→canonical,
 │                                  # locale negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
-└── scripts/
+├── scripts/
 │   ├── validate-cag.mjs           # CAG validation questionnaire
 │   ├── measure-cache.mjs          # Provider cache hit measurement
 │   ├── measure-cv-tokens.mjs      # CV token estimate report
 │   ├── compare-results.mjs        # CAG vs RAG comparison helper
+│   ├── generate-llms-full.mjs     # Generates public/llms-full.txt from data/cv.md at build (GEO-06)
 │   └── check-locale.mjs           # i18n dictionaries coverage check
+└── public/
+    ├── llms.txt                   # Bilingual llms.txt for AI agents (GEO-06)
+    └── llms-full.txt              # Full CV in Markdown, generated at build from data/cv.md (GEO-06)
 ```
 
 ---
@@ -199,8 +204,13 @@ SEO/GEO ticket corpus in [`docs/features/seo-geo/INDEX.md`](docs/features/seo-ge
   locales) built by `lib/jsonLd.ts`, wording translated per page.
 - **Sitemap & robots** — bilingual sitemap with hreflang alternates (GEO-08e); robots.txt
   allows AI crawlers (GEO-07).
-- **Known temporary state** — `/cv` is EN-only until GEO-08h migrates it to `/fr/cv` +
-  `/en/cv` (with 301). Ticket statuses live in `docs/features/seo-geo/INDEX.md`.
+- **Switcher de langue** — crawlable native link FR ↔ EN in the sticky header,
+  preserving the current page (GEO-08f).
+- **llms.txt** — bilingual `/llms.txt` for AI agents + `/llms-full.txt` generated
+  at build from `data/cv.md` (GEO-06).
+- **CV pages** — `/fr/cv` (from `data/cv.md`) + `/en/cv`, linked by hreflang;
+  the legacy `/cv` URL issues a permanent 301 to `/fr/cv` (GEO-08h).
+- Ticket statuses live in `docs/features/seo-geo/INDEX.md`.
 
 ---
 

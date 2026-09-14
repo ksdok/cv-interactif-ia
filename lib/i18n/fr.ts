@@ -66,6 +66,47 @@ const fr = {
   header: {
     name: 'Kim-san DOK',
     tagline: 'design par kim-san / code par l’IA',
+    // GEO-08f — switcher de langue (lien crawlable vers l’autre locale).
+    // aria-label dans la langue CIBLE : le lien porte lang="en", les lecteurs
+    // d’écran l’annoncent avec la voix correspondante.
+    switcherLabel: 'EN',
+    switcherAria: 'Switch to English',
+  },
+
+  // GEO-08h — metadata de la page CV (wording BA freelance, convention corpus
+  // 🔗 SEO-03 : le keyword « Product Designer » du backlog n°10 est remplacé).
+  // N4 (review Lot 2) : title volontairement « type de page d'abord » sans le
+  // nom — c'est un choix explicite, pas un glissement : le template du layout
+  // [lang] porte le nom en suffixe (« ... | Kim-san DOK »), et le sujet de la
+  // page (CV) prime pour une URL de CV partagée par des recruteurs. Le root
+  // layout documente « nom d'abord » pour le title PAR DÉFAUT, pas pour les
+  // pages qui définissent leur propre title.
+  cv: {
+    title: 'CV — Business Analyst Senior Freelance (AMOA) · Finance de marché',
+    description:
+      'CV complet de Kim-san DOK, Business Analyst senior freelance en finance de marché (Paris). ' +
+      '10 ans à Société Générale — Securities Lending, Repo, Forex, Hedging. ' +
+      '14 M de transactions/an, ×4 de scalabilité, 500 000€/an d’économies. PSM I.',
+    ogDescription:
+      '10 ans en finance de marché à Société Générale — Securities Lending, Repo, Forex, Hedging. ' +
+      '14 M de transactions/an, ×4 de scalabilité, 500 000€/an d’économies.',
+    keywords: [
+      'Kim-san DOK',
+      'CV',
+      'Business Analyst',
+      'freelance',
+      'AMOA',
+      'finance de marché',
+      'Securities Lending',
+      'Repo',
+      'Forex',
+      'Hedging',
+      'Société Générale',
+      'Broadridge',
+      'Kondor+',
+      'PSM I',
+      'Paris',
+    ],
   },
 
   hero: {

@@ -1,6 +1,6 @@
 # GEO-08h — Migration `/cv` bilingue (`/fr/cv`, `/en/cv`) + 301
 
-- **Priorité** : P2 · **Effort** : S · **Statut** : ⬜
+- **Priorité** : P2 · **Effort** : S · **Statut** : ✅ (2026-09-14, Lot 2)
 - **Parent** : [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) ·
   **Dépendances** : GEO-08a (routing), GEO-08b (dictionnaires), GEO-08d (pattern
   hreflang/canonical) · **Retire** l'exclusion `/cv` de GEO-08c
@@ -64,3 +64,46 @@ préservée par un 301 permanent.
 - La page `/cv` redéclare `openGraph` sans images jusqu'à maintenant : corrigé au
   passage de la review M3 (images explicites) ; après migration, le metadata
   `[lang]`/page reprendra la main (og:image alt traduit, alternateLocale).
+
+## Livraison (2026-09-14, Lot 2)
+
+- `app/cv/` supprimé → `app/[lang]/cv/page.tsx` (root layout conservé, option A).
+- Metadata CV re-déclinées par dictionnaire (nouvelle section `cv` dans
+  `lib/i18n/{fr,en}.ts`, wording BA freelance — keyword « Product Designer »
+  remplacé, convention 🔗 SEO-03) + canonical absolu + hreflang fr/en/x-default
+  → `/fr/cv` (pattern GEO-08d). openGraph/twitter re-déclarés en entier :
+  **N3 fermée** (og:title/og:locale/twitter alignés sur la page CV, vérifié en
+  curl sur /fr/cv et /en/cv).
+- `proxy.ts` : **301 `/cv` → `/fr/cv`** (posé avant la normalisation de casse,
+  return early avant le nonce) ; exception x-locale `/cv` retirée (revue M4
+  obsolète).
+- Sitemap : `/fr/cv` + `/en/cv` avec alternates (x-default → `/fr/cv`) ; `/cv`
+  retiré.
+- Contenu : `content/cv-fr.tsx` créé (dérivé de `data/cv.md`, structure
+  éditoriale de cv-en.tsx) ; `cv-en.tsx` reçoit `lang` pour le lien Nicky
+  (`/{lang}` au lieu de `/`) ; coquille « an K+TP » corrigée.
+- M5 (review Lot 0) : `NEXT_PUBLIC_SITE_URL` résorbé — `lib/site.ts` (`SITE_URL`)
+  est la source unique.
+- JSON-LD : hérité du layout du segment `[lang]` (une entité par locale, mêmes
+  @id) — la page ne re-déclare pas de script ; `lib/jsonLd.ts` mis à jour.
+- Critères vérifiés localement : `/cv` → 301 `Location: /fr/cv`, `/fr/cv` et
+  `/en/cv` → 200 avec `<html lang>` conforme, canonical + hreflang présents,
+  sitemap à jour, lint + build verts.
+
+## Review Lot 2 (2026-09-14) — ✅ approuvée, findings traités
+
+- **M1 corrigé** : « 6 rôles sur 10 ans » → « 5 rôles sur 10 ans » (et EN) —
+  `data/cv.md` liste 5 expériences ; le compte, pas le cadrage « 10 ans »
+  (attribution de l'entité elle-même), était faux.
+- **M2 corrigé** : le redirect `/cv` applique la convention du fichier
+  (`301` GET / `308` autres méthodes).
+- **N5 mesuré, non corrigeable ici** : une branche proxy sur `/cv/` est du code
+  mort — la normalisation trailing slash de Next (308 `/cv/` → `/cv`) s'applique
+  AVANT le proxy (vérifié en curl : la branche ne fire jamais) ; `/cv/` finit en
+  2 sauts (308 puis 301), comportement Next pré-existant tracé en commentaire.
+- **N6 corrigé** : `alternates.languages` de la page CV en relatif, aligné sur
+  la convention du layout `[lang]` (résolu en absolu par metadataBase).
+- **N4 tranché** : le title CV garde « type de page d'abord » (le nom est porté
+  par le template du layout [lang]) — choix documenté dans le dictionnaire
+  (lib/i18n/{fr,en}.ts), pas un glissement hérité.
+- N9 (/CV → 404) : pré-existant, impact négligeable, non traité.

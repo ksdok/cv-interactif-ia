@@ -56,6 +56,21 @@ export async function proxy(request: NextRequest) {
   // → ⑤ nonce/CSP. Les redirections return avant la génération du nonce pour
   // ne pas en gaspiller (revue M3).
 
+  // GEO-08h : 301 permanent /cv → /fr/cv (308 pour les autres méthodes, même
+  // convention que le redirect d'hôte ci-dessus — review M2 Lot 2) — l'URL /cv
+  // est indexée (SEO-03, live) : pas de 404, pas de 302, sinon perte de l'URL
+  // déjà indexée. Cible = la version du marché cible (fr), cohérente avec le
+  // x-default du cluster CV.
+  // N5 (review Lot 2) : /cv/ n'est PAS matché ici — la normalisation trailing
+  // slash de Next (308 /cv/ → /cv) s'applique AVANT le proxy, une branche
+  // locale serait du code mort (mesuré) ; /cv/ finit donc en 2 sauts (308 puis
+  // 301), comportement Next pré-existant, inoffensif.
+  if (request.nextUrl.pathname === '/cv') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/fr/cv'
+    return NextResponse.redirect(url, request.method === 'GET' ? 301 : 308)
+  }
+
   // ② F1 (review GEO-08b) : normalisation de casse du préfixe de locale.
   // /FR, /Fr → 308 vers /fr (URL équivalente → code permanent approprié).
   // Sinon : URL auto-canonique en casse mixte (canonical = SITE_URL/FR),
@@ -75,10 +90,11 @@ export async function proxy(request: NextRequest) {
   // ③ GEO-08a (option A) + GEO-08c étape 2 (revue M2 corrigée) : le préfixe de
   // chemin gagne TOUJOURS pour x-locale (<html lang> suit l'URL, critère 1 de
   // 08a) — Accept-Language ne sert qu'à choisir la cible du redirect de /.
-  // Fallback fr (marché cible). /cv est en contenu EN (fast-path SEO-03) tant
-  // que GEO-08h n'est pas livré : on aligne lang sur le contenu (revue M4).
+  // Fallback fr (marché cible). L'exception /cv (contenu EN, revue M4) a été
+  // retirée : /cv est désormais 301 vers /fr/cv (GEO-08h) et n'atteint plus
+  // ce point.
   const pathLocale = localeFromPathname(pathname)
-  const locale = pathLocale ?? (pathname === '/cv' ? 'en' : DEFAULT_LOCALE)
+  const locale = pathLocale ?? DEFAULT_LOCALE
   const requestHeaders = new Headers(request.headers)
   requestHeaders.set('x-locale', locale)
 

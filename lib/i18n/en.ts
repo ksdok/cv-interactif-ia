@@ -63,6 +63,46 @@ const en: Dictionary = {
   header: {
     name: 'Kim-san DOK',
     tagline: 'designed by kim-san / coded by AI',
+    // GEO-08f — language switcher (crawlable link to the other locale).
+    // aria-label in the TARGET language: the link carries lang="fr", so screen
+    // readers announce it with the matching voice.
+    switcherLabel: 'FR',
+    switcherAria: 'Passer en français',
+  },
+
+  // GEO-08h — CV page metadata (BA freelance wording, corpus convention 🔗
+  // SEO-03: the backlog item n°10 keyword "Product Designer" is replaced).
+  // N4 (Lot 2 review): the title deliberately leads with the page type, not
+  // the name — an explicit choice: the [lang] layout template carries the name
+  // as a suffix ("... | Kim-san DOK"), and the page subject (CV) matters most
+  // for a URL shared with recruiters. The root layout documents "name first"
+  // for its DEFAULT title, not for pages declaring their own.
+  cv: {
+    title: 'CV — Senior Freelance Business Analyst (AMOA) · Market Finance',
+    description:
+      'Full CV of Kim-san DOK, senior freelance Business Analyst in market finance (Paris). ' +
+      '10 years at Société Générale — Securities Lending, Repo, Forex, Hedging. ' +
+      '14M transactions/yr, ×4 scalability, €500K/yr savings. PSM I.',
+    ogDescription:
+      '10 years in market finance at Société Générale — Securities Lending, Repo, Forex, Hedging. ' +
+      '14M transactions/yr, ×4 scalability, €500K/yr savings.',
+    keywords: [
+      'Kim-san DOK',
+      'CV',
+      'Business Analyst',
+      'freelance',
+      'AMOA',
+      'market finance',
+      'Securities Lending',
+      'Repo',
+      'Forex',
+      'Hedging',
+      'Société Générale',
+      'Broadridge',
+      'Kondor+',
+      'PSM I',
+      'Paris',
+    ],
   },
 
   hero: {

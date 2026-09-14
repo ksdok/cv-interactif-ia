@@ -1,0 +1,40 @@
+<!--
+GEO-06 — /llms.txt (format informel llms.txt, Markdown).
+ARBITRAGE BILINGUE (point 4 du ticket) : fichier UNIQUE bilingue plutôt qu'un
+fichier par langue (/llms.txt + /en/llms.txt). Justification : (1) /llms.txt à
+la racine est LE point de découverte par convention — un seul fichier garantit
+que tout agent IA tombe sur les deux langues sans devoir deviner un chemin
+secondaire ; (2) le site est petit (une page + une page CV par locale) —
+deux fichiers créeraient un risque de divergence de contenu à faible bénéfice ;
+(3) les deux sections FR/EN sont auto-décrites, un agent peut citer la langue
+pertinente. La convention « un fichier par langue » reste envisageable si le
+site grandit.
+MAINTENANCE : ce fichier est maintenu à la main (résumé éditorial) — les
+chiffres clés doivent rester alignés sur data/cv.md. La version intégrale
+/llms-full.txt est quant à elle générée au build depuis data/cv.md
+(scripts/generate-llms-full.mjs, hook prebuild) — pas de dérive de contenu.
+-->
+
+# Kim-san DOK
+
+> Business Analyst Senior freelance (AMOA) en finance de marché — 10 ans d'expérience sur des systèmes critiques à forte volumétrie (Securities Lending, Repo, Forex) chez Société Générale, Paris / La Défense.
+
+## À propos
+
+Kim-san DOK est Business Analyst Senior freelance (AMOA), spécialisé en finance de marché : Securities Lending, Repo, Forex, Hedging, Triparty, Collatéral. Il intervient sur des systèmes critiques à forte volumétrie — 14 millions de transactions annuelles — chez Société Générale (La Défense, Paris), en assurant le lien entre équipes métier et IT : cadrage, cartographie des processus, spécifications fonctionnelles, recette. Réalisations marquantes : migration de Kondor+/K+TP vers des solutions internes (≈ 500 000 €/an d'économies de licences et de support, et autant sur l'exploitation via la migration Solaris → Red Hat), migration de 4Sight Financial vers SFCM ouvrant de nouvelles activités (Repo, Triparty), cadrage de la montée en charge ×4 de la plateforme X-One Secloan. Certifié Professional Scrum Master I (PSM I), 10 ans d'expérience, Master MSI (ESIEE Paris). Ce site propose un chatbot IA (Nicky), jumeau numérique du candidat, capable de répondre aux questions sur son parcours : les réponses sont fondées sur le CV réel (CAG).
+
+## Pages
+
+- [Accueil (FR)](https://kimsandok.com/fr) : vitrine interactive du parcours avec le chatbot IA Nicky.
+- [CV complet (FR)](https://kimsandok.com/fr/cv) : CV intégral en HTML — expériences, expertises, chiffres clés, formation.
+- [Home (EN)](https://kimsandok.com/en) : English interactive resume with the Nicky AI chat.
+- [Full CV (EN)](https://kimsandok.com/en/cv) : complete CV in English.
+- [LinkedIn](https://www.linkedin.com/in/kim-san-dok) : profil professionnel.
+- [GitHub](https://github.com/ksdok) : projets open source (cv-interactif-ia, menu-translator-ia…).
+- [CV intégral pour LLM (FR)](https://kimsandok.com/llms-full.txt) : CV intégral en Markdown, généré depuis la source du chatbot.
+
+## EN — English summary
+
+Kim-san DOK is a senior freelance Business Analyst (AMOA) specialized in market finance: Securities Lending, Repo, Forex, Hedging, Triparty, Collateral. 10 years of experience on high-volume mission-critical systems (14M transactions/yr) at Société Générale (Paris, La Défense), bridging business and IT: requirements, process mapping, functional specifications, UAT. Key achievements: replacing Kondor+/K+TP with in-house solutions (~€500K/yr savings on licenses and support, and as much on operations via the Solaris → Red Hat migration), migrating 4Sight Financial to SFCM (unlocking Repo & Triparty), scoping ×4 scalability of the X-One Secloan platform. PSM I certified. The site includes an AI chatbot (Nicky), the candidate's digital twin, answering questions grounded in the real CV.
+
+Pages: [Home (EN)](https://kimsandok.com/en) · [Full CV (EN)](https://kimsandok.com/en/cv) · [Full CV for LLMs](https://kimsandok.com/llms-full.txt) · [LinkedIn](https://www.linkedin.com/in/kim-san-dok) · [GitHub](https://github.com/ksdok).

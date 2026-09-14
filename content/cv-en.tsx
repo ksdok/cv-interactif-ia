@@ -7,6 +7,7 @@
 
 import type { ReactNode } from 'react'
 import Link from 'next/link'
+import type { Lang } from '@/lib/i18n/config'
 
 const KICKER = 'text-[0.7rem] uppercase tracking-[0.3em] text-secondary font-semibold'
 const SECTION_TITLE = 'text-3xl md:text-4xl font-bold tracking-tighter text-on-surface mt-2 mb-10'
@@ -22,7 +23,7 @@ function Section({ id, kicker, title, children }: { id: string; kicker: string; 
   )
 }
 
-export default function CvContent() {
+export default function CvContentEn({ lang }: { lang: Lang }) {
   return (
     <div className="max-w-5xl mx-auto px-8 py-24">
       {/* ---------------------------------------------------------------- Header */}
@@ -62,7 +63,7 @@ export default function CvContent() {
           <table className="w-full text-left text-sm">
             <tbody className="divide-y divide-surface-variant">
               <Figure figure="10 years" context="Market finance Business Analyst" />
-              <Figure figure="500 000€/yr saved" context="Replacing Kondor+ an K+TP (Front + Back Office) with in-house solutions" />
+              <Figure figure="500 000€/yr saved" context="Replacing Kondor+ and K+TP (Front + Back Office) with in-house solutions" />
               <Figure figure="Opening new business lines" context="Migrating 4Sight Financial to SFCM" />
             </tbody>
           </table>
@@ -88,7 +89,7 @@ export default function CvContent() {
       </Section>
 
       {/* ---------------------------------------------------------------- Experience */}
-      <Section id="experience" kicker="Experience" title="6 roles over 10 years">
+      <Section id="experience" kicker="Experience" title="5 roles over 10 years">
         <div className="space-y-16">
           <Article
             role="Senior SI Analyst — Securities Lending, Repo & Triparty"
@@ -225,7 +226,7 @@ export default function CvContent() {
         </ul>
         <p className="mt-10 text-secondary text-sm">
           Prefer a conversation?{' '}
-          <Link className="underline underline-offset-4 hover:text-on-surface" href="/">
+          <Link className="underline underline-offset-4 hover:text-on-surface" href={`/${lang}`}>
             Chat with Nicky, my AI digital twin →
           </Link>
         </p>

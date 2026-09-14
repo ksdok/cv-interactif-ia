@@ -1,11 +1,14 @@
 import Link from 'next/link'
+import type { Lang } from '@/lib/i18n/config'
 import type { Dictionary } from '@/lib/i18n/types'
 
 interface FooterProps {
   dictionary: Dictionary
+  /** GEO-08h : locale courante — le lien CV pointe vers /{lang}/cv. */
+  lang: Lang
 }
 
-export default function Footer({ dictionary }: FooterProps) {
+export default function Footer({ dictionary, lang }: FooterProps) {
   return (
     <footer className="w-full py-12 bg-transparent">
       <div className="flex flex-col md:flex-row justify-between items-center px-8 w-full max-w-7xl mx-auto gap-6 md:gap-0">
@@ -14,7 +17,7 @@ export default function Footer({ dictionary }: FooterProps) {
         </p>
         <div className="flex space-x-12">
           <Link
-            href="/cv"
+            href={`/${lang}/cv`}
             className="text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors"
           >
             {dictionary.footer.cvLink}

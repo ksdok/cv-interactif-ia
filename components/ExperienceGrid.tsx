@@ -1,12 +1,15 @@
 import Link from 'next/link'
+import type { Lang } from '@/lib/i18n/config'
 import type { Dictionary } from '@/lib/i18n/types'
 
 interface ExperienceGridProps {
   dictionary: Dictionary
+  /** GEO-08h : locale courante — le CTA « CV complet » pointe vers /{lang}/cv. */
+  lang: Lang
   onOpenJobMatcher: () => void
 }
 
-export default function ExperienceGrid({ dictionary, onOpenJobMatcher }: ExperienceGridProps) {
+export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: ExperienceGridProps) {
   const { experience } = dictionary
   return (
     <section className="w-full px-8">
@@ -23,7 +26,7 @@ export default function ExperienceGrid({ dictionary, onOpenJobMatcher }: Experie
             <p className="max-w-md text-on-surface leading-relaxed">
               {experience.featuredBody}
             </p>
-            <Link href="/cv" className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors">
+            <Link href={`/${lang}/cv`} className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors">
               {experience.featuredCta}
             </Link>
           </div>
