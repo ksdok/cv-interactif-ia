@@ -204,8 +204,9 @@ SEO/GEO ticket corpus in [`docs/features/seo-geo/INDEX.md`](docs/features/seo-ge
   locales) built by `lib/jsonLd.ts`, wording translated per page.
 - **Sitemap & robots** — bilingual sitemap with hreflang alternates (GEO-08e); robots.txt
   allows AI crawlers (GEO-07).
-- **Switcher de langue** — crawlable native link FR ↔ EN in the sticky header,
-  preserving the current page (GEO-08f).
+- **Switcher de langue** — both locales displayed as native crawlable links
+  (`FR / EN`) in the sticky header, active locale highlighted (`aria-current="page"`),
+  current page preserved (GEO-08f, itération 2 — préférence utilisateur).
 - **llms.txt** — bilingual `/llms.txt` for AI agents + `/llms-full.txt` generated
   at build from `data/cv.md` (GEO-06).
 - **CV pages** — `/fr/cv` (from `data/cv.md`) + `/en/cv`, linked by hreflang;

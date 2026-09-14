@@ -149,6 +149,24 @@ GEO-09 (continu, dès SEO-01 terminé)
 > pré-existants tracés en commentaire), N8 (prebuild
 > npm-only + fichier généré committé — noté), N9 (/CV — pré-existant,
 > négligeable).
+>
+> **Itération 2 switcher (2026-09-14, préférence utilisateur)** : les deux
+> locales affichées (FR / EN, séparées par « / ») avec highlight sur la langue
+> active (aria-current + font-semibold) en remplacement du lien unique vers
+> l'autre locale — les deux liens restent crawlables (GEO-08f, critère 1
+> amélioré). Merger via `feat/geo-08f-switcher-highlight` (`1326a74`).
+>
+> **Corrections wording (2026-09-14, utilisateur, `33d8498`)** : featured card
+> « Poste actuel / Libre de tout contrat », passions IA, matcher « Analyse de
+> poste par IA », CTA « Je suis disponible », CV « Simplification du SI &
+> 500 k€/an » (ligne 14 M retirée, aligné EN), intérêts + IA, contacts
+> « Discutons ensemble » / « Let's talk together ». 3 coquilles corrigées au
+> passage (« Je s uis », « Simplication », apostrophe lint). Push `origin/main`
+> le 2026-09-14 — déploiement Vercel auto.
+>
+> **Merge** : Lot 2 mergé sur `main` le 2026-09-14 (`19f2295`, --no-ff, même
+> convention que Lots 0/1) puis poussé sur `origin/main`. **Suite : Lot 3 =
+> GEO-08g (chat EN) + SEO-05 + GEO-09.**
 
 ## Conventions du corpus
 
