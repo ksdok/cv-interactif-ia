@@ -149,15 +149,16 @@ cv-interactif-ia/
 ├── proxy.ts                       # Proxy (runtime Node.js — ex-middleware, Next 16):
 │                                  # 301 (GET) / 308 (other methods) vercel.app→canonical,
 │                                  # locale negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
-└── scripts/
+├── scripts/
 │   ├── validate-cag.mjs           # CAG validation questionnaire
 │   ├── measure-cache.mjs          # Provider cache hit measurement
 │   ├── measure-cv-tokens.mjs      # CV token estimate report
 │   ├── compare-results.mjs        # CAG vs RAG comparison helper
+│   ├── generate-llms-full.mjs     # Generates public/llms-full.txt from data/cv.md at build (GEO-06)
 │   └── check-locale.mjs           # i18n dictionaries coverage check
-├── public/
-│   ├── llms.txt                   # Bilingual llms.txt for AI agents (GEO-06)
-│   └── llms-full.txt              # Full CV in Markdown, generated at build from data/cv.md (GEO-06)
+└── public/
+    ├── llms.txt                   # Bilingual llms.txt for AI agents (GEO-06)
+    └── llms-full.txt              # Full CV in Markdown, generated at build from data/cv.md (GEO-06)
 ```
 
 ---

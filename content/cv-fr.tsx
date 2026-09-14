@@ -90,7 +90,7 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
       </Section>
 
       {/* ---------------------------------------------------------------- Experience */}
-      <Section id="experiences" kicker="Expériences" title="6 rôles sur 10 ans">
+      <Section id="experiences" kicker="Expériences" title="5 rôles sur 10 ans">
         <div className="space-y-16">
           <Article
             role="Analyste SI Senior — Securities Lending, Repo & Triparty"

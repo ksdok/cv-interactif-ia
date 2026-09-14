@@ -136,6 +136,19 @@ GEO-09 (continu, dès SEO-01 terminé)
 > généré depuis `data/cv.md` via `prebuild`. Critères d'acceptation vérifiés
 > localement (lint/build verts, curl). **Suite : Lot 3 = GEO-08g (chat EN) +
 > SEO-05 + GEO-09.**
+>
+> **Review Lot 2 (2026-09-14) : ✅ APPROUVÉ** — 14 critères remesurés sur build
+> réel + curl. M1 (compte « 6 rôles » → « 5 rôles » sur les pages CV) et M2
+> (301 `/cv` conditionné au GET, 308 sinon — convention du fichier) corrigés
+> dans la branche. Nits corrigés : N1 (arbre README), N3 (double attribution
+> 500 k€ dans llms.txt), N6 (convention relative unifiée
+> pour alternates), N7 (double ligne vide fr.ts). Nits tracés sans correctif :
+> N2 (Malt absent — déviation tracée dans GEO-06, à traiter avec GEO-09),
+> N4 (title CV « type de page d'abord » — tranché et documenté), N5 (/cv/ —
+> branch proxy mesurée morte : normalisation Next avant le proxy, 2 sauts
+> pré-existants tracés en commentaire), N8 (prebuild
+> npm-only + fichier généré committé — noté), N9 (/CV — pré-existant,
+> négligeable).
 
 ## Conventions du corpus
 

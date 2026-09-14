@@ -47,10 +47,13 @@ export async function generateMetadata({
     keywords: dictionary.cv.keywords,
     alternates: {
       canonical: pageUrl,
+      // N6 (review Lot 2) : convention relative alignée sur le layout du
+      // segment [lang] ('/fr', '/en') — résolue en absolu par metadataBase,
+      // même résultat.
       languages: {
-        fr: `${SITE_URL}/fr/cv`,
-        en: `${SITE_URL}/en/cv`,
-        'x-default': `${SITE_URL}/fr/cv`,
+        fr: '/fr/cv',
+        en: '/en/cv',
+        'x-default': '/fr/cv',
       },
     },
     openGraph: {

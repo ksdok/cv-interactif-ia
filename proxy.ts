@@ -56,13 +56,19 @@ export async function proxy(request: NextRequest) {
   // → ⑤ nonce/CSP. Les redirections return avant la génération du nonce pour
   // ne pas en gaspiller (revue M3).
 
-  // GEO-08h : 301 permanent /cv → /fr/cv — l'URL /cv est indexée (SEO-03, live) :
-  // pas de 404, pas de 302/308, sinon perte de l'URL déjà indexée. Cible = la
-  // version du marché cible (fr), cohérente avec le x-default du cluster CV.
+  // GEO-08h : 301 permanent /cv → /fr/cv (308 pour les autres méthodes, même
+  // convention que le redirect d'hôte ci-dessus — review M2 Lot 2) — l'URL /cv
+  // est indexée (SEO-03, live) : pas de 404, pas de 302, sinon perte de l'URL
+  // déjà indexée. Cible = la version du marché cible (fr), cohérente avec le
+  // x-default du cluster CV.
+  // N5 (review Lot 2) : /cv/ n'est PAS matché ici — la normalisation trailing
+  // slash de Next (308 /cv/ → /cv) s'applique AVANT le proxy, une branche
+  // locale serait du code mort (mesuré) ; /cv/ finit donc en 2 sauts (308 puis
+  // 301), comportement Next pré-existant, inoffensif.
   if (request.nextUrl.pathname === '/cv') {
     const url = request.nextUrl.clone()
     url.pathname = '/fr/cv'
-    return NextResponse.redirect(url, 301)
+    return NextResponse.redirect(url, request.method === 'GET' ? 301 : 308)
   }
 
   // ② F1 (review GEO-08b) : normalisation de casse du préfixe de locale.

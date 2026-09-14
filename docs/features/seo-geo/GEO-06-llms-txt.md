@@ -66,3 +66,18 @@ consultent le site (résumé structuré, liens prioritaires). Coût : un fichier
   PerplexityBot…) peuvent fetcher `/llms.txt` (allow `/`) ; les crawlers training
   en Disallow ne le voient pas, ce qui est l'arbitrage GEO-07 assumé.
 - Vérifié localement : `/llms.txt` et `/llms-full.txt` → 200.
+
+## Review Lot 2 (2026-09-14) — ✅ approuvée, findings traités
+
+- **N3 corrigé** : le chiffre 500 000 €/an est désormais double-attribué comme
+  dans `data/cv.md` (licences/support Kondor+/K+TP **et** exploitation Solaris →
+  Red Hat), en FR et EN.
+- **N2 tracé (déviation)** : Malt n'est pas listé — aucune URL Malt n'existe
+  dans le repo (le `sameAs` JSON-LD n'a que LinkedIn/GitHub). À ajouter avec
+  GEO-09 (présence off-page). Amélioration assumée : `/` et `/cv` remplacés par
+  les 4 URLs localisées (`/fr`, `/en`, `/fr/cv`, `/en/cv`) — pas de saut via
+  redirect.
+- **N8 noté** : le `prebuild` ne se déclenche que via `npm run build` (pas via
+  `npx next build` direct) ; Vercel est couvert. Le fichier généré est committé :
+  après toute modification de `data/cv.md`, régénérer (`npm run build`) et
+  committer — l'écart serait sinon invisible au build de prod.
