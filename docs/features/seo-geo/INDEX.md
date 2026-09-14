@@ -26,9 +26,9 @@
 | GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ✅ (2026-09-12, vérifié en prod) | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
 | GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B ; **découpé en 08a→08h** (2026-09-12) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
 | GEO-08a | Fondation routing i18n : `app/[lang]/` | P2 | M | — | ✅ (2026-09-12, option A ; review B1 traitée — cause racine corrigée, cf. ticket) | [GEO-08a-fondation-routing-i18n.md](GEO-08a-fondation-routing-i18n.md) |
-| GEO-08b | Dictionnaires `lib/i18n/` + composants en props | P2 | M | GEO-08a | ⬜ | [GEO-08b-dictionnaires-i18n.md](GEO-08b-dictionnaires-i18n.md) |
+| GEO-08b | Dictionnaires `lib/i18n/` + composants en props | P2 | M | GEO-08a | ✅ (2026-09-12, livré avec 08a+08c+08e — review B2/B4 ; ligne INDEX oubliée, corrigée review Lot 1) | [GEO-08b-dictionnaires-i18n.md](GEO-08b-dictionnaires-i18n.md) |
 | GEO-08c | Détection locale + redirect 307 + `x-locale` (`proxy.ts`) | P2 | S | GEO-08a | ✅ (2026-09-12, livré avec 08a+08e — review B2 ; étape 2 corrigée M2) | [GEO-08c-proxy-detection-locale.md](GEO-08c-proxy-detection-locale.md) |
-| GEO-08d | Metadata + JSON-LD + hreflang bilingues | P2 | S | GEO-08b | ⬜ | [GEO-08d-metadata-jsonld-hreflang-bilingue.md](GEO-08d-metadata-jsonld-hreflang-bilingue.md) |
+| GEO-08d | Metadata + JSON-LD + hreflang bilingues | P2 | S | GEO-08b | ✅ (2026-09-12, branche feat/geo-08d-lot1 — voir livraison en fin de ticket) | [GEO-08d-metadata-jsonld-hreflang-bilingue.md](GEO-08d-metadata-jsonld-hreflang-bilingue.md) |
 | GEO-08e | Sitemap bilingue + `alternates.languages` | P2 | XS | GEO-08a (08d reco) | ✅ (2026-09-12, livré avec 08a+08c — review B2) | [GEO-08e-sitemap-bilingue.md](GEO-08e-sitemap-bilingue.md) |
 | GEO-08f | Switcher de langue Header (lien crawlable) | P2 | XS | GEO-08b | ⬜ | [GEO-08f-switcher-langue-header.md](GEO-08f-switcher-langue-header.md) |
 | GEO-08g | Chat Nicky multilingue + fidélité EN | P2 | S | GEO-08b | ⬜ | [GEO-08g-chat-nicky-multilingue.md](GEO-08g-chat-nicky-multilingue.md) |
@@ -102,6 +102,25 @@ GEO-09 (continu, dès SEO-01 terminé)
 > traités : M1 (note sitemap /cv conservé), M2 (`localeFromHeaders`), M3 (type
 > `generateMetadata` honnête), M4 (commentaire nuancé `__next_error__`),
 > M5 (tracé à GEO-08h), M6 (déjà tracé). Suite : Lot 1 = GEO-08d.
+>
+> **Livraison Lot 1 (2026-09-12)** : GEO-08d livré sur `feat/geo-08d-lot1`
+> (metadata/dictionnaires/hreflang/JSON-LD bilingues — détail et vérification
+> en fin de ticket). SEO-02 bilingue : déjà couvert par le Lot 0 (Hero via
+> dictionnaire). Gap assumé : /cv sans JSON-LD jusqu'à GEO-08h (critère 5).
+> **Suite : Lot 2 = GEO-08f (switcher) + GEO-08h (migration /cv) + GEO-06**
+> (sitemap 08e déjà livré au Lot 0).
+>
+> **Review Lot 1 (2026-09-12) : ✅ APPROUVÉ, M1–M4 traités dans la branche** :
+> M1 (x-default sitemap aligné sur `/fr` — la racine n'est qu'un redirect 307,
+> jamais un candidat x-default) · M2 (JSON-LD mutualisé dans `lib/jsonLd.ts`,
+> **restauré sur /cv** via le builder consommé par `app/cv/page.tsx` — gap
+> fermé, pas seulement tracé) · M3 (`og:image`/`twitter:image` déclarés
+> explicitement dans `[lang]/layout` **et** `/cv`, alt traduit — la convention
+> fichier ne s'applique qu'aux segments qui ne redéclarent pas openGraph) ·
+> M4 (keywords root dérivés du dictionnaire, `SITE_KEYWORDS`). Nits : N1
+> (commentaire fr.ts corrigé) · N2 (`og:locale:alternate` ajouté) · N3/N4
+> (pré-existants, tracés à GEO-08h / notes GEO-08d) · N5 (ligne GEO-08b de
+> l'INDEX corrigée ✅).
 
 ## Conventions du corpus
 
