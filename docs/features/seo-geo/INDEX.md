@@ -87,7 +87,7 @@ GEO-09 (continu, dès SEO-01 terminé)
 > (dictionnaires)**, livrés ensemble si possible (sinon redirect temporaire `/` → `/fr`),
 > puis GEO-08c (proxy) · **Lot 1 = GEO-08d**
 > (metadata/hreflang, absorbe la re-déclinaison SEO-01/02 + SEO-04 hreflang) ·
-> **Lot 2 = GEO-08e (sitemap) + GEO-08f (switcher) + GEO-08h (migration `/cv` bilingue,**
+> **Lot 2 = ~~GEO-08e (sitemap)~~ (livré au Lot 0, cf. Review Lot 1) + GEO-08f (switcher) + GEO-08h (migration `/cv` bilingue,**
 > **absorbe la re-déclinaison SEO-03)** + GEO-06 ·
 > **Lot 3 = GEO-08g (chat EN)** + SEO-05 + GEO-09.
 >

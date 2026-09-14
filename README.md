@@ -2,7 +2,7 @@
 
 An interactive resume website with a "High-End Editorial Minimalism" design. Recruiters can chat with **Nicky**, an AI assistant, to ask questions about the candidate's background. Answers are grounded in actual CV data through a configurable CAG/RAG context system.
 
-Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
+Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app) (redirected in production, SEO-04)
 
 ---
 
@@ -107,13 +107,21 @@ cv-interactif-ia/
 │   │   └── health/route.ts        # Health check
 │   ├── cv/page.tsx                # Indexable HTML CV (SEO-03, EN-only until GEO-08h)
 │   ├── layout.tsx                 # Root layout: CSRF token, fallback FR metadata
-│   ├── not-found.tsx              # 404 (localized via [lang] boundary)
+│   ├── not-found.tsx              # 404 boundary (root — also covers invalid [lang] params, GEO-08a/B1)
 │   ├── globals.css                # Design tokens + animations
 │   ├── sitemap.ts                 # Bilingual sitemap + hreflang alternates (GEO-08e)
-│   └── robots.ts                  # robots.txt incl. AI crawlers rules (GEO-07)
-├── components/                    # Header, Hero, ChatPreview, ExperienceGrid, Footer,
-│   ...                            # JobMatcher, TypingEffect, LinkifiedText — wording
-│                                  # injected via dictionary props (never imported client-side)
+│   ├── robots.ts                  # robots.txt incl. AI crawlers rules (GEO-07)
+│   ├── opengraph-image.png        # OG card image + opengraph-image.alt.txt (alt per-locale since Lot 1)
+│   └── favicon.ico
+├── components/                    # All wording injected via dictionary props (GEO-08b)
+│   ├── Header.tsx                 # Sticky header, logo only (language switcher: GEO-08f)
+│   ├── Hero.tsx                   # Editorial hero — H1 = name + role (SEO-02)
+│   ├── ChatPreview.tsx            # Collapsible AI chat interface
+│   ├── ExperienceGrid.tsx         # Bento-style experience cards
+│   ├── Footer.tsx                 # Copyright + social links
+│   ├── JobMatcher.tsx             # Job match modal
+│   ├── TypingEffect.tsx           # Typewriter animation
+│   └── LinkifiedText.tsx          # URL → clickable link renderer
 ├── content/
 │   └── cv-en.tsx                  # EN editorial CV content served at /cv
 ├── lib/
@@ -129,15 +137,18 @@ cv-interactif-ia/
 │   ├── rateLimit.ts               # IP-based rate limiting
 │   ├── validation.ts              # Chat message input validation
 │   ├── linkify.ts                 # URL parser utility
+│   ├── types.ts                   # Shared type definitions (cross-modules)
+│   ├── systemPrompt.mjs           # Shared Nicky system prompt (server + validation scripts)
 │   └── test-validation.ts         # Standalone validation test suite
 ├── data/
 │   └── cv.md                      # Source CV used by CAG mode (FR — chatbot source)
 ├── docs/
 │   ├── cag-limits.md              # CAG/RAG size thresholds and decision rules
 │   └── features/seo-geo/          # Ticketed SEO/GEO corpus (INDEX.md + per-ticket specs)
-├── proxy.ts                       # Edge middleware: 301 vercel.app→canonical, locale
-│                                  # negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
-├── scripts/
+├── proxy.ts                       # Proxy (runtime Node.js — ex-middleware, Next 16):
+│                                  # 301 (GET) / 308 (other methods) vercel.app→canonical,
+│                                  # locale negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
+└── scripts/
 │   ├── validate-cag.mjs           # CAG validation questionnaire
 │   ├── measure-cache.mjs          # Provider cache hit measurement
 │   ├── measure-cv-tokens.mjs      # CV token estimate report
