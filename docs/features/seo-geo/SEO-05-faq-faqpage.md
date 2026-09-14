@@ -1,6 +1,7 @@
 # SEO-05 — Section FAQ + schema FAQPage
 
-- **Priorité** : P1 · **Effort** : M (½ journée) · **Statut** : ⬜
+- **Priorité** : ~~P1~~ (réévaluée, cf. décision ci-dessous) · **Effort** : M (½ journée) ·
+  **Statut** : ⛔ ABANDONNÉ (2026-09-14, décision utilisateur) — cf. section « Décision » en fin de ticket
 - **Dépendances** : SEO-01 (wording), GEO-08 ✅ (bilingue B — FAQ dans les 2 langues, JSON-LD `FAQPage` dans la langue de la page).
 
 ## Pourquoi
@@ -52,3 +53,25 @@ de requêtes longue traîne dans les deux langues.
 3. Le contenu FAQ reflète exactement le positionnement SEO-01 et la langue décidée en GEO-08.
 4. `data/faq/fr.ts` et `data/faq/en.ts` (ou le dictionnaire) sont la source unique partagée
    par le composant et le JSON-LD (pas de duplication de wording).
+
+## Décision (2026-09-14) — ⛔ ABANDONNÉ
+
+Le ticket n'est pas réalisé. Deux facteurs, par ordre de poids :
+
+1. **Le principal bénéfice du ticket a disparu.** Le critère 2 (« le JSON-LD
+   `FAQPage` passe le test des résultats enrichis Google ») est invérifiable :
+   Google a restreint les rich results FAQ aux sites gouvernementaux et de santé
+   reconnus dès **septembre 2023**, puis a **déprécié entièrement le rich result
+   FAQ en mai 2026** (documentation retirée juin 2026, changelog Search Central :
+   « The FAQ rich result feature is no longer shown in Google Search results »).
+   Aucun site n'est éligible aujourd'hui — la promesse SERP sur laquelle le
+   ticket était classé P1 n'existe plus.
+2. **Coût/bénéfice défavorable à ce stade.** Le contenu Q/R visible reste un
+   format citable par les moteurs génératifs (« answer-first »), mais le site
+   dispose déjà des signaux essentiels (JSON-LD `Person` + `ProfessionalService`,
+   `/llms.txt` + `/llms-full.txt`, CV intégral bilingue avec chiffres clés).
+   GEO-09 (présence off-page) est jugé plus rentable pour la citabilité.
+
+Si le sujet revient, la version allégée recommandée est : 3-5 Q/R visibles en
+HTML (`<details>` natif) sur la home + `/cv`, JSON-LD en bonus gratuit — sans le
+critère 2, devenu impossible.

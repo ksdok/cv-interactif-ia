@@ -21,7 +21,7 @@
 | SEO-02 | Restructurer le Hero (H1 = nom + métier) | P0 | S | SEO-01, GEO-08 | ✅ (2026-09-10, fast-path EN) | [SEO-02-hero-h1.md](SEO-02-hero-h1.md) |
 | SEO-03 | Rendre le contenu du CV visible en HTML (`/cv` + homepage) | P1 | M | SEO-01, GEO-08 | ✅ (2026-09-10, fast-path EN) | [SEO-03-contenu-cv-html.md](SEO-03-contenu-cv-html.md) |
 | SEO-04 | Canonical + déduplication du domaine vercel.app | P1 | S | — | ✅ (2026-09-10, option B — redirect 301) | [SEO-04-canonical-dedup-vercel.md](SEO-04-canonical-dedup-vercel.md) |
-| SEO-05 | Section FAQ + schema FAQPage | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-05-faq-faqpage.md](SEO-05-faq-faqpage.md) |
+| SEO-05 | Section FAQ + schema FAQPage | P1 | M | SEO-01, GEO-08 | ⛔ ABANDONNÉ (2026-09-14, décision utilisateur — rich result FAQ déprécié par Google en mai 2026, cf. ticket) | [SEO-05-faq-faqpage.md](SEO-05-faq-faqpage.md) |
 | GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ✅ (2026-09-14, Lot 2 — fichier bilingue unique + llms-full.txt généré au build) | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
 | GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ✅ (2026-09-12, vérifié en prod) | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
 | GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B ; **découpé en 08a→08h** (2026-09-12) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
@@ -89,7 +89,8 @@ GEO-09 (continu, dès SEO-01 terminé)
 > (metadata/hreflang, absorbe la re-déclinaison SEO-01/02 + SEO-04 hreflang) ·
 > **Lot 2 = ~~GEO-08e (sitemap)~~ (livré au Lot 0, cf. Review Lot 1) + GEO-08f (switcher) + GEO-08h (migration `/cv` bilingue,**
 > **absorbe la re-déclinaison SEO-03)** + GEO-06 ·
-> **Lot 3 = GEO-08g (chat EN)** + SEO-05 + GEO-09.
+> **Lot 3 = GEO-08g (chat EN)** + SEO-05 + GEO-09. SEO-05 abandonné le
+> 2026-09-14 (cf. ligne du ticket) → **Lot 3 révisé = GEO-08g + GEO-09.**
 >
 > **Complément 2026-09-12 (review post-implémentation)** : GEO-08a + GEO-08c +
 > GEO-08e + **GEO-08b** sont livrés ensemble sur `feat/geo-08-i18n` (review B2 —
@@ -135,7 +136,7 @@ GEO-09 (continu, dès SEO-01 terminé)
 > (fichier unique, arbitrage justifié en commentaire) + `/llms-full.txt`
 > généré depuis `data/cv.md` via `prebuild`. Critères d'acceptation vérifiés
 > localement (lint/build verts, curl). **Suite : Lot 3 = GEO-08g (chat EN) +
-> SEO-05 + GEO-09.**
+> GEO-09** (SEO-05 abandonné au 2026-09-14, cf. ligne du ticket).
 >
 > **Review Lot 2 (2026-09-14) : ✅ APPROUVÉ** — 14 critères remesurés sur build
 > réel + curl. M1 (compte « 6 rôles » → « 5 rôles » sur les pages CV) et M2
@@ -166,7 +167,7 @@ GEO-09 (continu, dès SEO-01 terminé)
 >
 > **Merge** : Lot 2 mergé sur `main` le 2026-09-14 (`19f2295`, --no-ff, même
 > convention que Lots 0/1) puis poussé sur `origin/main`. **Suite : Lot 3 =
-> GEO-08g (chat EN) + SEO-05 + GEO-09.**
+> GEO-08g (chat EN) + GEO-09** (SEO-05 abandonné, cf. ligne du ticket).
 
 ## Conventions du corpus
 
