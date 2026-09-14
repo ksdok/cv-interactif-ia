@@ -5,11 +5,59 @@
  * élargis, sinon `const en: Dictionary = {...}` exigerait des chaînes strictement
  * identiques à la version FR (l'intention review N4 — « une clé manquante en
  * en.ts = erreur de compilation » — est préservée par le match structurel).
- * Le wording visible EN de prod est traduit ici ; le wording metadata (SEO-01)
- * reste dans lib/site.ts — sa déclinaison par locale est GEO-08d.
+ * Le wording visible EN de prod est traduit ici.
+ * GEO-08d : le wording metadata (SEO-01) et le wording JSON-LD vivent désormais
+ * ici (clés metadata / jsonLd) — lib/site.ts dérive de ce fichier le fallback
+ * FR servi aux routes hors [lang] (/cv, 404).
  */
 
 const fr = {
+  // GEO-08d — metadata par locale (title/description = wording SEO-01).
+  metadata: {
+    title:
+      'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché',
+    description:
+      "Kim-san DOK, Business Analyst Senior freelance en finance de marché (Paris, La Défense). " +
+      "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
+      'CV interactif avec assistant IA.',
+    siteName: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
+    keywords: [
+      'Kim-san DOK',
+      'Business Analyst',
+      'freelance',
+      'consultant indépendant',
+      'AMOA',
+      'finance de marché',
+      'Securities Lending',
+      'Forex',
+      'transformation SI',
+      'Paris',
+    ],
+  },
+
+  // GEO-08d — wording JSON-LD (blocs Person + ProfessionalService). Les champs
+  // non traduits (name, email, homeLocation, sameAs, knowsLanguage) et les
+  // @id sont posés dans app/[lang]/layout.tsx ; personDescription réutilise
+  // metadata.description (SEO-01 : « identique à la meta description »).
+  jsonLd: {
+    jobTitle: 'Business Analyst Senior (AMOA)',
+    knowsAbout: [
+      'Business Analysis',
+      'AMOA',
+      'Finance de marché',
+      'Securities Lending',
+      'Repo',
+      'Forex',
+      'Collatéral',
+      'Transformation SI',
+      'SQL',
+    ],
+    serviceName: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
+    serviceDescription:
+      'Consulting en business analysis et AMOA pour la finance de marché. ' +
+      'Intervention en freelance sur Paris et en remote.',
+  },
+
   header: {
     name: 'Kim-san DOK',
     tagline: 'design par kim-san / code par l’IA',

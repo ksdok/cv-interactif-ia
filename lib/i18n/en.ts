@@ -9,6 +9,53 @@
 import type { Dictionary } from './types'
 
 const en: Dictionary = {
+  // GEO-08d — per-locale metadata (title/description = SEO-01 wording, EN).
+  // Cohérence d'entité (ticket GEO-08d point 5) : même nom, même métier
+  // (Business Analyst / AMOA), mêmes termes métier que la version FR.
+  metadata: {
+    title:
+      'Kim-san DOK — Senior Freelance Business Analyst (AMOA) | Market Finance',
+    description:
+      'Kim-san DOK, Senior freelance Business Analyst in market finance (Paris, La Défense). ' +
+      '10 years of experience in IT transformation, Securities Lending, Repo, Forex. ' +
+      'Interactive resume with an AI assistant.',
+    siteName: 'Kim-san DOK — Freelance Business Analyst (AMOA)',
+    keywords: [
+      'Kim-san DOK',
+      'Business Analyst',
+      'freelance',
+      'independent consultant',
+      'AMOA',
+      'market finance',
+      'Securities Lending',
+      'Forex',
+      'IT transformation',
+      'Paris',
+    ],
+  },
+
+  // GEO-08d — JSON-LD wording (Person + ProfessionalService blocks).
+  // Securities Lending / Repo / Forex are kept verbatim: they are domain
+  // jargon, not translatable terms.
+  jsonLd: {
+    jobTitle: 'Senior Business Analyst (AMOA)',
+    knowsAbout: [
+      'Business Analysis',
+      'AMOA',
+      'Market Finance',
+      'Securities Lending',
+      'Repo',
+      'Forex',
+      'Collateral',
+      'IT Transformation',
+      'SQL',
+    ],
+    serviceName: 'Kim-san DOK — Freelance Business Analyst (AMOA)',
+    serviceDescription:
+      'Business analysis and AMOA consulting for market finance. ' +
+      'Freelance engagements in Paris (France) and remote.',
+  },
+
   header: {
     name: 'Kim-san DOK',
     tagline: 'designed by kim-san / coded by AI',

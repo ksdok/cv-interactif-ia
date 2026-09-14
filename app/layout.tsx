@@ -12,7 +12,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { cookies, headers } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
-import { localeFromHeaders, type Lang } from '@/lib/i18n/config'
+import { localeFromHeaders } from '@/lib/i18n/config'
 import {
   SITE_DESCRIPTION,
   SITE_NAME,
@@ -31,9 +31,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-// Title : nom d'abord (préférence utilisateur), puis métier. Wording EN + hreflang
-// au GEO-08d (metadata bilingues, i18n). Constantes wordées dans lib/site.ts (source unique,
-// partagées avec app/[lang]/layout.tsx et app/sitemap.ts).
+// Title : nom d'abord (préférence utilisateur), puis métier. GEO-08d : le
+// wording normatif vit désormais dans lib/i18n/{fr,en}.ts (metadata par
+// locale) ; ces constantes sont le fallback FR (dérivé du dictionnaire via
+// lib/site.ts) servi aux routes hors [lang] : /cv (EN en contenu, migré sous
+// [lang] à GEO-08h) et not-found racine. Constantes partagées avec
+// app/sitemap.ts.
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -86,7 +89,8 @@ export const metadata: Metadata = {
   },
   // SEO-04 : canonical du domaine canonique. Le domaine preview vercel.app est
   // redirigé (301) vers kimsandok.com dans proxy.ts — pas de duplicate content.
-  // Les pages qui surchargent (ex. /cv) définissent leur propre canonical.
+  // Fallback : /fr et /en surchargent (canonical par locale, GEO-08d), /cv
+  // définit le sien (SEO-03).
   alternates: {
     canonical: SITE_URL,
   },
@@ -102,65 +106,18 @@ export default async function RootLayout({
   const cookieStore = await cookies()
   const headersList = await headers()
   const csrfToken = cookieStore.get(CSRF_COOKIE_CONFIG.name)?.value || ''
-  const nonce = headersList.get('x-nonce') || undefined
   // GEO-08a (option A) : la locale est injectée par proxy.ts via le header
   // x-locale (même pattern que x-nonce), toujours dérivée du préfixe de chemin
   // (revue M2 — le préfixe gagne, pas Accept-Language). Le root layout est
   // conservé minimal — déplacer <html> sous app/[lang]/ casserait app/cv (pas
   // de root layout, erreur fatale Next 16). Fallback fr si le header est absent.
+  // GEO-08d : le JSON-LD (Person + ProfessionalService) a été déplacé dans
+  // app/[lang]/layout.tsx — wording traduit par locale, mêmes @id (critères 2
+  // et 3 GEO-08d). Conséquence assumée : /cv est temporairement sans JSON-LD
+  // jusqu'à sa migration sous [lang] (GEO-08h — critère 5 GEO-08d, seul
+  // propriétaire de la migration).
   const headerLocale = headersList.get('x-locale')
   const lang = localeFromHeaders(headerLocale)
-
-  // SEO-01 : entité Person (@id requis pour le cross-référencement par ProfessionalService)
-  // + bloc ProfessionalService. Wording FR (fast-path), EN au GEO-08d.
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Person',
-        '@id': `${SITE_URL}/#person`,
-        name: 'Kim-san DOK',
-        jobTitle: 'Business Analyst Senior (AMOA)',
-        description: SITE_DESCRIPTION,
-        url: SITE_URL,
-        email: 'dokkimsan@gmail.com',
-        homeLocation: {
-          '@type': 'PostalAddress',
-          addressLocality: 'Paris',
-          addressRegion: 'FR-IDF',
-          addressCountry: 'FR',
-        },
-        areaServed: 'FR',
-        knowsLanguage: ['fr', 'en'],
-        sameAs: [
-          'https://www.linkedin.com/in/kim-san-dok',
-          'https://github.com/ksdok',
-        ],
-        knowsAbout: [
-          'Business Analysis',
-          'AMOA',
-          'Finance de marché',
-          'Securities Lending',
-          'Repo',
-          'Forex',
-          'Collatéral',
-          'Transformation SI',
-          'SQL',
-        ],
-      },
-      {
-        '@type': 'ProfessionalService',
-        '@id': `${SITE_URL}/#service`,
-        name: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
-        description:
-          'Consulting en business analysis et AMOA pour la finance de marché. ' +
-          'Intervention en freelance sur Paris et en remote.',
-        areaServed: 'FR',
-        url: SITE_URL,
-        founder: { '@id': `${SITE_URL}/#person` },
-      },
-    ],
-  }
 
   return (
     <html lang={lang}>
@@ -172,14 +129,6 @@ export default async function RootLayout({
             in this meta tag's content attribute so client components can read it and include
             it in the X-CSRF-Token header on API requests. */}
         <meta name="csrf-token" content={csrfToken} />
-        <script
-          nonce={nonce}
-          // nonce est server-only (injecté par proxy.ts via x-nonce) ; le client
-          // n'en dispose pas à l'hydration -> diff d'attribut attendu, on le supprime.
-          suppressHydrationWarning
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
       </head>
       <body className={inter.className}>
         {children}
