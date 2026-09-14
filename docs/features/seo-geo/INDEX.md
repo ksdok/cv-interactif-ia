@@ -22,7 +22,7 @@
 | SEO-03 | Rendre le contenu du CV visible en HTML (`/cv` + homepage) | P1 | M | SEO-01, GEO-08 | ✅ (2026-09-10, fast-path EN) | [SEO-03-contenu-cv-html.md](SEO-03-contenu-cv-html.md) |
 | SEO-04 | Canonical + déduplication du domaine vercel.app | P1 | S | — | ✅ (2026-09-10, option B — redirect 301) | [SEO-04-canonical-dedup-vercel.md](SEO-04-canonical-dedup-vercel.md) |
 | SEO-05 | Section FAQ + schema FAQPage | P1 | M | SEO-01, GEO-08 | ⬜ | [SEO-05-faq-faqpage.md](SEO-05-faq-faqpage.md) |
-| GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ⬜ | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
+| GEO-06 | Ajouter `/llms.txt` | P2 | S | GEO-08 | ✅ (2026-09-14, Lot 2 — fichier bilingue unique + llms-full.txt généré au build) | [GEO-06-llms-txt.md](GEO-06-llms-txt.md) |
 | GEO-07 | Règles explicites crawlers IA dans robots.txt | P2 | S | — | ✅ (2026-09-12, vérifié en prod) | [GEO-07-robots-crawlers-ia.md](GEO-07-robots-crawlers-ia.md) |
 | GEO-08 | Stratégie linguistique FR / bilingue (décision) | P2 | L | décision produit | 🟧 DÉCIDÉ — bilingue B ; **découpé en 08a→08h** (2026-09-12) | [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) |
 | GEO-08a | Fondation routing i18n : `app/[lang]/` | P2 | M | — | ✅ (2026-09-12, option A ; review B1 traitée — cause racine corrigée, cf. ticket) | [GEO-08a-fondation-routing-i18n.md](GEO-08a-fondation-routing-i18n.md) |
@@ -30,9 +30,9 @@
 | GEO-08c | Détection locale + redirect 307 + `x-locale` (`proxy.ts`) | P2 | S | GEO-08a | ✅ (2026-09-12, livré avec 08a+08e — review B2 ; étape 2 corrigée M2) | [GEO-08c-proxy-detection-locale.md](GEO-08c-proxy-detection-locale.md) |
 | GEO-08d | Metadata + JSON-LD + hreflang bilingues | P2 | S | GEO-08b | ✅ (2026-09-12, branche feat/geo-08d-lot1 — voir livraison en fin de ticket) | [GEO-08d-metadata-jsonld-hreflang-bilingue.md](GEO-08d-metadata-jsonld-hreflang-bilingue.md) |
 | GEO-08e | Sitemap bilingue + `alternates.languages` | P2 | XS | GEO-08a (08d reco) | ✅ (2026-09-12, livré avec 08a+08c — review B2) | [GEO-08e-sitemap-bilingue.md](GEO-08e-sitemap-bilingue.md) |
-| GEO-08f | Switcher de langue Header (lien crawlable) | P2 | XS | GEO-08b | ⬜ | [GEO-08f-switcher-langue-header.md](GEO-08f-switcher-langue-header.md) |
+| GEO-08f | Switcher de langue Header (lien crawlable) | P2 | XS | GEO-08b | ✅ (2026-09-14, Lot 2) | [GEO-08f-switcher-langue-header.md](GEO-08f-switcher-langue-header.md) |
 | GEO-08g | Chat Nicky multilingue + fidélité EN | P2 | S | GEO-08b | ⬜ | [GEO-08g-chat-nicky-multilingue.md](GEO-08g-chat-nicky-multilingue.md) |
-| GEO-08h | Migration `/cv` bilingue (`/fr/cv`, `/en/cv`) + 301 | P2 | S | GEO-08a, 08b, 08d | ⬜ | [GEO-08h-migration-cv-bilingue.md](GEO-08h-migration-cv-bilingue.md) |
+| GEO-08h | Migration `/cv` bilingue (`/fr/cv`, `/en/cv`) + 301 | P2 | S | GEO-08a, 08b, 08d | ✅ (2026-09-14, Lot 2 — N3 Lot 1 fermé au passage) | [GEO-08h-migration-cv-bilingue.md](GEO-08h-migration-cv-bilingue.md) |
 | GEO-09 | Présence off-page (Malt, LinkedIn, citations) | P3 | continu | SEO-01 | ⬜ | [GEO-09-presence-off-page.md](GEO-09-presence-off-page.md) |
 | TECH-10 | Dédoublonner la meta viewport | P3 | XS | — | 🟡 critère 1 ✅ en prod ; critères 2/3 (device iOS + Lighthouse) à vérifier (2026-09-12) | [TECH-10-meta-viewport.md](TECH-10-meta-viewport.md) |
 | INFRA-11 | Adresse contact@kimsandok.com (transfert vers Gmail) | P3 | S | — | ⬜ | [INFRA-11-contact-email-forwarding.md](INFRA-11-contact-email-forwarding.md) |
@@ -125,6 +125,17 @@ GEO-09 (continu, dès SEO-01 terminé)
 > **Merge** : Lot 1 mergé sur `main` le 2026-09-14 (`91786db`, --no-ff, même
 > convention que le Lot 0). README mis à jour (section « Bilingual SEO & GEO »,
 > structure, i18n). **Suite : Lot 2 = GEO-08f + GEO-08h + GEO-06.**
+>
+> **Livraison Lot 2 (2026-09-14)** : GEO-08f + GEO-08h + GEO-06 livrés sur
+> `feat/lot2-geo-08f-08h-geo-06`. GEO-08f : switcher crawlable dans le Header
+> (`<a>` natif, hrefLang/lang/aria-label, sans JS). GEO-08h : `/fr/cv` (contenu
+> dérivé de `data/cv.md`) + `/en/cv` (fast-path repris), 301 `/cv` → `/fr/cv`,
+> sitemap bilingue avec alternates, `NEXT_PUBLIC_SITE_URL` résorbé, review N3
+> fermée (og/twitter CV alignés sur la page). GEO-06 : `/llms.txt` bilingue
+> (fichier unique, arbitrage justifié en commentaire) + `/llms-full.txt`
+> généré depuis `data/cv.md` via `prebuild`. Critères d'acceptation vérifiés
+> localement (lint/build verts, curl). **Suite : Lot 3 = GEO-08g (chat EN) +
+> SEO-05 + GEO-09.**
 
 ## Conventions du corpus
 

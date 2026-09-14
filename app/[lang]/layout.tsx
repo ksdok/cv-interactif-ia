@@ -158,8 +158,9 @@ export default async function LangLayout({
   // Person unique, traduite par page, avec les MÊMES @id
   // (https://kimsandok.com/#person, /#service) sur les deux locales — critère
   // 3 : c'est ce qui garantit que Google traite /fr et /en comme une seule
-  // entité bilingue, pas deux entités concurrentes. /cv consomme le même
-  // builder (en EN) via app/cv/page.tsx.
+  // entité bilingue, pas deux entités concurrentes. GEO-08h : /fr/cv et /en/cv
+  // héritent de ce JSON-LD via ce layout (la page CV ne re-déclare pas de
+  // script) — une seule entité par locale, comme l'accueil.
   const jsonLd = buildEntityJsonLd(dictionary)
 
   // nonce est server-only (injecté par proxy.ts via x-nonce, même pattern que

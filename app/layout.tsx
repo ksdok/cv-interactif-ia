@@ -35,9 +35,8 @@ export const viewport: Viewport = {
 // Title : nom d'abord (préférence utilisateur), puis métier. GEO-08d : le
 // wording normatif vit désormais dans lib/i18n/{fr,en}.ts (metadata par
 // locale) ; ces constantes sont le fallback FR (dérivé du dictionnaire via
-// lib/site.ts) servi aux routes hors [lang] : /cv (EN en contenu, migré sous
-// [lang] à GEO-08h) et not-found racine. Constantes partagées avec
-// app/sitemap.ts.
+// lib/site.ts) servi aux routes hors [lang] : not-found racine. Constantes
+// partagées avec app/sitemap.ts.
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -54,8 +53,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     // Fallback FR : le root layout ne sert plus que des routes hors [lang]
-    // (/cv est EN mais son og:locale FR est pré-existant — wording twitter FR
-    // idem, tracé à GEO-08h, review N3/N4 Lot 1) et les 404.
+    // (not-found racine depuis la migration /cv de GEO-08h) et les 404.
     locale: 'fr_FR',
     url: SITE_URL,
     title: SITE_TITLE,
@@ -65,7 +63,7 @@ export const metadata: Metadata = {
     // s'applique QU'AUX segments qui ne redéclarent PAS openGraph (cas du
     // root layout : /de, 404 — image servie, mesuré review M3 Lot 1). Un
     // segment qui redéclare openGraph fait tomber l'image et doit la
-    // déclarer explicitement : app/[lang]/layout.tsx et app/cv/page.tsx
+    // déclarer explicitement : app/[lang]/layout.tsx et app/[lang]/cv/page.tsx
     // le font (review M3) — l'alt y est traduit (alt.txt est FR-only).
   },
   twitter: {
@@ -87,8 +85,8 @@ export const metadata: Metadata = {
   },
   // SEO-04 : canonical du domaine canonique. Le domaine preview vercel.app est
   // redirigé (301) vers kimsandok.com dans proxy.ts — pas de duplicate content.
-  // Fallback : /fr et /en surchargent (canonical par locale, GEO-08d), /cv
-  // définit le sien (SEO-03).
+  // Fallback : /fr et /en surchargent (canonical par locale, GEO-08d), les
+  // pages CV surchargent (pattern GEO-08d, GEO-08h).
   alternates: {
     canonical: SITE_URL,
   },
@@ -107,13 +105,13 @@ export default async function RootLayout({
   // GEO-08a (option A) : la locale est injectée par proxy.ts via le header
   // x-locale (même pattern que x-nonce), toujours dérivée du préfixe de chemin
   // (revue M2 — le préfixe gagne, pas Accept-Language). Le root layout est
-  // conservé minimal — déplacer <html> sous app/[lang]/ casserait app/cv (pas
-  // de root layout, erreur fatale Next 16). Fallback fr si le header est absent.
+  // conservé minimal — déplacer <html> sous app/[lang]/ casserait les routes
+  // hors [lang] (pas de root layout, erreur fatale Next 16). Fallback fr si le
+  // header est absent.
   // GEO-08d : le JSON-LD (Person + ProfessionalService) a été déplacé dans
   // app/[lang]/layout.tsx — wording traduit par locale, mêmes @id (critères 2
-  // et 3 GEO-08d). Conséquence assumée : /cv est temporairement sans JSON-LD
-  // jusqu'à sa migration sous [lang] (GEO-08h — critère 5 GEO-08d, seul
-  // propriétaire de la migration).
+  // et 3 GEO-08d). GEO-08h : /cv a été migré sous app/[lang]/cv — il hérite
+  // désormais du JSON-LD du segment (plus de page hors [lang] avec contenu).
   const headerLocale = headersList.get('x-locale')
   const lang = localeFromHeaders(headerLocale)
 

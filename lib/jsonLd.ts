@@ -1,14 +1,15 @@
 /**
  * lib/jsonLd.ts — builder du JSON-LD d'entité (Person + ProfessionalService).
  *
- * GEO-08d (review M2, Lot 1) : mutualisé entre app/[lang]/layout.tsx et
- * app/cv/page.tsx — /cv (hors segment [lang] jusqu'à GEO-08h) conserve ainsi
- * son JSON-LD (restauré, il était perdu avec la suppression du bloc racine),
- * servi en EN via le dictionnaire, comme son contenu.
+ * GEO-08d (review M2, Lot 1) : mutualisé dans le layout du segment [lang].
+ * GEO-08h : depuis la migration de /cv sous app/[lang]/cv, TOUTES les pages
+ * (accueil + CV, deux locales) reçoivent le JSON-LD via le layout du segment —
+ * le builder n'a plus qu'un seul consommateur.
  *
  * Les @id/url/sameAs/email/homeLocation sont des identifiants d'entité :
  * identiques sur toutes les locales, NON traduits (critère 3 GEO-08d — c'est
- * ce qui garantit que Google traite /fr, /en et /cv comme une seule entité).
+ * ce qui garantit que Google traite /fr, /en, /fr/cv et /en/cv comme une
+ * seule entité).
  * La description Person réutilise metadata.description (SEO-01 : « identique
  * à la meta description ») — la réutilisation se fait ICI, pas dans le dico.
  */

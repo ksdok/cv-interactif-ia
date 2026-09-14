@@ -1,6 +1,6 @@
 # GEO-08f — Switcher de langue dans le Header (lien crawlable)
 
-- **Priorité** : P2 · **Effort** : XS · **Statut** : ⬜
+- **Priorité** : P2 · **Effort** : XS · **Statut** : ✅ (2026-09-14, Lot 2)
 - **Parent** : [GEO-08-strategie-linguistique.md](GEO-08-strategie-linguistique.md) ·
   **Dépendances** : GEO-08b (le composant reçoit les chaînes par dictionnaire)
 
@@ -42,3 +42,14 @@ Un lien visible FR ↔ EN dans le Header, crawlable, qui préserve la page coura
 2. Le lien a `hrefLang`, `lang` et un `aria-label` non vides (review N6).
 3. Suivre le lien (`curl -L`) aboutit à la page de l'autre locale (200).
 4. Pas de JS requis pour le switch (fonctionne avec JS désactivé).
+
+## Livraison (2026-09-14, Lot 2)
+
+- `Header.tsx` reçoit `lang` (nouveau prop) + dictionnaire (`header.switcherLabel`
+  « EN »/« FR », `header.switcherAria` dans la langue **cible** — le lien porte
+  `lang={altLang}`, les lecteurs d'écran l'annoncent avec la voix correspondante).
+- Chemin courant dérivé côté client via `usePathname` (simple : on retire le
+  préfixe de locale et on le remplace) ; href rendu en SSR → fonctionne sans JS.
+- Call-sites mis à jour : `app/[lang]/Home.tsx` (locale), `app/[lang]/cv/page.tsx`.
+- Vérifié localement : `/fr` contient `<a href="/en" hrefLang="en" lang="en"
+  aria-label="Switch to English">` (et inversement), `curl -L` → 200, aucun JS requis.

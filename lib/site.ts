@@ -1,8 +1,8 @@
 /**
  * lib/site.ts
  * URL du site + fallback FR des metadata pour les routes hors segment [lang]
- * (/cv, not-found racine) — le root layout reste le seul serviteur de ces
- * routes tant que GEO-08h n'a pas migré /cv sous app/[lang]/.
+ * (not-found racine). GEO-08h : /cv a été migré sous app/[lang]/cv — il n'est
+ * plus servi par le root layout.
  *
  * GEO-08d : le wording normatif (title/description/keywords/JSON-LD) vit dans
  * les dictionnaires lib/i18n/{fr,en}.ts ; ce fichier dérive du FR (fast-path

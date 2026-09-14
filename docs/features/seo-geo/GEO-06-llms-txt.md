@@ -1,6 +1,6 @@
 # GEO-06 — Ajouter `/llms.txt`
 
-- **Priorité** : P2 · **Effort** : S (< 1 h) · **Statut** : ⬜
+- **Priorité** : P2 · **Effort** : S (< 1 h) · **Statut** : ✅ (2026-09-14, Lot 2)
 - **Dépendances** : GEO-08 (langue du fichier)
 
 ## Pourquoi
@@ -49,3 +49,20 @@ consultent le site (résumé structuré, liens prioritaires). Coût : un fichier
 2. Le contenu est régénéré depuis `data/cv.md` au build (pas de dérive de contenu).
 3. Version FR et EN couvertes selon l'arbitrage du point 4 (un fichier bilingue ou un fichier
    par langue — la décision GEO-08 « bilingue B » impose la couverture des deux langues).
+
+## Livraison (2026-09-14, Lot 2)
+
+- **Arbitrage du point 4 : fichier UNIQUE bilingue** `/llms.txt` (sections FR puis
+  « EN — English summary ») — justification documentée en commentaire en tête de
+  fichier : point de découverte racine unique, site trop petit pour justifier deux
+  fichiers à tenir synchronisés, sections auto-décrites.
+- `public/llms.txt` : métier, chiffres clés (10 ans, 14 M transactions/an, ×4,
+  500 000€/an, PSM I), pages `/fr`, `/en`, `/fr/cv`, `/en/cv`, LinkedIn, GitHub,
+  mention explicite du chatbot IA Nicky (FR et EN).
+- `public/llms-full.txt` : **généré au build depuis `data/cv.md`** par
+  `scripts/generate-llms-full.mjs`, branché sur le hook npm `prebuild`
+  (critère 2 — pas de dérive de contenu ; fichier committé pour rester servi en dev).
+- Point 5 : vérifié — les bots search autorisés (GEO-07 : OAI-SearchBot,
+  PerplexityBot…) peuvent fetcher `/llms.txt` (allow `/`) ; les crawlers training
+  en Disallow ne le voient pas, ce qui est l'arbitrage GEO-07 assumé.
+- Vérifié localement : `/llms.txt` et `/llms-full.txt` → 200.
