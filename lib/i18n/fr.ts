@@ -66,11 +66,13 @@ const fr = {
   header: {
     name: 'Kim-san DOK',
     tagline: 'design par kim-san / code par l’IA',
-    // GEO-08f — switcher de langue (lien crawlable vers l’autre locale).
-    // aria-label dans la langue CIBLE : le lien porte lang="en", les lecteurs
-    // d’écran l’annoncent avec la voix correspondante.
-    switcherLabel: 'EN',
-    switcherAria: 'Switch to English',
+    // GEO-08f — switcher de langue : les deux locales sont affichées (FR / EN),
+    // highlight sur la langue active (préférence utilisateur, 2026-09-14).
+    // Les labels FR/EN sont des codes ISO — dans le composant, pas ici.
+    // aria-label dans la langue CIBLE : le lien porte lang correspondant, les
+    // lecteurs d'écran l'annoncent avec la voix correspondante.
+    switcherAriaFr: 'Version française',
+    switcherAriaEn: 'Switch to English',
   },
 
   // GEO-08h — metadata de la page CV (wording BA freelance, convention corpus

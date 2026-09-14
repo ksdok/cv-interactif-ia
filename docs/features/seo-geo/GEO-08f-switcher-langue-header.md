@@ -53,3 +53,18 @@ Un lien visible FR ↔ EN dans le Header, crawlable, qui préserve la page coura
 - Call-sites mis à jour : `app/[lang]/Home.tsx` (locale), `app/[lang]/cv/page.tsx`.
 - Vérifié localement : `/fr` contient `<a href="/en" hrefLang="en" lang="en"
   aria-label="Switch to English">` (et inversement), `curl -L` → 200, aucun JS requis.
+
+## Itération 2 (2026-09-14, préférence utilisateur)
+
+- **Switcher FR / EN avec highlight** sur la langue active (préférence
+  utilisateur : les deux locales affichées, séparées par « / »), en remplacement
+  du lien unique vers l'autre locale.
+- Deux `<a>` natifs, tous les deux crawlables (Google découvre les deux locales
+  depuis chaque page — améliore le critère 1). La locale active porte
+  `aria-current="page"` et reste un lien ; highlight = `font-semibold
+  text-on-surface` vs `text-secondary` pour l'inactive.
+- Labels FR/EN : codes ISO posés dans le composant (pas du wording) — seuls les
+  `aria-label` restent dans le dictionnaire (`header.switcherAriaFr` /
+  `switcherAriaEn`, annonce dans la langue cible via `lang`).
+- Critères 1-4 inchangés et revérifiés (FR/EN présents sur les deux pages et
+  les pages CV, hrefLang/lang/aria-label non vides, curl -L → 200, sans JS).
