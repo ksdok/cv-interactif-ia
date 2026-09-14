@@ -121,6 +121,10 @@ GEO-09 (continu, dès SEO-01 terminé)
 > (commentaire fr.ts corrigé) · N2 (`og:locale:alternate` ajouté) · N3/N4
 > (pré-existants, tracés à GEO-08h / notes GEO-08d) · N5 (ligne GEO-08b de
 > l'INDEX corrigée ✅).
+>
+> **Merge** : Lot 1 mergé sur `main` le 2026-09-14 (`91786db`, --no-ff, même
+> convention que le Lot 0). README mis à jour (section « Bilingual SEO & GEO »,
+> structure, i18n). **Suite : Lot 2 = GEO-08f + GEO-08h + GEO-06.**
 
 ## Conventions du corpus
 

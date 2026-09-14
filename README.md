@@ -12,6 +12,7 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 - **Configurable CV Context** — Switch `/api/chat` between local CV file CAG and Supabase RAG via `CV_CONTEXT_SOURCE` in `lib/modelConfig.ts`.
 - **Multi-Provider AI** — Supports OpenAI and Gemini with automatic fallback. Switch providers by editing one line in `lib/modelConfig.ts`.
 - **Job Matcher** — Paste any job description to get an AI-powered CV match analysis (overall %, skills %, experience %, strengths, improvements).
+- **Bilingual FR/EN** — Locale routing under `/fr` and `/en` (`app/[lang]/`), in-house dictionaries (`lib/i18n/`), locale negotiation in `proxy.ts` (307 redirect of `/`), hreflang + per-locale canonical + bilingual JSON-LD entity.
 - **Editorial Design** — Monochromatic palette, Bento-style experience grid, generous whitespace.
 - **Security** — CSRF protection, rate limiting (200 req/day/IP), input validation, server-only secrets.
 - **Mobile-First** — Fully responsive, no iOS Safari input zoom.
@@ -29,6 +30,7 @@ Live: [cv-interactif-ia.vercel.app](https://cv-interactif-ia.vercel.app)
 | Chat context | CAG from `data/cv.md` by default; RAG fallback via Supabase |
 | Embeddings | OpenAI `text-embedding-3-small` for RAG/job-match |
 | Vector DB | Supabase (pgvector) |
+| i18n | `app/[lang]/` routing + in-house dictionaries `lib/i18n/` (no next-intl), locale negotiation in `proxy.ts` |
 | Deployment | Vercel |
 
 ---
@@ -62,7 +64,7 @@ CSP_REPORT_ONLY=false
 
 ```bash
 npm install
-npm run dev       # http://localhost:3000
+npm run dev       # http://localhost:3000 — / redirects (307) to /fr or /en (Accept-Language)
 npm run build     # production build
 npm run lint      # lint check
 ```
@@ -94,43 +96,53 @@ The fallback chain is applied automatically — if the active provider fails, th
 ```
 cv-interactif-ia/
 ├── app/
+│   ├── [lang]/
+│   │   ├── layout.tsx             # Per-locale metadata, hreflang, JSON-LD (GEO-08d)
+│   │   ├── page.tsx               # Server wrapper (locale validation, dictionary)
+│   │   └── Home.tsx               # Homepage client content (dictionary via props)
 │   ├── api/
 │   │   ├── chat/route.ts          # Chat endpoint (CAG/RAG + AI)
-│   │   └── job-match/route.ts     # Job matching endpoint
-│   ├── layout.tsx                 # Root layout, CSRF token, SEO metadata
-│   ├── page.tsx                   # Main page
+│   │   ├── job-match/route.ts     # Job matching endpoint
+│   │   ├── csp-report/route.ts    # CSP violation report collector
+│   │   └── health/route.ts        # Health check
+│   ├── cv/page.tsx                # Indexable HTML CV (SEO-03, EN-only until GEO-08h)
+│   ├── layout.tsx                 # Root layout: CSRF token, fallback FR metadata
+│   ├── not-found.tsx              # 404 (localized via [lang] boundary)
 │   ├── globals.css                # Design tokens + animations
-│   ├── sitemap.ts                 # SEO sitemap
-│   └── robots.ts                  # SEO robots.txt
-├── components/
-│   ├── Header.tsx                 # Sticky header, logo only
-│   ├── Hero.tsx                   # Editorial hero section
-│   ├── ChatPreview.tsx            # Collapsible AI chat interface
-│   ├── ExperienceGrid.tsx         # Bento-style experience cards
-│   ├── Footer.tsx                 # Copyright + social links
-│   ├── JobMatcher.tsx             # Job match modal
-│   ├── TypingEffect.tsx           # Typewriter animation
-│   └── LinkifiedText.tsx          # URL → clickable link renderer
+│   ├── sitemap.ts                 # Bilingual sitemap + hreflang alternates (GEO-08e)
+│   └── robots.ts                  # robots.txt incl. AI crawlers rules (GEO-07)
+├── components/                    # Header, Hero, ChatPreview, ExperienceGrid, Footer,
+│   ...                            # JobMatcher, TypingEffect, LinkifiedText — wording
+│                                  # injected via dictionary props (never imported client-side)
+├── content/
+│   └── cv-en.tsx                  # EN editorial CV content served at /cv
 ├── lib/
+│   ├── i18n/                      # config.ts (locales), dictionaries.ts, fr.ts, en.ts, types.ts
 │   ├── modelConfig.ts             # ← Edit here to switch AI provider/context
 │   ├── modelProviders.ts          # OpenAI / Gemini abstraction
 │   ├── cvContext.ts               # Server-only CAG loader for data/cv.md
 │   ├── rag.ts                     # Embedding + Supabase vector search
 │   ├── supabase.ts                # Server-only Supabase client
+│   ├── jsonLd.ts                  # Shared JSON-LD builder (Person + ProfessionalService)
+│   ├── site.ts                    # SITE_URL + fallback FR metadata (derived from dictionary)
 │   ├── csrf.ts                    # CSRF token generation + verification
 │   ├── rateLimit.ts               # IP-based rate limiting
 │   ├── validation.ts              # Chat message input validation
-│   └── linkify.ts                 # URL parser utility
+│   ├── linkify.ts                 # URL parser utility
+│   └── test-validation.ts         # Standalone validation test suite
 ├── data/
-│   └── cv.md                      # Source CV used by CAG mode
+│   └── cv.md                      # Source CV used by CAG mode (FR — chatbot source)
 ├── docs/
-│   └── cag-limits.md              # CAG/RAG size thresholds and decision rules
+│   ├── cag-limits.md              # CAG/RAG size thresholds and decision rules
+│   └── features/seo-geo/          # Ticketed SEO/GEO corpus (INDEX.md + per-ticket specs)
+├── proxy.ts                       # Edge middleware: 301 vercel.app→canonical, locale
+│                                  # negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
 ├── scripts/
 │   ├── validate-cag.mjs           # CAG validation questionnaire
 │   ├── measure-cache.mjs          # Provider cache hit measurement
 │   ├── measure-cv-tokens.mjs      # CV token estimate report
-│   └── compare-results.mjs        # CAG vs RAG comparison helper
-└── lib/test-validation.ts         # Standalone validation test suite
+│   ├── compare-results.mjs        # CAG vs RAG comparison helper
+│   └── check-locale.mjs           # i18n dictionaries coverage check
 ```
 
 ---
@@ -159,6 +171,25 @@ generateResponse() → active provider (with fallback)
 ```
 
 The Nicky persona is defined in `app/api/chat/route.ts` as `const systemPrompt`. Edit this to change the assistant's name, tone, or instructions.
+
+---
+
+## Bilingual SEO & GEO
+
+The site is served in two locales — `/fr` (target market) and `/en` — driven by the
+SEO/GEO ticket corpus in [`docs/features/seo-geo/INDEX.md`](docs/features/seo-geo/INDEX.md):
+
+- **Routing** — `/` negotiates the locale (307 + `Vary: Accept-Language`) via `proxy.ts`;
+  `/fr` and `/en` serve the same page with translated dictionaries. Mixed-case prefixes
+  (`/FR`) are 308-normalized.
+- **Metadata per locale** — title/description/keywords/OpenGraph/Twitter from the
+  dictionaries (GEO-08d); hreflang `fr` / `en` / `x-default → /fr`; per-locale canonical.
+- **JSON-LD** — one bilingual entity (`Person` + `ProfessionalService`, same `@id` on all
+  locales) built by `lib/jsonLd.ts`, wording translated per page.
+- **Sitemap & robots** — bilingual sitemap with hreflang alternates (GEO-08e); robots.txt
+  allows AI crawlers (GEO-07).
+- **Known temporary state** — `/cv` is EN-only until GEO-08h migrates it to `/fr/cv` +
+  `/en/cv` (with 301). Ticket statuses live in `docs/features/seo-geo/INDEX.md`.
 
 ---
 
@@ -280,4 +311,4 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
 
 ---
 
-**Last updated:** June 2026
+**Last updated:** September 2026
