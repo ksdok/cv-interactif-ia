@@ -40,7 +40,31 @@ npm run build      # next build (génère aussi public/llms-full.txt via prebuil
 Environnement : `.env.local` requis (voir README) — `OPENAI_API_KEY`, `GEMINI_API_KEY`,
 clés Supabase, `CSP_REPORT_ONLY`. Secrets **server-only** : ne jamais exposer côté client.
 
-## 4. Architecture — points clés
+## 4. Outils de recherche — à utiliser pendant l'implémentation
+
+### Firecrawl local (PRÉFÉRÉ pour toute recherche web / scraping)
+
+Instance auto-hébergée sur `http://localhost:3002` — passerelle par défaut pour :
+- **scraping d'une URL** : `POST /v1/scrape` `{"url":"...","formats":["markdown"]}` (gère le JS rendu, contourne les blocages bots) — préférer à `fetch_content` par défaut
+- **recherche web** : `POST /v1/search` `{"query":"...","limit":5}` — alternative par défaut à `web_search`
+- **plan d'un site** : `POST /v1/map` · **crawl asynchrone** : `POST /v1/crawl` + polling `GET /v1/crawl/{id}`
+
+Règles d'usage :
+- Vérifier que l'instance tourne : `docker ps --filter name=firecrawl-api` doit montrer `firecrawl-api-1 Up` (sinon `docker start firecrawl-api-1` ou fallback `fetch_content`/`web_search`)
+- **Toujours en curl silencieux vers un fichier** (jamais d'output inline — les JSON font des centaines de Ko) : `curl -s -o /tmp/fc.json -X POST http://localhost:3002/v1/... -H 'Content-Type: application/json' -d '<json>' --max-time 60 -w 'HTTP %{http_code}\n'`, puis parser le fichier
+- Pas d'authentification sur cette instance : **ne pas envoyer** d'`Authorization` ni d'`api_key`
+- `/v1/search` peut être lent (10-40s) ; si résultats vides, fallback `web_search`
+- Citer les URLs de `data.metadata.sourceURL` / `data[].url` comme sources
+
+### Context7 MCP (si nécessaire — docs de bibliothèques)
+
+Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `@sentry/nextjs`, `@upstash/ratelimit`, etc.) :
+1. `context7_resolve-library-id` avec le nom officiel de la lib (ex. « Next.js ») → obtient un ID `/org/project`
+2. `context7_query-docs` avec l'ID + une question précise → docs + exemples de code
+
+À utiliser **si nécessaire** : quand la spec touche une API d'une lib dont la version en `package.json` a pu évoluer (les SDK Sentry/OpenAI bougent vite) — ne pas deviner à partir de vieux souvenirs.
+
+## 5. Architecture — points clés
 
 | Zone | Fichiers | À savoir |
 |---|---|---|
@@ -53,7 +77,7 @@ clés Supabase, `CSP_REPORT_ONLY`. Secrets **server-only** : ne jamais exposer c
 | Pages | `app/[lang]/Home.tsx` (client), `page.tsx` (server), `cv/page.tsx` | Tout le wording visible passe par le dictionnaire en props |
 | Composants chat | `components/ChatPreview.tsx` | Consomme `/api/chat` ; erreurs mappées via `errorCode` → `dictionary.apiErrors` |
 
-## 5. Conventions non négociables
+## 6. Conventions non négociables
 
 1. **Aucune chaîne visible en dur dans le JSX** — règle ESLint `react/jsx-no-literals`
    active (`eslint.config.mjs`, contexte GEO-08b). Tout texte passe par le dictionnaire.
@@ -72,7 +96,7 @@ clés Supabase, `CSP_REPORT_ONLY`. Secrets **server-only** : ne jamais exposer c
 6. **`proxy.ts`** : Edge-compatible, pas de dépendance lourde ; 301 (GET) / 308 (autres
    méthodes) pour la déduplication vercel.app.
 
-## 6. Workflow d'implémentation d'une spec
+## 7. Workflow d'implémentation d'une spec
 
 1. Lis la spec **en entier** — les sections « Design decisions » et « Handoff notes »
    sont contraignantes ; les décisions ouvertes doivent être tranchées **et documentées dans la PR**.
@@ -84,7 +108,7 @@ clés Supabase, `CSP_REPORT_ONLY`. Secrets **server-only** : ne jamais exposer c
 5. Coche le ticket dans `project-state.md` uniquement si les critères d'acceptation
    (« Acceptance criteria ») sont tous remplis.
 
-## 7. État des tickets (résumé — vérifier `project-state.md` pour le détail)
+## 8. État des tickets (résumé — vérifier `project-state.md` pour le détail)
 
 **Corpus seo-geo** (`docs/features/seo-geo/INDEX.md`) : quasi terminé. Restes ouverts :
 GEO-08g (chat multilingue), GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11.
@@ -97,7 +121,7 @@ GEO-08g (chat multilingue), GEO-09 (off-page, continu), TECH-10 (vérifs restant
   `SEC-003` (rate limit persistant — conditionné à un déclencheur, ne pas implémenter sans accord),
   `SEO-001` (probablement absorbé par SEO-03 ✅ — à confirmer avant de travailler dessus)
 
-## 8. Pièges connus
+## 9. Pièges connus
 
 - **`lib/rateLimit.ts` est en mémoire** : les compteurs réinitialisent à chaque déploiement — comportement connu, documenté (SEC-003 couvre la migration, reportée).
 - **Gemini cache non confirmé** : OpenAI prefix cache validé (5/5 hits), Gemini 0/5 — ne pas promettre d'économies Gemini sans re-mesurer (`scripts/measure-cache.mjs`).
