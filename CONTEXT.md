@@ -13,7 +13,7 @@ Un recruteur peut discuter avec **Nicky**, un assistant IA dont les réponses so
 dans les données réelles du CV (CAG par défaut, RAG Supabase en fallback configurable).
 
 - **Stack** : Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind CSS 4 · Supabase (pgvector) · Vercel
-- **IA** : OpenAI GPT-5.4 mini (actif) + Gemini 3.5 Flash (fallback) — `lib/modelProviders.ts`
+- **IA** : OpenAI GPT-5.4 mini (actif) + Gemini 3.5 Flash (fallback) — commutateur dans `lib/modelConfig.ts`
 - **Chat** : `/api/chat` — contexte CAG depuis `data/cv.md` (défaut) ou RAG Supabase
 - **Job Matcher** : `/api/job-match` — reste sur RAG/Supabase quel que soit `CV_CONTEXT_SOURCE`
 - **Package manager** : **npm** (pas pnpm/yarn)
@@ -33,12 +33,20 @@ Ne modifie jamais `project-state.md` en dehors de : cochage du ticket, ajout de 
 ```bash
 npm run dev        # http://localhost:3000 — / redirige (307) vers /fr ou /en
 npm run lint       # eslint — doit passer avant tout commit
-npm run typecheck  # tsc --noEmit
+npm run type-check # tsc --noEmit
 npm run build      # next build (génère aussi public/llms-full.txt via prebuild)
 ```
 
 Environnement : `.env.local` requis (voir README) — `OPENAI_API_KEY`, `GEMINI_API_KEY`,
-clés Supabase, `CSP_REPORT_ONLY`. Secrets **server-only** : ne jamais exposer côté client.
+clés Supabase ; `CSP_REPORT_ONLY` est **optionnelle** (déploie la CSP en report-only).
+Secrets **server-only** : ne jamais exposer côté client.
+
+**Aucun test automatisé n'existe encore.** `npm run test` (Vitest) arrive avec `TEST-001` ;
+d'ici là, `npm run lint` + `npm run type-check` ne prouvent **rien** sur le comportement — il
+faut vérifier à la main les points de la section « Verification » de la spec. Deux transitions à
+connaître : le script `typecheck` devient `type-check` (`TEST-001`), et la cible Node passe à
+**≥ 22.12** (les `engines` de Vitest 5 sont plus stricts que ceux de Next 16 : un runner Node 20
+échoue à `npm ci`).
 
 ## 4. Outils de recherche — à utiliser pendant l'implémentation
 
@@ -93,27 +101,35 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 5. **Contrats d'API à préserver** : 429 (`Retry-After`, `X-RateLimit-*`), 403 CSRF,
    400 validation, 500 générique. Ne change pas ces formes sans mention explicite dans
    la spec.
-6. **`proxy.ts`** : Edge-compatible, pas de dépendance lourde ; 301 (GET) / 308 (autres
-   méthodes) pour la déduplication vercel.app.
+6. **`proxy.ts`** : runtime **Node.js** en Next 16 — c'est le défaut et il n'est **pas
+   configurable** (déclarer `runtime` dans ce fichier lève une erreur). Pas de dépendance
+   lourde : ce fichier s'exécute à **chaque** requête. 301 (GET) / 308 (autres méthodes)
+   pour la déduplication vercel.app, 307 pour la négociation de locale.
 
 ## 7. Workflow d'implémentation d'une spec
 
 1. Lis la spec **en entier** — les sections « Design decisions » et « Handoff notes »
-   sont contraignantes ; les décisions ouvertes doivent être tranchées **et documentées dans la PR**.
+   sont contraignantes ; les décisions ouvertes doivent être tranchées **et documentées
+   dans le corps du commit** (il n'y a pas de flux PR dans ce dépôt : commits directs sur
+   `main`, déploiement Vercel automatique au push).
 2. Respecte le périmètre (In scope / Out of scope) — ne saute pas sur les tickets voisins.
 3. Les specs contiennent des **dépendances d'ordre** (ex. QUAL-002 avant QUAL-003,
    TEST-001 avant CICD-001). Vérifie dans `project-state.md` que les dépendances sont livrées.
-4. Après implémentation : `npm run lint`, `npm run typecheck`, `npm run build` + les
+4. Après implémentation : `npm run lint`, `npm run type-check`, `npm run build` + les
    vérifications spécifiques de la section « Verification » de la spec.
 5. Coche le ticket dans `project-state.md` uniquement si les critères d'acceptation
    (« Acceptance criteria ») sont tous remplis.
+6. Commit à la manière du dépôt : sujet `docs:` / `feat(<TICKET>):` / `fix(review):`, en
+   français, avec un corps qui explique le *pourquoi*. Un ticket = un commit cohérent,
+   pas un commit fourre-tout.
 
 ## 8. État des tickets (résumé — vérifier `project-state.md` pour le détail)
 
 **Corpus seo-geo** (`docs/features/seo-geo/INDEX.md`) : quasi terminé. Restes ouverts :
 GEO-08g (chat multilingue), GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11.
 
-**Backlog ingénierie** (tous ont une spec dans `docs/backlog/`) :
+**Backlog ingénierie** — la plupart ont une spec dédiée dans `docs/backlog/`
+(`TICKET-ID-…-spec.md`) ; les exceptions sont signalées ci-dessous :
 - 🔴 `TEST-001` (CRITICAL, vitest) → prérequis de `CICD-001` (CI minimale)
 - 🟠 `PERF-002` (streaming), `OBS-001` (Sentry), `CICD-001`
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant

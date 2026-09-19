@@ -6,6 +6,10 @@ Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.ve
 
 ---
 
+> **Working on a ticket with an AI agent/LLM?** Read [`CONTEXT.md`](CONTEXT.md) first — it carries the
+> commands, the non-negotiable conventions, the known traps and the research tooling for implementing a
+> spec from `docs/backlog/`. [`AGENTS.md`](AGENTS.md) points there too.
+
 ## Features
 
 - **AI Chat (Nicky)** — Collapsible chat section powered by CAG by default, with RAG fallback available. Expands inline on first message.

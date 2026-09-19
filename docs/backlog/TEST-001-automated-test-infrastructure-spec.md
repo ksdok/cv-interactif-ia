@@ -78,7 +78,7 @@ Decision: **target Node 22.12+ (`>=22.12.0`)**.
 Actions:
 - add to `package.json`: `"engines": { "node": ">=22.12.0" }`
 - update `README.md:41` (`- Node.js 18+` → `- Node.js 22.12+`) — Node 18 is already wrong for Next 16 (`>=20.9.0`), so this line must not survive this ticket
-- **If the project must stay on Node 20**, then install `vitest@^4` instead (`engines: ^20.0.0 || ^22.0.0 || >=24.0.0`) and say so explicitly in the PR. Do not leave the version unpinned.
+- **If the project must stay on Node 20**, then install `vitest@^4` instead (`engines: ^20.0.0 || ^22.0.0 || >=24.0.0`) and say so explicitly in the commit body. Do not leave the version unpinned.
 
 Do not rely on the local Node version to validate this: a dev machine running Node 26 installs Vitest 5
 successfully while a Node 20 CI runner fails at `npm ci`.
@@ -114,9 +114,9 @@ Update `package.json` with at least:
 > (no hyphen) while `CICD-001 §1` already calls `npm run type-check`. Pick `type-check` as the canonical
 > name (kebab-case, consistent with `test:watch`, `format:check`), update `package.json`, and grep for
 > `npm run typecheck` to update any remaining caller. This is the only script change in this ticket that
-> touches CICD-001's contract — mention it in the PR.
+> touches CICD-001's contract — mention it in the commit body.
 
-Optional, only if coverage is actually configured in the same PR:
+Optional, only if coverage is actually configured in the same commit:
 - `test:coverage`: `vitest run --coverage` + devDependency `@vitest/coverage-v8` (Vitest's default provider is `v8`)
 
 If coverage is not configured, do not add the script at all. Note for the record: `/coverage` is
@@ -237,19 +237,29 @@ non-watch `test` requirement is stated in `Dependencies`, `Pitfalls` and the acc
 re-open those sections; if the Node target or a script name changes later, both specs must change together.
 
 ### 5b. Callers of the renamed `type-check` script
-The `typecheck` → `type-check` rename in §2 breaks every spec that quotes the old invocation. Update them
-in the same PR (do not pre-rename them before this ticket lands, or they become wrong in the other direction):
+The `typecheck` → `type-check` rename in §2 breaks every place that quotes the old invocation. Update them
+in the same branch (do not pre-rename them before this ticket lands, or they become wrong in the other
+direction):
 
 | File | Lines |
 |---|---|
+| `CONTEXT.md` | `36`, `106` |
 | `docs/backlog/QUAL-001-prettier-pre-commit-hooks-spec.md` | `10`, `58`, `68` |
 | `docs/backlog/QUAL-002-structured-logging-spec.md` | `79` |
 | `docs/backlog/QUAL-003-eslint-strict-rules-spec.md` | `70` |
 | `docs/backlog/SEC-003-persistent-rate-limiting-spec.md` | `88` |
 
-Re-run `grep -rn "npm run typecheck" docs/` after the rename: the expected result is zero hits. The one
-remaining prose mention in `docs/features/seo-geo/GEO-08b-dictionnaires-i18n.md:62` is a historical review
-note in a closed ticket — leave it as a record.
+`CONTEXT.md` is the agent entry point for this backlog (added after the 2026-09-19 review, discoverable via
+`README.md` and `AGENTS.md`). It had drifted on `proxy.ts` — documented as "Edge-compatible" while Next 16
+runs the Proxy in the **Node.js runtime, non-configurable** — as well as on `typecheck`. Both are fixed;
+keep it in sync whenever a script name or the Node target changes.
+
+Re-run `grep -rn "npm run typecheck" . --exclude-dir=node_modules` after the rename. Expected result:
+**zero hits in `CONTEXT.md`, `docs/backlog/QUAL-*.md` and `docs/backlog/SEC-003-*.md`**. The only remaining
+matches are self-referential and legitimate — the two occurrences inside this spec (the §2 callout that
+explains the rename, and this grep line itself). The prose note at
+`docs/features/seo-geo/GEO-08b-dictionnaires-i18n.md:62` mentions `typecheck` without the `npm run` prefix,
+so it does not match this pattern at all: it is a closed ticket's record, leave it alone.
 
 ## Implementation notes
 - Keep the first version fast and boring.
@@ -288,7 +298,7 @@ note in a closed ticket — leave it as a record.
 - `lib/__tests__/validation.test.ts` exists and contains **37 migrated cases**, including 24
   `expectedError` assertions that fail the run on mismatch (not warnings).
 - `assertValidChatMessages()` is covered (throws on invalid, narrows on valid).
-- `lib/test-validation.ts` is deleted, and every reference listed in §5 is updated in the same PR.
+- `lib/test-validation.ts` is deleted, and every reference listed in §5 is updated in the same branch.
 - `vite-tsconfig-paths` resolves `@/*` inside test files (prove it with at least one alias-based import, or
   document that the first alias-based test will be added with the `csrf`/`linkify` tests).
 - The suite is suitable for future CI usage: a second `npm run test` invocation after a `vi.resetModules()`
@@ -322,4 +332,4 @@ Additional checks:
   touches are limited to `package.json`; `lib/validation.ts` must stay behaviourally unchanged.
 - If a migrated case fails, report the mismatch instead of adjusting the expectation to match the code.
 - Propagate every script/Node change to `CICD-001` in the same branch, and rename the `typecheck` callers
-  listed in §5b in the same PR as the script rename.
+  listed in §5b in the same commit as the script rename.
