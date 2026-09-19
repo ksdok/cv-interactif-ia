@@ -176,7 +176,7 @@ GEO-09 (continu, dès SEO-01 terminé)
 - Quand un ticket est terminé : passer son statut à ✅ dans ce fichier **et** dans son propre
   front-matter, et noter la date.
 - 🔗 SEO-03 absorbe et précise l'item backlog existant n°10
-  (`docs/backlog/10-enrich-indexable-static-content-plan.md`), dont le keyword cible
+  (`docs/backlog/enrich-indexable-static-content-plan.md`), dont le keyword cible
   (« Product Designer ») est à remplacer par le positionnement BA freelance.
 - 🌐 **Langue du fast-path** : le site étant actuellement en anglais (ChatPreview,
   ExperienceGrid, Footer), les tickets de wording **visible** livrés en fast-path le sont en

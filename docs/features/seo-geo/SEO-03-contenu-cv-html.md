@@ -11,7 +11,7 @@ transactions/an », « scalabilité ×4 », SFCM Broadridge, Kondor+, PSM I…) 
 caractères génériques.** Or le GEO 2026 récompense précisément : densité d'entités nommées,
 statistiques chiffrées, données tabulaires, contenu « answer-first ».
 
-> Absorbe le backlog n°10 (`docs/backlog/10-enrich-indexable-static-content-plan.md`) en le
+> Absorbe le backlog n°10 (`docs/backlog/enrich-indexable-static-content-plan.md`) en le
 > corrigeant (son keyword cible « Product Designer » est obsolète).
 
 ## Périmètre livré (fast-path EN, 2026-09-10)

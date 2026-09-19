@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-07-08 — alignement état réel du repo + specs de délégation par ticket
+> Dernière mise à jour : 2026-09-19 — rédaction des specs manquantes (PERF-002, OBS-001, QUAL-001/002/003, SEC-003)
 
 ---
 
@@ -63,16 +63,22 @@ Le chantier prioritaire n’est plus la bascule CAG elle-même, déjà présente
 
 Les tickets suivants disposent désormais d’une spec dédiée dans `docs/backlog/` :
 
-- `TEST-001` → `docs/backlog/11-test-001-automated-test-infrastructure-spec.md`
-- `CICD-001` → `docs/backlog/12-cicd-001-minimal-ci-pipeline-spec.md`
-- `SEC-002` → `docs/backlog/13-sec-002-standard-security-headers-spec.md`
-- `SEC-005` → `docs/backlog/14-sec-005-supabase-service-key-fail-fast-spec.md`
-- `SEC-001` → `docs/backlog/15-sec-001-content-security-policy-spec.md`
-- `PERF-001` → `docs/backlog/16-perf-001-jobmatcher-dynamic-import-spec.md`
-- `SEC-004` → `docs/backlog/17-sec-004-rate-limit-cleanup-spec.md`
-- `OBS-002` → `docs/backlog/18-obs-002-health-check-endpoint-spec.md`
+- `TEST-001` → `docs/backlog/TEST-001-automated-test-infrastructure-spec.md`
+- `CICD-001` → `docs/backlog/CICD-001-minimal-ci-pipeline-spec.md`
+- `SEC-002` → `docs/backlog/SEC-002-standard-security-headers-spec.md`
+- `SEC-005` → `docs/backlog/SEC-005-supabase-service-key-fail-fast-spec.md`
+- `SEC-001` → `docs/backlog/SEC-001-content-security-policy-spec.md`
+- `PERF-001` → `docs/backlog/PERF-001-jobmatcher-dynamic-import-spec.md`
+- `SEC-004` → `docs/backlog/SEC-004-rate-limit-cleanup-spec.md`
+- `OBS-002` → `docs/backlog/OBS-002-health-check-endpoint-spec.md`
+- `PERF-002` → `docs/backlog/PERF-002-ai-response-streaming-spec.md`
+- `OBS-001` → `docs/backlog/OBS-001-error-monitoring-sentry-spec.md`
+- `QUAL-001` → `docs/backlog/QUAL-001-prettier-pre-commit-hooks-spec.md`
+- `QUAL-002` → `docs/backlog/QUAL-002-structured-logging-spec.md`
+- `QUAL-003` → `docs/backlog/QUAL-003-eslint-strict-rules-spec.md`
+- `SEC-003` → `docs/backlog/SEC-003-persistent-rate-limiting-spec.md`
 
-Ces fichiers sont prêts à être donnés à un autre LLM comme brief d’implémentation.
+Ces fichiers sont prêts à être donnés à un autre LLM comme brief d’implémentation. Tout ticket ouvert de la backlog dispose désormais d’une spec dédiée.
 
 ---
 
@@ -157,7 +163,7 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Actions P0 : installer **Vitest** + `@vitejs/plugin-react`, migrer `test-validation.ts` vers `lib/__tests__/validation.test.ts`
   - Actions P1 : tests unitaires pour `lib/csrf.ts`, `lib/linkify.ts`, `lib/rateLimit.ts`
   - Actions P2 : tests d'intégration API avec MSW, tests e2e Playwright
-  - Spec prête : `docs/backlog/11-test-001-automated-test-infrastructure-spec.md`
+  - Spec prête : `docs/backlog/TEST-001-automated-test-infrastructure-spec.md`
 
 ### 📐 Qualité de code
 
@@ -166,16 +172,19 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Pas de `husky` + `lint-staged` — le lint peut ne pas s'exécuter avant commit
   - Ajouter scripts `format` et `format:check` dans `package.json`
   - `npm install --save-dev prettier husky lint-staged`
+  - Spec : `docs/backlog/QUAL-001-prettier-pre-commit-hooks-spec.md`
 
 - [ ] **QUAL-002 — Console.log en production** `LOW`
   - Les API routes contiennent de nombreux `console.log`/`console.warn` de debug
   - Remplacer par un logger structuré (Pino) ou supprimer en production
   - Impact : bruit dans les logs Vercel, pas de niveau de sévérité
+  - Spec : `docs/backlog/QUAL-002-structured-logging-spec.md` — à traiter avant QUAL-003
 
 - [ ] **QUAL-003 — ESLint config minimale** `LOW`
   - `eslint.config.mjs` utilise `eslint-config-next` sans règles strictes supplémentaires
   - Ajouter des règles : `no-console`, `prefer-const`, `no-unused-vars`
   - Envisager `eslint-plugin-security` pour les patterns dangereux
+  - Spec : `docs/backlog/QUAL-003-eslint-strict-rules-spec.md` — dépend de QUAL-002
 
 ### 🔒 Sécurité
 
@@ -185,37 +194,39 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Report-only supporté via `CSP_REPORT_ONLY=true` + endpoint `/api/csp-report` limité à 10 KB et 100 req/min/IP
   - `report-uri /api/csp-report` actif en report-only et en enforcing
   - Validé : `npm run lint`, `npm run build`, build/start production Node 22, HTML avec scripts Next + JSON-LD noncés, CSP Evaluator (2 findings info liés à `strict-dynamic`)
-  - Spec : `docs/backlog/15-sec-001-content-security-policy-spec.md`
+  - Spec : `docs/backlog/SEC-001-content-security-policy-spec.md`
 
 - [x] **SEC-002 — Configuration sécurité `next.config.ts` + headers HTTP** `MEDIUM`
   - `next.config.ts` : `poweredByHeader: false`; `reactStrictMode: true` activé pour la qualité de code en développement (pas une mesure de sécurité runtime)
   - Headers HTTP de sécurité posés dans `proxy.ts` : `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`
   - `X-Powered-By` absent en validation HTTP production
   - _(Fusionné depuis l'ancien SEC-002 + SEC-006 qui chevauchaient)_
-  - Spec : `docs/backlog/13-sec-002-standard-security-headers-spec.md`
+  - Spec : `docs/backlog/SEC-002-standard-security-headers-spec.md`
 
 - [ ] **SEC-003 — Rate limiting persistant** `LOW`
   - L'implémentation actuelle (`lib/rateLimit.ts`) est en mémoire — réinitialisée à chaque déploiement
   - Migration vers Vercel KV ou Upstash Redis si trafic augmente
+  - Spec : `docs/backlog/SEC-003-persistent-rate-limiting-spec.md` — implémentation conditionnée à un déclencheur (abus constaté, coûts API, multi-région)
 
 - [x] **SEC-004 — `cleanupOldRecords()` jamais appelée dans `rateLimit.ts`** `LOW`
   - Appel throttled (max 1x/heure) dans `checkRateLimit()` via `lastCleanup` + `CLEANUP_INTERVAL_MS`
-  - Spec : `docs/backlog/17-sec-004-rate-limit-cleanup-spec.md`
+  - Spec : `docs/backlog/SEC-004-rate-limit-cleanup-spec.md`
 
 - [x] **SEC-005 — Supabase key fallback silencieux** `MEDIUM`
   - Fail-fast en production si `SUPABASE_SERVICE_ROLE_KEY` absente ; fallback anon key en dev avec warning console
-  - Spec : `docs/backlog/14-sec-005-supabase-service-key-fail-fast-spec.md`
+  - Spec : `docs/backlog/SEC-005-supabase-service-key-fail-fast-spec.md`
 
 ### ⚡ Performance
 
 - [x] **PERF-001 — Code splitting — import dynamique de `JobMatcher`** `LOW`
   - `next/dynamic(() => import('@/components/JobMatcher'), { ssr: false })` + rendu conditionnel (`jobMatcherOpen &&`)
-  - Spec : `docs/backlog/16-perf-001-jobmatcher-dynamic-import-spec.md`
+  - Spec : `docs/backlog/PERF-001-jobmatcher-dynamic-import-spec.md`
 
 - [ ] **PERF-002 — Streaming des réponses AI** `MEDIUM`
   - `/api/chat` bloque pendant toute la durée de génération (latence perceptible)
   - Implémenter SSE (Server-Sent Events) ou `ReadableStream` pour afficher la réponse progressivement
   - Implique de réécrire `ChatPreview.tsx` pour consommer un stream
+  - Spec : `docs/backlog/PERF-002-ai-response-streaming-spec.md`
 
 - [ ] **PERF-003 — Cache API pour requêtes fréquentes** `LOW`
   - Mettre en cache les réponses aux questions récurrentes ("quelle est ton expérience ?")
@@ -236,10 +247,11 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Tous les logs sont `console.log/warn/error` — bruyant en production, non structuré
   - Intégrer **Sentry** (`@sentry/nextjs`) — setup ~30 min, alerting 500 immédiat
   - Ou Logtail / Vercel Logs pour structured logging JSON
+  - Spec : `docs/backlog/OBS-001-error-monitoring-sentry-spec.md` — attention à la compatibilité CSP (nonce, `proxy.ts`)
 
 - [x] **OBS-002 — Pas de health check endpoint** `LOW`
   - `GET /api/health` créé — retourne `{ status: 'ok', timestamp }`, sans auth ni rate limit
-  - Spec : `docs/backlog/18-obs-002-health-check-endpoint-spec.md`
+  - Spec : `docs/backlog/OBS-002-health-check-endpoint-spec.md`
 
 ### 🔄 CI/CD — Maturité 0/10 (CRITIQUE)
 
@@ -247,7 +259,7 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Pas de `.github/workflows/` configuré
   - Créer un workflow CI minimal : `type-check` + `lint` + `test` (dès que TEST-001 est fait) + `build`
   - Déploiement via Vercel Git intégration (déjà en place), mais sans vérifications pré-merge
-  - Spec prête : `docs/backlog/12-cicd-001-minimal-ci-pipeline-spec.md`
+  - Spec prête : `docs/backlog/CICD-001-minimal-ci-pipeline-spec.md`
 
 ### 🎨 UI / UX
 
