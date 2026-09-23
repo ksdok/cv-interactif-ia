@@ -118,7 +118,7 @@ cv-interactif-ia/
 │   ├── opengraph-image.png        # OG card image + opengraph-image.alt.txt (alt per-locale since Lot 1)
 │   └── favicon.ico
 ├── components/                    # All wording injected via dictionary props (GEO-08b)
-│   ├── Header.tsx                 # Sticky header, logo + language switcher (GEO-08f)
+│   ├── Header.tsx                 # Sticky header, logo cliquable, lien CV + language switcher (GEO-08f)
 │   ├── Hero.tsx                   # Editorial hero — H1 = name + role (SEO-02)
 │   ├── ChatPreview.tsx            # Collapsible AI chat interface
 │   ├── ExperienceGrid.tsx         # Bento-style experience cards
@@ -211,6 +211,9 @@ SEO/GEO ticket corpus in [`docs/features/seo-geo/INDEX.md`](docs/features/seo-ge
 - **Switcher de langue** — both locales displayed as native crawlable links
   (`FR / EN`) in the sticky header, active locale highlighted (`aria-current="page"`),
   current page preserved (GEO-08f, itération 2 — préférence utilisateur).
+- **Header navigable** — le logo et un lien « CV » (vers la page CV de la
+  locale courante) complètent le header ; lien interne site-wide vers `/cv`
+  (GEO-08f, itération 3 — responsive vérifié CDP, tagline masquée sous `sm`).
 - **llms.txt** — bilingual `/llms.txt` for AI agents + `/llms-full.txt` generated
   at build from `data/cv.md` (GEO-06).
 - **CV pages** — `/fr/cv` (from `data/cv.md`) + `/en/cv`, linked by hreflang;

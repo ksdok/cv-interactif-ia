@@ -68,3 +68,27 @@ Un lien visible FR ↔ EN dans le Header, crawlable, qui préserve la page coura
   `switcherAriaEn`, annonce dans la langue cible via `lang`).
 - Critères 1-4 inchangés et revérifiés (FR/EN présents sur les deux pages et
   les pages CV, hrefLang/lang/aria-label non vides, curl -L → 200, sans JS).
+
+## Itération 3 (2026-09-23, demande utilisateur — hors corpus d'origine)
+
+- **Lien « CV » dans le header** (vers `/fr/cv` / `/en/cv`, GEO-08h) + **logo
+  cliquable vers la home de la locale courante**. Le `<nav>` porte désormais la
+  home, le CV et le switcher — gain SEO-03/GEO-08h : `/fr/cv` reçoit un lien
+  interne site-wide (avant : footer seul).
+- Lien CV : `aria-label` localisé (`header.cvLinkAria`), highlight
+  `aria-current="page"` quand la page courante EST `/cv`. Invariant documenté
+  dans le composant : Next 16 ne sert pas de trailing slash, donc l'égalité
+  stricte `rest === '/cv'` est sûre.
+- Logo : `aria-label` composé `name + homeLinkAria` (« Kim-san DOK — Retour à
+  l'accueil ») — conforme WCAG 2.5.3 Label in Name (le nom accessible contient
+  le libellé visible, review c150986 M1).
+- Responsive (review c150986 B1) : tagline `hidden sm:block` + `px-4 sm:px-8`
+  + `gap-3 sm:gap-6`. Mesures CDP (Chrome headless, dsf 1) : header 80 px de
+  320 à 520 px (avant : 114-146 px, tagline/nom sur 2 lignes), 99 px ≥ 640 px
+  (baseline desktop inchangée), zéro débordement horizontal à 320-1280.
+- Arbitrage M2 (review c150986) : sur `/fr/cv`, le lien CV et le lien FR du
+  switcher portent tous deux `aria-current="page"` vers le même href — assumé
+  et documenté dans le composant : le switcher désigne la page courante dans
+  l'ensemble des locales (convention itération 2), le lien CV désigne la page
+  courante du site.
+- Critères 1-4 revérifiés + lint/typecheck/build verts.
