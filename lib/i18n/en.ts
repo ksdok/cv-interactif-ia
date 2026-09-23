@@ -72,6 +72,11 @@ const en: Dictionary = {
     // with the matching voice.
     switcherAriaFr: 'Passer en français',
     switcherAriaEn: 'English version',
+    // Direct link to the CV page of the current locale (/en/cv, GEO-08h).
+    cvLink: 'CV',
+    cvLinkAria: 'View CV',
+    // Clickable logo → home of the current locale.
+    homeLinkAria: 'Back to home',
   },
 
   // GEO-08h — CV page metadata (BA freelance wording, corpus convention 🔗

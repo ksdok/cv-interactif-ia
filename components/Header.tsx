@@ -32,13 +32,35 @@ export default function Header({ dictionary, lang }: HeaderProps) {
   return (
     <nav className="sticky top-0 w-full z-50 bg-surface/80 backdrop-blur-xl">
       <div className="flex justify-between items-center w-full px-8 py-6 max-w-7xl mx-auto">
-        {/* Logo */}
-        <div className="flex flex-col">
+        {/* Logo — lien vers la home de la locale courante (l'ensemble
+            name + tagline est cliquable, tree d'accessibilité porté par
+            l'aria-label du lien) */}
+        <a
+          href={`/${lang}`}
+          aria-label={dictionary.header.homeLinkAria}
+          className="flex flex-col"
+        >
           <span className="text-2xl font-semibold tracking-[-0.02em] text-on-surface">{dictionary.header.name}</span>
           <span className="text-[10px] uppercase tracking-widest text-secondary mt-1">{dictionary.header.tagline}</span>
-        </div>
-        {/* GEO-08f — switcher FR / EN, highlight sur la locale active */}
-        <div className="flex items-center gap-2 text-[0.75rem] tracking-wider uppercase">
+        </a>
+        <div className="flex items-center gap-6 text-[0.75rem] tracking-wider uppercase">
+          {/* Lien CV — page locale courante (GEO-08h), highlight si déjà sur /cv */}
+          <a
+            href={`/${lang}/cv`}
+            aria-label={dictionary.header.cvLinkAria}
+            aria-current={rest === '/cv' ? 'page' : undefined}
+            className={
+              rest === '/cv'
+                ? 'font-semibold text-on-surface'
+                : 'text-secondary hover:text-on-surface transition-colors'
+            }
+          >
+            {dictionary.header.cvLink}
+          </a>
+          {/* Séparateur CV | switcher — décoratif, exclu du tree d'accessibilité */}
+          <span aria-hidden="true" className="h-4 w-px bg-surface-variant" />
+          {/* GEO-08f — switcher FR / EN, highlight sur la locale active */}
+          <div className="flex items-center gap-2">
           {LANGUAGES.map((l, i) => (
             <Fragment key={l}>
               {i > 0 && <span aria-hidden="true" className="text-surface-variant">{'/'}</span>}
@@ -58,6 +80,7 @@ export default function Header({ dictionary, lang }: HeaderProps) {
               </a>
             </Fragment>
           ))}
+          </div>
         </div>
       </div>
     </nav>

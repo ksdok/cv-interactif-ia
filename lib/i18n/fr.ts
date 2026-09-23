@@ -75,6 +75,11 @@ const fr = {
     // lecteurs d'écran l'annoncent avec la voix correspondante.
     switcherAriaFr: 'Version française',
     switcherAriaEn: 'Switch to English',
+    // Lien direct vers la page CV de la locale courante (/fr/cv, GEO-08h).
+    cvLink: 'CV',
+    cvLinkAria: 'Voir le CV',
+    // Logo cliquable → home de la locale courante.
+    homeLinkAria: 'Retour à l\u2019accueil',
   },
 
   // GEO-08h — metadata de la page CV (wording BA freelance, convention corpus
