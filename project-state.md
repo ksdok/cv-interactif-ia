@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
+> Dernière mise à jour : 2026-09-23 — GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
 
 ---
 
@@ -43,19 +43,18 @@
 **Stack** : Next.js 16 · TypeScript · Tailwind 4 · Supabase · Vercel
 **Provider actif** : OpenAI GPT-5.4 mini (fallback : Gemini 3.5 Flash)
 **Source de contexte chat** : CAG par défaut (`CV_CONTEXT_SOURCE = 'cag'`), RAG conservé pour le fallback configurable et `job-match`
+**Langue de réponse** : suit la locale demandée (`lang` sur `/api/chat`, `language` sur `/api/job-match` ; valeur absente ou invalide → `fr`) — le préfixe persona + CV reste partagé fr/en pour le cache de prompt (GEO-08g)
 
 ---
 
 ## En cours
 
-Le chantier prioritaire n’est plus la bascule CAG elle-même, déjà présente dans le code, mais le durcissement de l’ingénierie autour du produit :
+Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, specs de délégation rédigées). Reste, par ordre de priorité :
 
-- mettre en place une vraie infrastructure de tests
-- ajouter une CI minimale
-- durcir `next.config.ts` avec des headers de sécurité et une CSP
-- supprimer les fallbacks silencieux côté Supabase
-- ajouter un endpoint de health check
-- préparer des tickets délégables à un autre LLM avec des specs séparées
+- installer l’infrastructure de tests (TEST-001) — prérequis de la CI minimale (CICD-001)
+- streaming des réponses IA (PERF-002) et monitoring Sentry (OBS-001)
+- page Projets GitHub (PROJ-001, spec prête depuis le 2026-09-23)
+- finitions du corpus SEO/GEO (GEO-09, TECH-10, INFRA-11 — voir la synthèse ci-dessous)
 
 ---
 
@@ -292,6 +291,16 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Ajouter des mots-clés pertinents dans Hero/ExperienceGrid (ex : "Product Designer", "Paris", "IA")
   - Ou ajouter une section "À propos" statique pour les crawlers
 
+### 🧭 Corpus SEO/GEO — synthèse
+
+> Le statut **par ticket** fait foi dans [`docs/features/seo-geo/INDEX.md`](docs/features/seo-geo/INDEX.md) ;
+> section volontairement non dupliquée ticket par ticket ici.
+
+- ✅ Livrés : SEO-01→SEO-04, GEO-06, GEO-07, GEO-08a→GEO-08h (routing i18n, dictionnaires, metadata/hreflang, sitemap, switcher de langue, header navigable, chat multilingue, CV bilingue)
+- 📄 GEO-08e : ticket de docs corrigé le 2026-09-23 (état final = 4 entrées `<loc>`, la note prévisionnelle « total à 5 » était fausse)
+- ⛔ SEO-05 (FAQ + schema FAQPage) abandonné — rich result déprécié par Google (mai 2026)
+- ⬜ Ouverts : GEO-09 (off-page, continu), TECH-10 (vérifs device iOS + Lighthouse), INFRA-11 (contact@kimsandok.com)
+
 ---
 
 ## Terminé ✅
@@ -320,6 +329,7 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
 - [x] **FEAT-CAG-003** — intégration CAG/RAG dans `/api/chat` (`app/api/chat/route.ts`)
 - [x] **FEAT-CAG-004** — outillage de validation CAG/cache + limites de taille (`scripts/*.mjs`, `docs/cag-limits.md`)
 - [x] **FEAT-CAG-005** — documentation README du mode opératoire CAG/RAG, mise à jour CV, prompt caching
+- [x] **GEO-08g** — chat Nicky multilingue (consigne de langue en fin de prompt : le préfixe persona + CV reste partagé fr/en, cache mesuré 6/6 hits) + analyse job-match localisée ; fidélité EN vérifiée en revue manuelle ; fallback `fr` sans 400 (`0d7bf66`, `c010db2`)
 
 ### Sécurité & qualité
 - [x] **Validation des entrées** — `lib/validation.ts`, protection injection (`7cfacc9`)

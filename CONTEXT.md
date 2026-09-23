@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-23
+> Dernière mise à jour : 2026-09-23 — GEO-08g (chat multilingue + job-match localisé) livré et revu
 
 ---
 
@@ -26,7 +26,10 @@ dans les données réelles du CV (CAG par défaut, RAG Supabase en fallback conf
 4. `README.md` — si tu touches un point documenté (env vars, mode opératoire CAG, API)
 
 Ne modifie jamais `project-state.md` en dehors de : cochage du ticket, ajout de la ligne
-« Spec : … » si absente, date de mise à jour.
+« Spec : … » si absente, entrée de livraison dans « Terminé ✅ » (ou dans la synthèse
+corpus SEO/GEO), et date de mise à jour d'en-tête. Le statut **par ticket** du corpus
+SEO/GEO vit dans `docs/features/seo-geo/INDEX.md` : `project-state.md` n'en porte qu'un
+résumé.
 
 ## 3. Commandes
 
@@ -126,7 +129,8 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 ## 8. État des tickets (résumé — vérifier `project-state.md` pour le détail)
 
 **Corpus seo-geo** (`docs/features/seo-geo/INDEX.md`) : quasi terminé. Restes ouverts :
-GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11.
+GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11. Le statut par ticket
+fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 
 **Backlog ingénierie** — la plupart ont une spec dédiée dans `docs/backlog/`
 (`TICKET-ID-…-spec.md`) ; les exceptions sont signalées ci-dessous :
@@ -140,8 +144,10 @@ GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11.
 ## 9. Pièges connus
 
 - **`lib/rateLimit.ts` est en mémoire** : les compteurs réinitialisent à chaque déploiement — comportement connu, documenté (SEC-003 couvre la migration, reportée).
-- **Gemini cache non confirmé** : OpenAI prefix cache validé (5/5 hits), Gemini 0/5 — ne pas promettre d'économies Gemini sans re-mesurer (`scripts/measure-cache.mjs`).
-- **`data/cv.md` ≈ 1 848 tokens** : rester en CAG en dessous de ~10K tokens ; au-delà, voir `docs/cag-limits.md`.
+- **Gemini cache non confirmé** : OpenAI prefix cache validé (5/5 hits en mono-langue, 6/6 en alternance fr/en — préfixe persona + CV partagé, 2 304 tokens), Gemini 0/5 — ne pas promettre d'économies Gemini sans re-mesurer (`scripts/measure-cache.mjs`).
+- **`data/cv.md` ≈ 2 400 tokens estimés** (9 620 caractères ; préfixe stable persona + CV ≈ 2 640 tokens — `scripts/measure-cv-tokens.mjs`) : rester en CAG en dessous de ~10K tokens ; au-delà, voir `docs/cag-limits.md`.
+- **Ne pas déplacer la consigne de langue du chat** : elle est ajoutée en **fin** de prompt, après le bloc CV. La placer avant le CV donnerait deux préfixes distincts fr/en et diviserait le taux de hit du cache (GEO-08g).
+- **`npm run typecheck` peut échouer sur `.next/`** : le `include` de `tsconfig.json` prend `**/*.ts` sans exclure `.next`, donc une copie parasite (ex. `.next/types/routes.d 2.ts`) déclenche un `TS2300 Duplicate identifier`. Supprimer les `* 2.ts` sous `.next` (ou `.next` entier) et relancer : ce n'est jamais le code en cours d'édition.
 - **Rapports runtime** (`scripts/results/`) : gitignorés intentionnellement.
 - **`public/llms-full.txt` est généré au build** (prebuild) — ne jamais l'éditer à la main.
 - **Latences mesurées** : OpenAI ≈ 1,4s, Gemini ≈ 8,0s — toute feature qui augmente la latence perçue du chat doit passer par PERF-002 (streaming), pas par un contournement.
