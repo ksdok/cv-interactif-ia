@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
+> Dernière mise à jour : 2026-09-23 — 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec MODEL-003 (migration SDK Gemini) rédigée depuis la revue M4 de PERF-002 ; spec PERF-002 durcie (revue M11-M17) et son ticket de suivi désormais tracé dans MODEL-003 ; spec MODEL-004 créée (durcissement du garde-fou hors-sujet) avec la décision de rester sur `gpt-5.4-mini` et les mesures du banc A/B local ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
 
 ---
 
@@ -42,6 +42,7 @@
 **Production** : [kimsandok.com](https://kimsandok.com)
 **Stack** : Next.js 16 · TypeScript · Tailwind 4 · Supabase · Vercel
 **Provider actif** : OpenAI GPT-5.4 mini (fallback : Gemini 3.5 Flash)
+**Décision modèle (2026-09-23)** : **rester sur `gpt-5.4-mini`** — banc A/B local (`scripts/bench-models.mjs`, 19 questions × 2 langues, cache chaud) : GPT-6 Luna gagne les évals publiques (Intelligence Index AA 37 vs 24) mais **perd le critère produit** — garde-fou hors-sujet 3/4 à `reasoning_effort: none` (météo FR : propose de répondre) et 2/4 au défaut `medium` (raconte les blagues, FR et EN), contre **4/4** pour 5.4-mini ; latence équivalente à `none`, +74 % de TTFT à `medium` ; gain de coût ×11.6 réel mais inopérant au plafond de 200 req/j/IP. **Réexamen** : dépréciation de `gpt-5.4-mini`, ou modèle moins cher passant le jeu hors-sujet élargi (MODEL-004)
 **Source de contexte chat** : CAG par défaut (`CV_CONTEXT_SOURCE = 'cag'`), RAG conservé pour le fallback configurable et `job-match`
 **Langue de réponse** : suit la locale demandée (`lang` sur `/api/chat`, `language` sur `/api/job-match` ; valeur absente ou invalide → `fr`) — le préfixe persona + CV reste partagé fr/en pour le cache de prompt (GEO-08g)
 
@@ -52,6 +53,8 @@
 Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, infrastructure de tests TEST-001, pipeline CI minimal CICD-001, specs de délégation rédigées). Reste, par ordre de priorité :
 
 - monitoring Sentry (OBS-001) et streaming des réponses IA (PERF-002)
+- durcissement du garde-fou hors-sujet du chat (MODEL-004) — suite directe du banc du 2026-09-23 : persona + jeu hors-sujet élargi + détecteur réparé ; décision modèle déjà enregistrée ci-dessus
+- migration du SDK Gemini (MODEL-003, après PERF-002)
 - page Projets GitHub (PROJ-001, spec prête depuis le 2026-09-23)
 - finitions du corpus SEO/GEO (GEO-09, TECH-10, INFRA-11 — voir la synthèse ci-dessous)
 
@@ -79,6 +82,8 @@ Les tickets suivants disposent désormais d’une spec dédiée dans `docs/backl
 - `CICD-002` → `docs/backlog/CICD-002-ci-workflow-hardening-spec.md`
 - `QUAL-004` → `docs/backlog/QUAL-004-tracked-claude-artifacts-spec.md`
 - `TEST-002` → `docs/backlog/TEST-002-native-tsconfig-paths-spec.md`
+- `MODEL-003` → `docs/backlog/MODEL-003-google-genai-migration-spec.md`
+- `MODEL-004` → `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md`
 
 Ces fichiers sont prêts à être donnés à un autre LLM comme brief d’implémentation. Tout ticket ouvert de la backlog dispose désormais d’une spec dédiée.
 
@@ -154,7 +159,26 @@ _Tous les bugs identifiés lors de l'audit ont été corrigés. Voir la section 
 
 ### 🔄 Configuration modèles — Mise à jour
 
-_Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessous._
+_MODEL-001 et MODEL-002 sont traités (voir la section "Terminé" ci-dessous)._
+
+- [ ] **MODEL-003 — Migration `@google/generative-ai` → `@google/genai`** `LOW`
+  - Le SDK Gemini en place est **déprécié** : README npm titré « [Deprecated] Google AI JavaScript SDK for the Gemini API », dernière publication `0.24.1` le **2025-04-29** (~17 mois sans release)
+  - Successeur actif : `@google/genai@2.24.0`, publié le **2026-09-22**, `engines.node >= 20` (compatible avec la cible `>= 22.12` du projet)
+  - Un seul point d'usage dans le code : `lib/modelProviders.ts` (import, constructeur, `getGenerativeModel`)
+  - Enjeu réel : Gemini est le **seul fallback** (`FALLBACK_ORDER = ['gemini']`) — la seule voie de secours d'une panne OpenAI repose sur un SDK abandonné
+  - Pièges identifiés dans la spec : retry implicite du nouveau SDK (`p-retry`) qui changerait la latence d'échec en silence, et la ligne de log `[modelProviders] Gemini usage: {…}` qui est un contrat machine pour `scripts/measure-cache.mjs`
+  - Issu de la revue M4 de PERF-002 ; à traiter **après** PERF-002 (qui ajoute `callGeminiStream` au même seam)
+  - Spec : `docs/backlog/MODEL-003-google-genai-migration-spec.md`
+
+- [ ] **MODEL-004 — Durcissement du garde-fou hors-sujet du chat (Nicky)** `MEDIUM`
+  - Issu du banc A/B du 2026-09-23 (`scripts/bench-models.mjs`, 19 questions × 2 langues, cache chaud) : GPT-6 Luna gagne largement sur les évals publiques (Intelligence Index AA 37 vs 24) mais **perd sur le critère produit**
+  - Mesures : `gpt-5.4-mini` 4/4 refus hors-sujet corrects · `gpt-6-luna` (`none`) 3/4 (météo FR → propose de répondre) · `gpt-6-luna` (défaut `medium`) 2/4 (**raconte des blagues**, FR et EN) — latence équivalente à `none`, +74 % de TTFT à `medium`
+  - Coût : 11,6× moins cher avec Luna mais ~$0,19/jour → ~$0,017/jour au pire cas (plafond 200 req/j/IP) — argument budgétaire inopérant à ce trafic
+  - **Décision enregistrée : rester sur `gpt-5.4-mini`**, avec critère de réexamen explicite (dépréciation, ou modèle moins cher passant le jeu élargi)
+  - **Travail réel** : durcir le contrat de refus dans la persona (`lib/systemPrompt.mjs`, zone ①, donc sans casser le préfixe de cache partagé fr/en de GEO-08g), élargir le jeu hors-sujet (injection d'instructions, pièges de prémisses, quasi-manque à ne PAS refuser), et **réparer le détecteur** — le pré-filtre mécanique avait annoncé 0/4 suspects sur le bras qui racontait deux blagues
+  - Décision annexe à trancher : épingler explicitement `reasoning_effort: 'none'` (aujourd'hui hérité du défaut provider, qui bascule à `medium` sur les familles 5.6/6)
+  - Prérequis : commiter `scripts/bench-models.mjs` (non suivi à ce jour) dans un commit dédié avant le travail de durcissement
+  - Spec : `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md`
 
 ### 🧪 Tests — Maturité 3/10 (INCOMPLET)
 

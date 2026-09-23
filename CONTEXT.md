@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-23 — CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002)
+> Dernière mise à jour : 2026-09-23 — CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 (durcissement du garde-fou hors-sujet) créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) — décision enregistrée : rester sur `gpt-5.4-mini`
 
 ---
 
@@ -79,6 +79,31 @@ Règles d'usage :
 - `/v1/search` peut être lent (10-40s) ; si résultats vides, fallback `web_search`
 - Citer les URLs de `data.metadata.sourceURL` / `data[].url` comme sources
 
+### Banc de modèles (arbitrage « faut-il changer de modèle ? »)
+
+Ne pas trancher sur un classement public. Le dépôt a son propre banc :
+
+```bash
+node scripts/bench-models.mjs --models gpt-5.4-mini,gpt-6-luna --effort none --lang both
+node scripts/bench-models.mjs --models gpt-6-luna:default            # sonde le défaut provider
+```
+
+- Il réutilise `lib/systemPrompt.mjs` → prompt **byte-identique** à `/api/chat` (CAG), mesure le TTFT en streaming, les tokens cachés/sortie/raisonnement, le coût/appel et la fidélité (`fidelityTokens`), et écrit les réponses dans `scripts/results/` (gitignoré) pour revue.
+- Le **pré-filtre hors-sujet est mécanique et donc faillible** : lors du banc du 2026-09-23 il a annoncé 0/4 suspects sur un bras qui racontait deux blagues. Toujours lire les réponses ; le verdict humain est la preuve.
+- Le coût par requête se lit en absolu, pas en facteur : au plafond de 200 req/j/IP, un écart de ×11 reste sous les 20 c/jour.
+- Décision et protocole : `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md`.
+
+### Docs OpenAI en Markdown (faits modèles / tarifs)
+
+`platform.openai.com/api/docs/...` renvoie un 403 (checkpoint Vercel) après quelques requêtes. Toute page de doc existe en Markdown propre en suffixant `.md`, et ne bloque pas :
+
+```bash
+curl -s -o /tmp/m.md -H 'User-Agent: Mozilla/5.0' --max-time 20 \
+  https://developers.openai.com/api/docs/models/gpt-5.4-mini.md
+```
+
+Utile pour les fiches modèle (prix, contexte, `reasoning.effort`, endpoints supportés) — `gpt-5.4-mini.md` donne par exemple le tarif officiel $0.75/$0.075/$4.50. Les pages officielles **ne publient aucune évaluation** : pour les benchmarks, passer par un évaluateur indépendant (Artificial Analysis) et le dire comme tel.
+
 ### Context7 MCP (si nécessaire — docs de bibliothèques)
 
 Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `@sentry/nextjs`, `@upstash/ratelimit`, etc.) :
@@ -92,7 +117,7 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 | Zone | Fichiers | À savoir |
 |---|---|---|
 | Config IA/contexte | `lib/modelConfig.ts` | Point unique : `ACTIVE_PROVIDER`, `FALLBACK_ORDER`, `CV_CONTEXT_SOURCE` ('cag' \| 'rag') |
-| Providers IA | `lib/modelProviders.ts` | `generateResponse()` avec fallback chain ; ne pas casser `/api/job-match` qui partage `PROVIDERS` |
+| Providers IA | `lib/modelProviders.ts` | `generateResponse()` avec fallback chain ; ne pas casser `/api/job-match` qui partage `PROVIDERS` · pour arbitrer un changement de modèle, le banc `scripts/bench-models.mjs` tranche sur des critères produit — pas un classement public (MODEL-004) |
 | Contexte CAG | `data/cv.md` + `lib/cvContext.ts` | Cache en mémoire — redémarrer le serveur après édition du CV. Consigne de langue (`lang` du corps, fallback `fr`) ajoutée **en fin** de prompt (`lib/systemPrompt.mjs`) : le préfixe persona + CV doit rester commun fr/en, sinon le cache de prompt est divisé (GEO-08g) |
 | Sécurité | `proxy.ts` | Ex-middleware (Next 16, runtime Node) : 301/308 vercel.app→canonique, négociation locale, **CSP nonce (`x-nonce`, `strict-dynamic`, sans `unsafe-inline`)**, cookie CSRF, headers sécurité |
 | Sécurité API | `lib/csrf.ts`, `lib/rateLimit.ts`, `lib/validation.ts` | Pipeline obligatoire sur chaque POST : rate limit (200/j/IP, mémoire) → CSRF → validation |
@@ -150,10 +175,12 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 - ✅ `CICD-001` (workflow CI minimal : `type-check` + `lint` + `test` + `build` sur PR et push `main`)
 - 🟠 `CICD-002` (durcissement CI : actions v4 → v7, `concurrency`, image de runner épinglée) — signaux du premier run réel
 - 🟠 `PERF-002` (streaming), `OBS-001` (Sentry)
+- 🟠 `MODEL-004` (durcissement du garde-fou hors-sujet du chat : persona, jeu hors-sujet élargi, détecteur réparé) — **décision enregistrée : rester sur `gpt-5.4-mini`**, le classement public ne tranche pas le critère produit (banc du 2026-09-23)
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant
 - ⚪ `QUAL-004` (gitlink orphelin `.claude/worktrees/*` + `.claude/**` suivis malgré `.gitignore` — cause du warning `git exit 128` en CI), `TEST-002` (`vite-tsconfig-paths` → `resolve.tsconfigPaths` natif, supprime `tsconfck` non maintenu), `PERF-003` (cache API, ancien plan sans spec dédiée), `UX-002` (dark mode, ancien plan),
   `SEC-003` (rate limit persistant — conditionné à un déclencheur, ne pas implémenter sans accord),
-  `SEO-001` (probablement absorbé par SEO-03 ✅ — à confirmer avant de travailler dessus)
+  `SEO-001` (probablement absorbé par SEO-03 ✅ — à confirmer avant de travailler dessus),
+  `MODEL-003` (migration `@google/generative-ai` → `@google/genai` derrière le seam `callGemini*`, à traiter après PERF-002)
 
 ## 9. Pièges connus
 
@@ -162,7 +189,8 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 - **Gemini cache non confirmé** : OpenAI prefix cache validé (5/5 hits en mono-langue, 6/6 en alternance fr/en — préfixe persona + CV partagé, 2 304 tokens), Gemini 0/5 — ne pas promettre d'économies Gemini sans re-mesurer (`scripts/measure-cache.mjs`).
 - **`data/cv.md` ≈ 2 400 tokens estimés** (9 620 caractères ; préfixe stable persona + CV ≈ 2 640 tokens — `scripts/measure-cv-tokens.mjs`) : rester en CAG en dessous de ~10K tokens ; au-delà, voir `docs/cag-limits.md`.
 - **Ne pas déplacer la consigne de langue du chat** : elle est ajoutée en **fin** de prompt, après le bloc CV. La placer avant le CV donnerait deux préfixes distincts fr/en et diviserait le taux de hit du cache (GEO-08g).
-- **`npm run type-check` peut échouer sur `.next/`** : le `include` de `tsconfig.json` prend `**/*.ts` sans exclure `.next`, donc une copie parasite (ex. `.next/types/routes.d 2.ts`) déclenche un `TS2300 Duplicate identifier`. Supprimer les `* 2.ts` sous `.next` (ou `.next` entier) et relancer : ce n'est jamais le code en cours d'édition.
+- **`npm run type-check` peut échouer sur `.next/`** : le `include` de `tsconfig.json` prend `**/*.ts` sans exclure `.next`, donc une copie parasite (ex. `.next/types/routes.d 2.ts`) déclenche un `TS2300 Duplicate identifier`. Ce sont des copies de conflit de synchro dossier (iCloud/Drive) qui touchent **tout** `.next`, pas seulement `types/` : `find .next -name '* [0-9].*' -delete` puis relancer. Ce n'est jamais le code en cours d'édition.
+- **`reasoning_effort` est aujourd'hui hérité du défaut provider** (`lib/modelProviders.ts` ne l'envoie pas) : `none` pour `gpt-5.4-mini`, mais `medium` pour les familles GPT-5.6/6 — mesuré au banc du 2026-09-23 : **+74 % de TTFT** et +34 % de coût, et c'est ce bras qui racontait des blagues. Ne pas changer de modèle sur la foi d'un classement : le garde-fou hors-sujet est le critère qui a départagé (MODEL-004).
 - **Rapports runtime** (`scripts/results/`) : gitignorés intentionnellement.
 - **`public/llms-full.txt` est généré au build** (prebuild) — ne jamais l'éditer à la main.
 - **Latences mesurées** : OpenAI ≈ 1,4s, Gemini ≈ 8,0s — toute feature qui augmente la latence perçue du chat doit passer par PERF-002 (streaming), pas par un contournement.
