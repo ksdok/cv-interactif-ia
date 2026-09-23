@@ -183,14 +183,19 @@ Context source dispatch (`CV_CONTEXT_SOURCE`)
 CAG: full `data/cv.md` loaded in memory
 or RAG: top 10 CV snippets from Supabase
     ↓
-System prompt built with CV context + Nicky persona
+System prompt built with CV context + Nicky persona + response-language
+directive (from the body's `lang`, GEO-08g)
     ↓
 generateResponse() → active provider (with fallback)
     ↓
 { response: text }
 ```
 
-The Nicky persona is defined in `app/api/chat/route.ts` as `const systemPrompt`. Edit this to change the assistant's name, tone, or instructions.
+The Nicky persona and the prompt assembly live in `lib/systemPrompt.mjs`
+(`buildChatSystemPrompt`). Edit this to change the assistant's name, tone, or
+instructions. The response-language directive is appended **after** the CV block
+on purpose: persona + CV must stay a byte-identical prefix across locales, or the
+provider prompt cache is split in two (see GEO-08g).
 
 ---
 
@@ -267,7 +272,10 @@ Current rule of thumb: stay in CAG below ~10K CV tokens, benchmark above 10K, an
 {
   "messages": [
     { "role": "user", "content": "What is your experience with fintech?" }
-  ]
+  ],
+  // Optional — response language, whitelist "fr" | "en".
+  // Missing or invalid value falls back to "fr" (never a 400).
+  "lang": "en"
 }
 
 // Response 200
@@ -279,13 +287,22 @@ Current rule of thumb: stay in CAG below ~10K CV tokens, benchmark above 10K, an
 
 Headers required: `X-CSRF-Token`, `Content-Type: application/json`
 
+`lang` only appends a language directive at the end of the system prompt — the
+persona + CV prefix stays identical between locales so the provider prompt cache
+remains shared (GEO-08g). Measure with `node scripts/measure-cache.mjs --lang both`.
+
 ### `POST /api/job-match`
 
 ```json
 // Request
-{ "jobDescription": "Senior Product Designer, 5+ years..." }
+{ "jobDescription": "Senior Product Designer, 5+ years...", "language": "fr" }
+```
 
-// Response 200
+`language` is optional (whitelist `fr` | `en`, fallback `fr`): it localizes the
+human-readable values of the analysis (`analysis`, `strengths`, `improvements`).
+JSON keys stay in English. Response 200:
+
+```json
 {
   "overallMatch": 85,
   "skillsMatch": 90,

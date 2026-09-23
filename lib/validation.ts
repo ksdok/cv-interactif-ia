@@ -9,6 +9,8 @@
  */
 
 import type { ChatMessage } from './types'
+import type { Lang } from './i18n/config'
+import { DEFAULT_LOCALE, isLocale } from './i18n/config'
 
 // Constants for validation
 const MAX_MESSAGE_LENGTH = 5000 // Maximum characters per message
@@ -155,4 +157,22 @@ export function assertValidChatMessages(
   if (!validation.isValid) {
     throw new Error(`Invalid chat messages: ${validation.error}`)
   }
+}
+
+/**
+ * GEO-08g — résout la langue de réponse demandée par le client.
+ *
+ * Contrat tranché par la spec (review M6) : whitelist `fr` | `en` ; une valeur
+ * **absente ou invalide retombe sur `fr`**, jamais sur un 400 — le champ est un
+ * confort de localisation, pas un prérequis de sécurité, et `fr` est le marché
+ * cible (même fallback que GEO-08c pour la négociation de locale).
+ *
+ * `isLocale` est strict (pas de toLowerCase, revue F1 de GEO-08b) : `'FR'`,
+ * `'es'`, `'fr-FR'`, `42`, `null` et `undefined` tombent tous sur `fr`.
+ *
+ * @param value - Valeur brute du champ `lang` du corps de requête.
+ * @returns La locale de réponse.
+ */
+export function resolveChatLanguage(value: unknown): Lang {
+  return isLocale(value) ? value : DEFAULT_LOCALE
 }

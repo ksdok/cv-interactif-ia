@@ -78,7 +78,7 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 |---|---|---|
 | Config IA/contexte | `lib/modelConfig.ts` | Point unique : `ACTIVE_PROVIDER`, `FALLBACK_ORDER`, `CV_CONTEXT_SOURCE` ('cag' \| 'rag') |
 | Providers IA | `lib/modelProviders.ts` | `generateResponse()` avec fallback chain ; ne pas casser `/api/job-match` qui partage `PROVIDERS` |
-| Contexte CAG | `data/cv.md` + `lib/cvContext.ts` | Cache en mémoire — redémarrer le serveur après édition du CV |
+| Contexte CAG | `data/cv.md` + `lib/cvContext.ts` | Cache en mémoire — redémarrer le serveur après édition du CV. Consigne de langue (`lang` du corps, fallback `fr`) ajoutée **en fin** de prompt (`lib/systemPrompt.mjs`) : le préfixe persona + CV doit rester commun fr/en, sinon le cache de prompt est divisé (GEO-08g) |
 | Sécurité | `proxy.ts` | Ex-middleware (Next 16, runtime Node) : 301/308 vercel.app→canonique, négociation locale, **CSP nonce (`x-nonce`, `strict-dynamic`, sans `unsafe-inline`)**, cookie CSRF, headers sécurité |
 | Sécurité API | `lib/csrf.ts`, `lib/rateLimit.ts`, `lib/validation.ts` | Pipeline obligatoire sur chaque POST : rate limit (200/j/IP, mémoire) → CSRF → validation |
 | i18n | `app/[lang]/`, `lib/i18n/` | Dictionnaires FR/EN maison (`fr.ts`, `en.ts`, `types.ts`), locale validée côté serveur |
@@ -126,7 +126,7 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 ## 8. État des tickets (résumé — vérifier `project-state.md` pour le détail)
 
 **Corpus seo-geo** (`docs/features/seo-geo/INDEX.md`) : quasi terminé. Restes ouverts :
-GEO-08g (chat multilingue), GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11.
+GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11.
 
 **Backlog ingénierie** — la plupart ont une spec dédiée dans `docs/backlog/`
 (`TICKET-ID-…-spec.md`) ; les exceptions sont signalées ci-dessous :

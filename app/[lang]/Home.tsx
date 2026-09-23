@@ -30,7 +30,7 @@ export default function Home({ dictionary, locale }: HomeProps) {
 
       <div className="w-full pt-16">
         <Hero dictionary={dictionary} />
-        <ChatPreview csrfToken={csrfToken} dictionary={dictionary} />
+        <ChatPreview csrfToken={csrfToken} dictionary={dictionary} locale={locale} />
         <ExperienceGrid dictionary={dictionary} lang={locale} onOpenJobMatcher={() => setJobMatcherOpen(true)} />
         <Footer dictionary={dictionary} lang={locale} />
       </div>

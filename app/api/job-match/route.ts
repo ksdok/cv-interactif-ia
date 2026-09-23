@@ -7,11 +7,17 @@
   - Uses the configured AI provider to perform semantic matching and analysis
 
   High-level flow:
-  1. Validate input (job description length, format)
+  1. Validate input (job description length, format, `language` — GEO-08g)
   2. Check rate limit (200 analyses per day per IP)
   3. Retrieve user's CV from vector database (RAG search)
   4. Call AI provider API to analyze match between CV and job
   5. Parse response and return structured results
+
+  GEO-08g (F9) : le client (JobMatcher.tsx) envoie déjà `language` depuis
+  GEO-08b, mais la route l'ignorait — `/fr` affichait donc une UI FR avec une
+  analyse IA EN. La valeur est résolue par resolveChatLanguage() (whitelist
+  fr|en, fallback fr, pas de 400) et ne pilote que les **valeurs** lisibles du
+  JSON : les clés restent en anglais (contrat de type MatchAnalysis).
 */
 
 import { NextResponse } from 'next/server'
@@ -20,6 +26,7 @@ import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds 
 import { verifyCSRFToken, getCSRFTokenFromRequest, CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { generateJobMatchResponse } from '@/lib/modelProviders'
+import { resolveChatLanguage } from '@/lib/validation'
 
 // Input validation constraints
 const VALIDATION = {
@@ -116,7 +123,14 @@ export async function POST(req: Request) {
 
     // Parse request body
     console.log('Reading request body...')
-    const { jobDescription } = await req.json()
+    const { jobDescription, language } = await req.json()
+    // GEO-08g : `language` est déjà envoyé par JobMatcher.tsx depuis GEO-08b.
+    // Valeur absente/invalide → fr (même contrat que /api/chat), jamais un 400.
+    // Résolu tôt pour que la langue effective soit traçable même si la
+    // recherche RAG échoue ensuite (dégradation gracieuse de lib/rag.ts).
+    const analysisLanguage = resolveChatLanguage(language)
+    const analysisLanguageName = analysisLanguage === 'en' ? 'English' : 'French'
+    console.log(`Analysis language: ${analysisLanguage} (requested: ${JSON.stringify(language)})`)
 
     // Validate input
     if (!jobDescription || typeof jobDescription !== 'string') {
@@ -212,7 +226,12 @@ Be honest and specific. Consider:
 - Match of experience level
 - Industry experience
 - Required certifications or tools
-- Soft skills adequacy`
+- Soft skills adequacy
+
+RESPONSE LANGUAGE:
+- Write every human-readable string value ("analysis", "strengths", "improvements") in ${analysisLanguageName}
+- Keep the JSON keys exactly as specified above, in English
+- Never translate, round or invent the candidate's figures, company names, tool names or job titles`
 
     // Call the configured AI provider (with automatic fallback).
     // To change provider or model: edit lib/modelConfig.ts → ACTIVE_PROVIDER_JOB_MATCH

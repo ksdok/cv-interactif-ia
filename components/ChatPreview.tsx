@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import TypingEffect from './TypingEffect'
 import LinkifiedText from './LinkifiedText'
 import type { ApiErrorCode, Dictionary } from '@/lib/i18n/types'
+import type { Lang } from '@/lib/i18n/config'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -16,13 +17,17 @@ interface ChatPreviewProps {
   onExpand?: () => void
   csrfToken: string
   dictionary: Dictionary
+  // GEO-08g : la locale de la page est transmise à /api/chat (champ `lang`) —
+  // /api/chat est hors [lang], `params.lang` y est inaccessible (review M7).
+  locale: Lang
 }
 
 export default function ChatPreview({
   isExpanded = false,
   onExpand,
   csrfToken,
-  dictionary
+  dictionary,
+  locale
 }: ChatPreviewProps) {
   // Review F5 (GEO-08b) : dérivé de greeting1/greeting2 (pas de clé dupliquée —
   // une divergence ferait se contredire la bulle d'accueil et le 1er message).
@@ -94,6 +99,10 @@ export default function ChatPreview({
         },
         body: JSON.stringify({
           messages: buildApiMessages(messages, userMessage),
+          // GEO-08g : langue de réponse = locale de la page. Valeur invalide ou
+          // absente côté serveur → fallback fr (pas un 400) — la whitelist est
+          // appliquée par resolveChatLanguage(), pas ici.
+          lang: locale,
         }),
       })
 

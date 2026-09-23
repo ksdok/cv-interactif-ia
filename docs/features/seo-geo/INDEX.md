@@ -31,7 +31,7 @@
 | GEO-08d | Metadata + JSON-LD + hreflang bilingues | P2 | S | GEO-08b | ✅ (2026-09-12, branche feat/geo-08d-lot1 — voir livraison en fin de ticket) | [GEO-08d-metadata-jsonld-hreflang-bilingue.md](GEO-08d-metadata-jsonld-hreflang-bilingue.md) |
 | GEO-08e | Sitemap bilingue + `alternates.languages` | P2 | XS | GEO-08a (08d reco) | ✅ (2026-09-12, livré avec 08a+08c — review B2) | [GEO-08e-sitemap-bilingue.md](GEO-08e-sitemap-bilingue.md) |
 | GEO-08f | Switcher de langue Header (lien crawlable) | P2 | XS | GEO-08b | ✅ (2026-09-14, Lot 2 ; itération 3 lien CV + logo cliquable 2026-09-23) | [GEO-08f-switcher-langue-header.md](GEO-08f-switcher-langue-header.md) |
-| GEO-08g | Chat Nicky multilingue + fidélité EN | P2 | S | GEO-08b | ⬜ | [GEO-08g-chat-nicky-multilingue.md](GEO-08g-chat-nicky-multilingue.md) |
+| GEO-08g | Chat Nicky multilingue + fidélité EN | P2 | S | GEO-08b | ✅ (2026-09-23 — critères 1-5 vérifiés, fidélité EN en revue manuelle) | [GEO-08g-chat-nicky-multilingue.md](GEO-08g-chat-nicky-multilingue.md) |
 | GEO-08h | Migration `/cv` bilingue (`/fr/cv`, `/en/cv`) + 301 | P2 | S | GEO-08a, 08b, 08d | ✅ (2026-09-14, Lot 2 — N3 Lot 1 fermé au passage) | [GEO-08h-migration-cv-bilingue.md](GEO-08h-migration-cv-bilingue.md) |
 | GEO-09 | Présence off-page (Malt, LinkedIn, citations) | P3 | continu | SEO-01 | ⬜ | [GEO-09-presence-off-page.md](GEO-09-presence-off-page.md) |
 | TECH-10 | Dédoublonner la meta viewport | P3 | XS | — | 🟡 critère 1 ✅ en prod ; critères 2/3 (device iOS + Lighthouse) à vérifier (2026-09-12) | [TECH-10-meta-viewport.md](TECH-10-meta-viewport.md) |

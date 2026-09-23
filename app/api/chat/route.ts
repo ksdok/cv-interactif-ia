@@ -8,19 +8,25 @@
     - generateResponse() calls the configured AI provider with fallback support.
 
   High-level flow:
-  1. Parse incoming JSON and extract `messages` (chat history).
+  1. Parse incoming JSON and extract `messages` (chat history) and `lang`.
   2. Use the last user message as the context query when RAG is enabled.
   3. Build context from the configured source (`CV_CONTEXT_SOURCE`).
-  4. Append context to the system prompt.
+  4. Build the system prompt: persona + context + consigne de langue (GEO-08g).
   5. Call generateResponse() — uses ACTIVE_PROVIDER with automatic fallback.
   6. Return the response text as JSON.
+
+  GEO-08g : `lang` (`'fr'` | `'en'`, tout le reste → `fr`, sans 400) n'altère ni
+  le persona ni le bloc de contexte — il n'ajoute qu'une consigne de langue en
+  **fin** de system prompt, après le bloc CV : le préfixe stable (persona + CV)
+  reste identique entre les deux langues et le prompt caching provider-side
+  reste partagé (review M5).
 
   To switch AI provider or context source: edit lib/modelConfig.ts
 */
 
 import { NextResponse } from 'next/server'
 import { searchDocuments } from '@/lib/rag'
-import { validateChatMessages } from '@/lib/validation'
+import { validateChatMessages, resolveChatLanguage } from '@/lib/validation'
 import { getCSRFTokenFromRequest, verifyCSRFToken } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
@@ -112,7 +118,7 @@ export async function POST(req: Request) {
 
     // Read the JSON payload and extract the conversation messages.
     console.log('Reading request body...')
-    const { messages } = await req.json()
+    const { messages, lang } = await req.json()
     console.log('Request body parsed. messages length:', Array.isArray(messages) ? messages.length : 'invalid')
 
     // SECURITY: Validate input structure and content to prevent:
@@ -135,11 +141,15 @@ export async function POST(req: Request) {
 
     const context = await getChatContext(lastUserMessage)
 
+    // GEO-08g : valeur absente/invalide → fr (review M6), jamais un 400.
+    const responseLanguage = resolveChatLanguage(lang)
+    console.log('Response language:', responseLanguage, '(requested:', JSON.stringify(lang) + ')')
+
+    const systemPrompt = buildChatSystemPrompt(context, responseLanguage)
+
     // Call the configured AI provider (with automatic fallback).
     // To change provider or model: edit lib/modelConfig.ts
     console.log('Calling generateResponse...')
-    const systemPrompt = buildChatSystemPrompt(context)
-
     const text = await generateResponse(messages, systemPrompt)
     console.log('Response received (truncated):', text ? text.slice(0, 300) : '<empty>')
 

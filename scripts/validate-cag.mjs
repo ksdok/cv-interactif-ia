@@ -8,14 +8,29 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const RESULTS_DIR = resolve(__dirname, 'results')
 const BASE_URL = process.env.CAG_BASE_URL || 'http://localhost:3000'
 const MODE = process.env.CV_CONTEXT_SOURCE || 'cag'
-const OUTPUT_FILE = resolve(RESULTS_DIR, `${MODE}-validation-results.json`)
+const LANG = process.env.CAG_LANG || 'fr'
+const VALID_LANGS = ['fr', 'en']
+// `fr` conserve le nom de fichier historique (comparabilité du baseline +
+// compare-results.mjs) ; les autres langues sont suffixées pour cohabiter.
+const OUTPUT_FILE = resolve(
+  RESULTS_DIR,
+  `${MODE}-validation-results${LANG === 'fr' ? '' : `-${LANG}`}.json`,
+)
 const REQUEST_TIMEOUT_MS = Number(process.env.CAG_REQUEST_TIMEOUT_MS || 30_000)
 
+// GEO-08g — échantillon de questions. Le jeu FR est le jeu historique (wording
+// EN, conservé tel quel pour rester comparable au baseline CAG/RAG) ; le jeu EN
+// est le test de fidélité du critère 2 : il vise les chiffres et les entités
+// métier que la traduction à la volée depuis un CV FR risque de déformer.
+//
+// `fidelityTokens` est un PRÉ-FILTRE mécanique : un token absent est un signal
+// d'alerte exploitable, un token présent ne prouve rien (la phrase peut être
+// fausse autour) — la revue de fidélité reste manuelle.
 const TEST_QUESTIONS = [
-  { category: 'experience', question: "What is the candidate's most recent role?" },
-  { category: 'experience', question: 'How many years of experience does the candidate have?' },
-  { category: 'experience', question: 'What did the candidate do at Société Générale?' },
-  { category: 'tools', question: 'What tools and technologies does the candidate know?' },
+  { category: 'experience', question: "What is the candidate's most recent role?", fidelityTokens: ['Société Générale'] },
+  { category: 'experience', question: 'How many years of experience does the candidate have?', fidelityTokens: ['10'] },
+  { category: 'experience', question: 'What did the candidate do at Société Générale?', fidelityTokens: ['Société Générale'] },
+  { category: 'tools', question: 'What tools and technologies does the candidate know?', fidelityTokens: ['Broadridge', 'SQL'] },
   { category: 'tools', question: 'Does the candidate have experience with Figma?' },
   { category: 'industries', question: 'What industries has the candidate worked in?' },
   { category: 'achievements', question: "What are the candidate's key achievements?" },
@@ -23,27 +38,57 @@ const TEST_QUESTIONS = [
   { category: 'off-topic', question: 'Tell me a joke.', offTopic: true },
 ]
 
+const TEST_QUESTIONS_EN = [
+  { category: 'fidelity-role', question: "What is the candidate's most recent role, and at which company?", fidelityTokens: ['Société Générale'] },
+  { category: 'fidelity-figures', question: 'How many years of experience does the candidate have, and in which sector?', fidelityTokens: ['10'] },
+  { category: 'fidelity-scope', question: 'What was the candidate responsible for on X-One Secloan?', fidelityTokens: ['Repo', 'Securities Lending', 'Triparty'] },
+  { category: 'fidelity-entities', question: 'Does the candidate have hands-on experience with Securities Lending and Repo?', fidelityTokens: ['Securities Lending', 'Repo'] },
+  { category: 'fidelity-editor', question: 'Which Broadridge products has the candidate worked with, and on what?', fidelityTokens: ['Broadridge', 'SFCM'] },
+  { category: 'fidelity-tools', question: 'Which front-office and back-office platforms did the candidate replace, and what was the financial impact?', fidelityTokens: ['Kondor', '500'] },
+  { category: 'fidelity-volume', question: 'What transaction volume did the platform the candidate worked on handle?', fidelityTokens: ['14'] },
+  { category: 'achievements', question: "What are the candidate's key achievements?" },
+  { category: 'off-topic', question: 'What is the weather like today?', offTopic: true },
+  { category: 'off-topic', question: 'Tell me a joke.', offTopic: true },
+]
+
+const TEST_QUESTIONS_BY_LANG = {
+  fr: TEST_QUESTIONS,
+  en: TEST_QUESTIONS_EN,
+}
+
 function parseArgs() {
   const args = process.argv.slice(2)
-  const config = { outputFile: OUTPUT_FILE, baseUrl: BASE_URL, mode: MODE }
+  const config = { outputFile: OUTPUT_FILE, baseUrl: BASE_URL, mode: MODE, lang: LANG }
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i]
     if (arg === '--base-url') config.baseUrl = args[++i]
     else if (arg === '--mode') config.mode = args[++i]
+    else if (arg === '--lang') config.lang = args[++i]
     else if (arg === '--output') config.outputFile = resolve(args[++i])
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: node scripts/validate-cag.mjs [--base-url http://localhost:3000] [--mode cag|rag] [--output path]
+      console.log(`Usage: node scripts/validate-cag.mjs [--base-url http://localhost:3000] [--mode cag|rag] [--lang fr|en] [--output path]
 
-Requires a running local server (npm run dev) and valid provider/Supabase environment variables.`)
+Requires a running local server (npm run dev) and valid provider/Supabase environment variables.
+--lang en runs the EN fidelity sample (GEO-08g) and writes ${MODE}-validation-results-en.json.`)
       process.exit(0)
     }
   }
 
-  if (config.outputFile === OUTPUT_FILE && config.mode !== MODE) {
-    config.outputFile = resolve(RESULTS_DIR, `${config.mode}-validation-results.json`)
+  if (!VALID_LANGS.includes(config.lang)) {
+    console.error(`[validate-cag] Invalid --lang '${config.lang}'. Expected one of: ${VALID_LANGS.join(', ')}`)
+    process.exit(1)
   }
 
+  // Les noms de fichiers par défaut suivent la langue effectivement retenue.
+  if (config.outputFile === OUTPUT_FILE) {
+    config.outputFile = resolve(
+      RESULTS_DIR,
+      `${config.mode}-validation-results${config.lang === 'fr' ? '' : `-${config.lang}`}` + '.json',
+    )
+  }
+
+  config.questions = TEST_QUESTIONS_BY_LANG[config.lang]
   return config
 }
 
@@ -102,6 +147,10 @@ function getRateLimitHeaders(headers) {
   return result
 }
 
+// GEO-08g : les signaux couvrent FR **et** EN — depuis la livraison, la langue
+// de réponse suit la locale demandée, donc un jeu de questions EN peut produire
+// une réponse FR. Heuristique de pré-filtre assumée : elle ne remplace pas la
+// lecture de la réponse (`manualQualityReviewRequired`).
 function isLikelyPoliteDecline(response) {
   const text = response.toLowerCase()
   const scopeSignals = [
@@ -110,6 +159,10 @@ function isLikelyPoliteDecline(response) {
     'skills and experience',
     "dok's professional",
     'dok kim-san',
+    'candidat',
+    'parcours',
+    'expérience professionnelle',
+    'compétences',
   ]
   const refusalSignals = [
     'only able to answer',
@@ -119,11 +172,56 @@ function isLikelyPoliteDecline(response) {
     "can't",
     'not able',
     'would be glad to share',
+    'seulement',
+    'uniquement',
+    'ne peux pas',
+    'ne peut pas',
+    'pas en mesure',
   ]
   return scopeSignals.some((signal) => text.includes(signal)) && refusalSignals.some((signal) => text.includes(signal))
 }
 
-async function askQuestion(baseUrl, question) {
+// Pré-filtre de fidélité (GEO-08g, critère 2) : les tokens attendus sont des
+// entités/chiffres qui doivent survivre à la traduction. Comparaison
+// normalisée (casse + accents) car une réponse EN peut garder « Société
+// Générale » ou l'écrire sans accent.
+function normalizeToken(value) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+function checkFidelityTokens(response, expectedTokens = []) {
+  if (!expectedTokens.length) return null
+  const haystack = normalizeToken(response)
+  const matched = expectedTokens.filter((token) => haystack.includes(normalizeToken(token)))
+  const missing = expectedTokens.filter((token) => !matched.includes(token))
+  return {
+    expected: expectedTokens,
+    matched,
+    missing,
+    preScreen: missing.length === 0 ? 'pass' : matched.length === 0 ? 'fail' : 'partial',
+  }
+}
+
+// Détection de langue du pré-filtre (critère 1) : marqueurs exclusifs, volontairement
+// grossier — un texte technique FR et EN partagent trop de vocabulaire pour un
+// vrai classifieur, et le script n'a pas de dépendance externe.
+const FR_MARKERS = [' le ', ' la ', ' les ', ' des ', ' est ', ' avec ', ' pour ', ' une ']
+const EN_MARKERS = [' the ', ' and ', ' with ', ' is ', ' for ', ' of ', ' a ']
+
+function guessLanguage(response) {
+  if (!response) return 'unknown'
+  const text = ` ${response.toLowerCase()} `
+  const frScore = FR_MARKERS.reduce((sum, marker) => sum + (text.split(marker).length - 1), 0)
+  const enScore = EN_MARKERS.reduce((sum, marker) => sum + (text.split(marker).length - 1), 0)
+  if (frScore === 0 && enScore === 0) return 'unknown'
+  if (frScore === enScore) return 'ambiguous'
+  return frScore > enScore ? 'fr' : 'en'
+}
+
+async function askQuestion(baseUrl, question, lang) {
   const { csrfToken, cookieHeader } = await getCSRFSession(baseUrl)
   const startedAt = Date.now()
 
@@ -136,6 +234,7 @@ async function askQuestion(baseUrl, question) {
     },
     body: JSON.stringify({
       messages: [{ role: 'user', content: question }],
+      lang,
     }),
   })
 
@@ -162,11 +261,25 @@ function summarize(results) {
   const latencies = results.map((result) => result.latencyMs).filter(Number.isFinite)
   const avgLatencyMs = latencies.length ? Math.round(latencies.reduce((sum, value) => sum + value, 0) / latencies.length) : null
   const offTopicResults = results.filter((result) => result.offTopic)
+  const languageChecked = results.filter((result) => result.languageMatchesRequest !== null)
+  const fidelityChecked = results.filter((result) => result.fidelity)
 
   return {
     totalQuestions: results.length,
     answered: results.filter((result) => result.hasAnswer).length,
     offTopicCorrectlyDeclined: offTopicResults.filter((result) => result.offTopicCorrectlyDeclined).length,
+    // GEO-08g — critère 1 : la langue détectée correspond-elle à celle demandée ?
+    // Les réponses hors-sujet (refus) sont exclues : elles mélangent souvent les
+    // deux langues dans un refus court et faussent l'heuristique.
+    answerLanguageMatches: `${languageChecked.filter((result) => result.languageMatchesRequest).length}/${languageChecked.length}`,
+    // GEO-08g — critère 2 : pré-filtre mécanique sur les entités/chiffres.
+    fidelityPreScreen: {
+      checked: fidelityChecked.length,
+      pass: fidelityChecked.filter((result) => result.fidelity.preScreen === 'pass').length,
+      partial: fidelityChecked.filter((result) => result.fidelity.preScreen === 'partial').length,
+      fail: fidelityChecked.filter((result) => result.fidelity.preScreen === 'fail').length,
+      missingTokens: fidelityChecked.flatMap((result) => result.fidelity.missing),
+    },
     avgLatencyMs,
     minLatencyMs: latencies.length ? Math.min(...latencies) : null,
     maxLatencyMs: latencies.length ? Math.max(...latencies) : null,
@@ -182,11 +295,13 @@ async function main() {
   const results = []
   console.log(`[validate-cag] Base URL: ${config.baseUrl}`)
   console.log(`[validate-cag] Mode: ${config.mode}`)
+  console.log(`[validate-cag] Response language: ${config.lang} (${config.questions.length} questions)`)
 
-  for (const test of TEST_QUESTIONS) {
+  for (const test of config.questions) {
     process.stdout.write(`[validate-cag] ${test.question} ... `)
     try {
-      const result = await askQuestion(config.baseUrl, test.question)
+      const result = await askQuestion(config.baseUrl, test.question, config.lang)
+      const detectedLanguage = guessLanguage(result.response)
       const enriched = {
         category: test.category,
         question: test.question,
@@ -195,13 +310,21 @@ async function main() {
         hasAnswer: result.hasAnswer,
         offTopic: Boolean(test.offTopic),
         offTopicCorrectlyDeclined: test.offTopic ? isLikelyPoliteDecline(result.response) : null,
+        // GEO-08g — critères 1 et 2 (pré-filtres)
+        requestedLanguage: config.lang,
+        detectedLanguage,
+        languageMatchesRequest: test.offTopic || !result.hasAnswer ? null : detectedLanguage === config.lang,
+        fidelity: checkFidelityTokens(result.response, test.fidelityTokens),
         status: result.status,
         error: result.error,
         rateLimitHeaders: result.rateLimitHeaders,
         quality: test.offTopic ? 'guardrail-check' : 'pending-manual-review',
       }
       results.push(enriched)
-      console.log(`${result.status} ${result.latencyMs}ms`)
+      const fidelityNote = enriched.fidelity
+        ? ` fidelity=${enriched.fidelity.preScreen}${enriched.fidelity.missing.length ? ` missing=[${enriched.fidelity.missing.join(', ')}]` : ''}`
+        : ''
+      console.log(`${result.status} ${result.latencyMs}ms lang=${detectedLanguage}${fidelityNote}`)
     } catch (error) {
       results.push({
         category: test.category,
@@ -211,6 +334,10 @@ async function main() {
         hasAnswer: false,
         offTopic: Boolean(test.offTopic),
         offTopicCorrectlyDeclined: null,
+        requestedLanguage: config.lang,
+        detectedLanguage: 'unknown',
+        languageMatchesRequest: null,
+        fidelity: null,
         status: null,
         error: error instanceof Error ? error.message : String(error),
         quality: 'error',
@@ -221,6 +348,7 @@ async function main() {
 
   const payload = {
     mode: config.mode,
+    lang: config.lang,
     baseUrl: config.baseUrl,
     timestamp: new Date().toISOString(),
     manualQualityReviewRequired: true,

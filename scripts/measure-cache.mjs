@@ -7,11 +7,21 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const RESULTS_DIR = resolve(__dirname, 'results')
-const OUTPUT_FILE = resolve(RESULTS_DIR, 'cache-measurement-results.json')
 const BASE_URL = process.env.CAG_BASE_URL || 'http://localhost:3000'
 const REQUEST_TIMEOUT_MS = Number(process.env.CAG_REQUEST_TIMEOUT_MS || 30_000)
 const RUNS = Number(process.env.CAG_CACHE_RUNS || 5)
 const QUESTION = process.env.CAG_CACHE_QUESTION || "What is the candidate's most recent role?"
+const LANG = process.env.CAG_LANG || 'fr'
+// GEO-08g : `both` alterne fr/en dans la même série de runs — c'est la mesure
+// qui teste réellement le critère 4 (préfixe persona+CV partagé entre les deux
+// langues) : une réponse `en` qui suit une réponse `fr` doit encore présenter
+// des tokens cachés, ce qu'une série mono-langue ne peut pas démontrer.
+const CACHE_LANGS = ['fr', 'en', 'both']
+const SUPPORTED_LANGS = ['fr', 'en']
+const OUTPUT_FILE = resolve(
+  RESULTS_DIR,
+  `cache-measurement-results${LANG === 'fr' ? '' : `-${LANG}`}.json`,
+)
 
 const OPENAI_CACHE_RE = /\[modelProviders\] OpenAI cache hit: (\d+) cached tokens/
 const GEMINI_USAGE_RE = /\[modelProviders\] Gemini usage: ({.*})/
@@ -24,6 +34,7 @@ function parseArgs() {
     outputFile: OUTPUT_FILE,
     question: QUESTION,
     runs: RUNS,
+    lang: LANG,
     startServer: true,
   }
 
@@ -33,14 +44,31 @@ function parseArgs() {
     else if (arg === '--output') config.outputFile = resolve(args[++i])
     else if (arg === '--question') config.question = args[++i]
     else if (arg === '--runs') config.runs = Number(args[++i])
+    else if (arg === '--lang') config.lang = args[++i]
     else if (arg === '--use-existing-server') config.startServer = false
     else if (arg === '--help' || arg === '-h') {
-      console.log(`Usage: node scripts/measure-cache.mjs [--base-url http://localhost:3000] [--runs 5] [--question "..."] [--use-existing-server]
+      console.log(`Usage: node scripts/measure-cache.mjs [--base-url http://localhost:3000] [--runs 5] [--question "..."] [--lang fr|en|both] [--use-existing-server]
 
 Default behavior starts npm run dev as a subprocess to capture provider cache logs.
-Use --use-existing-server when the server is already running; cache logs cannot be captured in that mode, so latency is the main signal.`)
+Use --use-existing-server when the server is already running; cache logs cannot be captured in that mode, so latency is the main signal.
+
+--lang both alternates fr/en runs to check that the persona+CV prefix stays shared
+between languages (GEO-08g criterion 4) and writes cache-measurement-results-both.json.
+Run the mono-language series first to keep a baseline to compare against.`)
       process.exit(0)
     }
+  }
+
+  if (!CACHE_LANGS.includes(config.lang)) {
+    console.error(`[measure-cache] Invalid --lang '${config.lang}'. Expected one of: ${CACHE_LANGS.join(', ')}`)
+    process.exit(1)
+  }
+
+  if (config.outputFile === OUTPUT_FILE) {
+    config.outputFile = resolve(
+      RESULTS_DIR,
+      `cache-measurement-results${config.lang === 'fr' ? '' : `-${config.lang}`}` + '.json',
+    )
   }
 
   return config
@@ -94,7 +122,7 @@ async function getCSRFSession(baseUrl) {
   }
 }
 
-async function postChat(baseUrl, question) {
+async function postChat(baseUrl, question, lang) {
   const { csrfToken, cookieHeader } = await getCSRFSession(baseUrl)
   const startedAt = Date.now()
   const response = await fetchWithTimeout(`${baseUrl}/api/chat`, {
@@ -106,6 +134,7 @@ async function postChat(baseUrl, question) {
     },
     body: JSON.stringify({
       messages: [{ role: 'user', content: question }],
+      lang,
     }),
   })
   const latencyMs = Date.now() - startedAt
@@ -198,12 +227,30 @@ function summarize(runs) {
     latencyReduction = `${Math.round(((avgLatencyWithoutCacheMs - avgLatencyWithCacheMs) / avgLatencyWithoutCacheMs) * 100)}%`
   }
 
+  // GEO-08g (critère 4) : détail par langue. En mode `both`, si le préfixe
+  // persona+CV est bien partagé, chaque langue doit présenter des hits malgré
+  // l'alternance ; un effondrement sur une seule des deux langues signalerait
+  // deux préfixes de cache distincts (consigne de langue insérée avant le CV).
+  const perLanguage = {}
+  for (const lang of SUPPORTED_LANGS) {
+    const langRuns = runs.filter((run) => run.lang === lang)
+    if (!langRuns.length) continue
+    const langHits = langRuns.filter((run) => typeof run.cachedTokens === 'number' && run.cachedTokens > 0)
+    perLanguage[lang] = {
+      runs: langRuns.length,
+      cacheHitRate: `${langHits.length}/${langRuns.length} (${Math.round((langHits.length / langRuns.length) * 100)}%)`,
+      avgLatencyMs: average(langRuns.map((run) => run.latencyMs)),
+      cachedTokensObserved: langHits.map((run) => run.cachedTokens),
+    }
+  }
+
   return {
     cacheHitRate: `${cacheHits.length}/${runs.length} (${Math.round((cacheHits.length / runs.length) * 100)}%)`,
     avgLatencyWithCacheMs,
     avgLatencyWithoutCacheMs,
     avgLatencyMs: average(runs.map((run) => run.latencyMs)),
     latencyReduction,
+    perLanguage,
     metricsSource: 'server-stdout-regex-best-effort',
   }
 }
@@ -236,13 +283,16 @@ async function main() {
     const runs = []
     for (let run = 1; run <= config.runs; run += 1) {
       const logStartIndex = devServer.logs.length
-      console.log(`[measure-cache] Run ${run}/${config.runs}: ${config.question}`)
-      const result = await postChat(config.baseUrl, config.question)
+      // En mode `both`, alternance stricte fr/en (run impair = fr, sinon en).
+      const runLang = config.lang === 'both' ? (run % 2 === 1 ? 'fr' : 'en') : config.lang
+      console.log(`[measure-cache] Run ${run}/${config.runs} [${runLang}]: ${config.question}`)
+      const result = await postChat(config.baseUrl, config.question, runLang)
       await sleep(1_000)
       const metrics = parseMetrics(devServer.logs, logStartIndex)
 
       runs.push({
         run,
+        lang: runLang,
         status: result.status,
         latencyMs: result.latencyMs,
         provider: metrics.provider,
@@ -260,6 +310,7 @@ async function main() {
     const payload = {
       mode: process.env.CV_CONTEXT_SOURCE || 'cag',
       provider,
+      lang: config.lang,
       question: config.question,
       timestamp: new Date().toISOString(),
       runs,
@@ -267,6 +318,7 @@ async function main() {
       notes: [
         'Cache metrics are parsed from server stdout and are best-effort.',
         'If cachedTokens stays null, compare latency trends and inspect provider dashboard/logs.',
+        'lang=both alternates fr/en to check that the persona+CV prefix stays shared (GEO-08g criterion 4) — compare against the mono-language baseline file.',
       ],
     }
 

@@ -53,6 +53,10 @@ function decision(cvTokens) {
 async function main() {
   const config = parseArgs()
   const cvContent = await readFile(config.cvPath, 'utf8')
+  // GEO-08g : ce préfixe (persona + bloc CV) est exactement le préfixe PARTAGÉ
+  // fr/en depuis que la consigne de langue est ajoutée en fin de system prompt —
+  // c'est lui qui détermine l'éligibilité au prompt caching provider-side, et il
+  // n'est pas dupliqué par langue.
   const stablePrefix = `${SYSTEM_PROMPT_WITHOUT_CONTEXT}\n\nCANDIDATE CV:\n${cvContent.trim()}\n`
 
   const report = {
@@ -67,6 +71,7 @@ async function main() {
     stablePrefix: {
       chars: stablePrefix.length,
       estimatedTokens: estimateTokens(stablePrefix),
+      scope: 'persona + CV block, shared across fr/en (GEO-08g)',
     },
     thresholds: {
       openAIPromptCacheTokens: OPENAI_CACHE_THRESHOLD_TOKENS,
