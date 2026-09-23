@@ -10,17 +10,21 @@ Measured with:
 node scripts/measure-cv-tokens.mjs
 ```
 
-Current `data/cv.md` size:
+Current `data/cv.md` size (measured 2026-09-23):
 
 | Metric | Value |
 |---|---:|
-| Characters | 7,391 |
-| Words | 1,048 |
-| Lines | 93 |
-| Estimated CV tokens | ~1,848 |
-| Estimated stable prefix tokens (system prompt + CV) | ~2,069 |
+| Characters | 9,620 |
+| Words | 1,353 |
+| Lines | 108 |
+| Estimated CV tokens | ~2,405 |
+| Estimated stable prefix tokens (system prompt + CV) | ~2,643 |
 
 Token estimate uses the conservative `chars / 4` approximation.
+
+> History: the baseline at the CAG switch (2026-06-22) was 7,391 chars /
+> ~1,848 CV tokens / ~2,069 prefix tokens. The CV grew since; re-measure
+> whenever `data/cv.md` changes.
 
 ## Context windows
 
@@ -35,10 +39,17 @@ The current CV is far below both model context windows.
 
 | Provider | Cache behavior | Threshold | Current stable prefix |
 |---|---|---:|---:|
-| OpenAI | Automatic prefix caching | >= 1,024 tokens | eligible (~2,069) |
-| Gemini | Provider-side context/cache metadata | >= 2,048 tokens | eligible by estimate (~2,069) |
+| OpenAI | Automatic prefix caching | >= 1,024 tokens | eligible (~2,643) |
+| Gemini | Provider-side context/cache metadata | >= 2,048 tokens | eligible by estimate (~2,643) |
 
-Runtime validation showed Gemini `promptTokenCount` around 1,951 tokens for the current CAG prompt, with no `cachedContentTokenCount` reported over 5 repeated runs. CAG still works correctly; the Gemini cost/latency optimization is not confirmed for the current prompt size. OpenAI reported 1,280 cached tokens on repeated CAG requests.
+Runtime validation on the 2026-06-22 baseline (CV ~1,848 tokens) showed Gemini
+`promptTokenCount` around 1,951 tokens with no `cachedContentTokenCount` over 5
+repeated runs. The prefix has since grown above the ~2,048 threshold
+(~2,643 estimated), so Gemini caching may now engage — still **unconfirmed**;
+re-run `node scripts/measure-cache.mjs` before promising Gemini savings. OpenAI
+remains confirmed: 5/5 hits, 1,280 cached tokens (2026-06-22, mono-language),
+then 6/6 hits, 2,304 cached tokens (2026-09-23, alternating fr/en — shared
+persona + CV prefix, see GEO-08g).
 
 ## Recommended limit
 
@@ -93,10 +104,15 @@ else:
   ```text
   [modelProviders] OpenAI cache hit: <n> cached tokens
   ```
-  Current live measurement: 5/5 cache hits, 1,280 cached tokens, ~1.4s average latency.
+  Latest measurements: 5/5 cache hits, 1,280 cached tokens, ~1.4s average
+  latency (2026-06-22, mono-language); 6/6 hits, 2,304 cached tokens
+  (2026-09-23, alternating fr/en).
 - Gemini usage is logged as:
   ```text
   [modelProviders] Gemini usage: {...}
   ```
-  Current live measurement: 0/5 explicit cache hits, `promptTokenCount` around 1,951 tokens, ~9.9s average latency.
+  Latest measurement: 0/5 explicit cache hits, `promptTokenCount` around
+  1,951 tokens, ~9.9s average latency (2026-06-22 baseline — predates CV
+  growth to ~2,643 prefix tokens; re-measure before concluding on Gemini
+  caching).
 - If cache tokens are not reported, use latency trends and provider dashboards as secondary signals.

@@ -93,6 +93,8 @@ Ces fichiers sont prêts à être donnés à un autre LLM comme brief d’implé
 
 ### 🆕 Feature — CAG (Cache-Augmented Generation) pour le chat
 
+> Rétro-spec (rationale + décisions + mesures) : `docs/backlog/FEAT-CAG-cag-chat-spec.md`
+
 #### Objectif
 Remplacer le RAG par CAG pour `/api/chat` : le CV complet est chargé depuis un fichier local (`data/cv.md`) et injecté dans le system prompt, avec prompt caching provider-side pour éviter de retraiter les tokens du CV à chaque requête (réduction coût ~90%, latence divisée par 2-10x).
 
