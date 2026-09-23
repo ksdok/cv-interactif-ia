@@ -113,6 +113,10 @@ dégrader le taux de hit du cache de prompt.
 
 `npm run lint`, `npm run typecheck`, `npm run build` verts.
 
+> Note de transition : ce record est antérieur à `TEST-001`, qui a renommé le script
+> `typecheck` en `type-check`. Le nom employé ici reflète l'état au moment de la
+> livraison GEO-08g ; l'invocation courante est `npm run type-check`.
+
 **Critères 1 et 3** — 7 requêtes `/api/chat` réelles (serveur dev + CSRF) :
 
 | Cas | Statut | Langue détectée | Attendu |

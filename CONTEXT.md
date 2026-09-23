@@ -31,6 +31,14 @@ corpus SEO/GEO), et date de mise à jour d'en-tête. Le statut **par ticket** du
 SEO/GEO vit dans `docs/features/seo-geo/INDEX.md` : `project-state.md` n'en porte qu'un
 résumé.
 
+**Où vit la trace de livraison — convention tranchée :**
+- Specs du **backlog ingénierie** (`docs/backlog/*-spec.md`) : la spec est un brief
+  d'implémentation et **ne reçoit pas** de section « Livraison » — elle reste stable après
+  coup. La trace (statut, mesures, décisions) vit dans `project-state.md`.
+- Tickets du corpus **SEO/GEO** (`docs/features/seo-geo/*.md`) : chaque ticket porte en plus
+  sa propre section « Livraison » (mesures, commits), et son statut par ticket vit dans
+  `docs/features/seo-geo/INDEX.md`.
+
 ## 3. Commandes
 
 ```bash

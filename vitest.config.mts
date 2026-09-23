@@ -8,6 +8,12 @@
 // on ne duplique pas `resolve.alias`, qui dériverait silencieusement dès qu'un
 // chemin serait ajouté au tsconfig.
 //
+// Note : Vite 8 résout désormais nativement ces chemins via
+// `resolve.tsconfigPaths: true`, et Vitest 5 émet un warning « plugin detected »
+// en conséquence. Le plugin est conservé parce que la spec TEST-001 l'exige
+// explicitement (§1/§3) ; la migration vers l'option native est un candidat
+// naturel pour un futur ticket dédié.
+//
 // `test.include` volontairement non défini : le défaut Vitest
 // (`**/*.{test,spec}.?(c|m)[jt]s?(x)`) couvre déjà `lib/**/*.test.ts` et
 // `lib/**/__tests__/*.test.ts`. Le définir *remplacerait* ce défaut et
