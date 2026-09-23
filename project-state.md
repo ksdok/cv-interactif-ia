@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée
+> Dernière mise à jour : 2026-09-23 — UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
 
 ---
 
@@ -264,11 +264,12 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
 
 ### 🆕 Feature — Projets GitHub
 
-- [ ] **PROJ-001 — Page Projets GitHub (hub + pages détail)** `MEDIUM`
-  - Hub bilingue `/fr/projets` + `/en/projets` (grille SSR sans carrousel) + page détail par projet mis en avant (`featured`)
-  - Source éditoriale bilingue `data/projects.ts` + enrichissement GitHub REST API server-side avec revalidate et fallback gracieux
-  - Décision SEO/GEO tranchée et sourcée dans la spec : hub + pages détail sélectives (anti thin content), carrousel écarté
-  - Spec : `docs/backlog/PROJ-001-projets-github-spec.md`
+- [ ] **PROJ-001 — Page Projets GitHub (hub + pages détail)** `MEDIUM` · effort L
+  - Hub bilingue `/fr/projets` + `/en/projets` (grille SSR sans carrousel) + page détail par projet `featured` avec contenu rédigé FR/EN complet (invariant `featured ⟹ detailFr && detailEn`)
+  - Source éditoriale bilingue `content/projects.ts` (liste, ordre et filtrage éditoriaux) + enrichissement GitHub REST API server-side (Data Cache `revalidate` + mémo négatif anti-spam, fallback gracieux)
+  - Rendu dynamique assumé (layout `[lang]` lit headers/cookies — nonce JSON-LD) ; JSON-LD `SoftwareSourceCode` noncé référencé à `#person`
+  - Décision SEO/GEO tranchée et sourcée dans la spec : hub + pages détail sélectives (anti thin content), carrousel écarté ; lien Projets dans le footer seul, header et home inchangés
+  - Spec : `docs/backlog/PROJ-001-projets-github-spec.md` (révision 2026-09-23 : M1-M5 traités)
 
 ### 🎨 UI / UX
 

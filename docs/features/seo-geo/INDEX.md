@@ -168,6 +168,14 @@ GEO-09 (continu, dès SEO-01 terminé)
 > **Merge** : Lot 2 mergé sur `main` le 2026-09-14 (`19f2295`, --no-ff, même
 > convention que Lots 0/1) puis poussé sur `origin/main`. **Suite : Lot 3 =
 > GEO-08g (chat EN) + GEO-09** (SEO-05 abandonné, cf. ligne du ticket).
+>
+> **Renvoi hors corpus (2026-09-23)** : le ticket backlog `PROJ-001`
+> (`docs/backlog/PROJ-001-projets-github-spec.md`, page Projets GitHub) étend
+> les sorties GEO-08e (sitemap : hub + pages détail avec alternates et
+> `x-default`) et GEO-06 (`llms.txt` maintenu à la main : hub Projets à
+> ajouter). Non numéroté GEO car c'est un ticket feature, mais son
+> implémentation doit respecter les conventions du corpus (alternates
+> `x-default`, anti thin content, wording par dictionnaire).
 
 ## Conventions du corpus
 
