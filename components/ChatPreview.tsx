@@ -101,7 +101,7 @@ export default function ChatPreview({
           messages: buildApiMessages(messages, userMessage),
           // GEO-08g : langue de réponse = locale de la page. Valeur invalide ou
           // absente côté serveur → fallback fr (pas un 400) — la whitelist est
-          // appliquée par resolveChatLanguage(), pas ici.
+          // appliquée par resolveResponseLanguage(), pas ici.
           lang: locale,
         }),
       })

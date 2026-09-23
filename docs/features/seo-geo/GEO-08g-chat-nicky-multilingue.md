@@ -77,15 +77,19 @@ dégrader le taux de hit du cache de prompt.
 ### Implémentation
 
 - `lib/systemPrompt.mjs` : `buildChatSystemPrompt(context, lang)` compose désormais
-  persona + contexte + **consigne de langue** dans cet ordre. La ligne
+  persona + contexte + **consigne de langue** dans cet ordre, et
+  `buildCvContextBlock(cvContent)` est la source unique du format du bloc CV
+  (partagée avec `scripts/measure-cv-tokens.mjs` — nit 6). La ligne
   « Always respond in English » (fast-path EN de SEO-03) est **retirée** de la
   persona : elle y contredisait toute réponse FR et faisait partie du préfixe
   stable. Le préfixe partagé fr/en (persona + bloc CV) est donc inchangé dans sa
   forme — et `SYSTEM_PROMPT_WITHOUT_CONTEXT` reste mesuré tel quel par
   `scripts/measure-cv-tokens.mjs` (`stablePrefix.scope` précise la portée).
-- `lib/validation.ts` : `resolveChatLanguage(value)` — whitelist `fr` | `en` via
+- `lib/validation.ts` : `resolveResponseLanguage(value)` — whitelist `fr` | `en` via
   `isLocale` (strict, donc `'FR'`/`'fr-FR'`/`'es'`/`42`/absent → fr), fallback
-  `DEFAULT_LOCALE`, **jamais** de 400 (review M6).
+  `DEFAULT_LOCALE`, **jamais** de 400 (review M6). Nom neutre (ni « chat » ni
+  « job-match ») car le helper sert les deux routes — nit 5 de la review
+  post-livraison.
 - `app/api/chat/route.ts` : lit `lang` du corps, le résout, le passe au prompt
   builder et le logge (`Response language: …`).
 - `components/ChatPreview.tsx` + `app/[lang]/Home.tsx` : prop `locale: Lang`
@@ -165,10 +169,13 @@ EN préservées dans les deux cas**, entités (`Securities Lending`, `Repo`,
   found »). Le câblage du champ est prouvé par les logs, l'effet de la consigne
   par l'appel provider direct : l'intégration route+RAG reste à confirmer sur un
   environnement où Supabase répond.
-- **Garde-fou hors-sujet : 1/2** (les deux langues). « What is the weather like
-  today? » est décliné, « Tell me a joke. » ne l'est pas — faiblesse déjà tracée
-  par FEAT-CAG-004 (constatée en RAG) et désormais aussi mesurée en CAG et en FR.
-  Hors périmètre de ce ticket (aucun critère ne couvre le garde-fou).
+- **Garde-fou hors-sujet : instable** — mesuré **1/2 puis 2/2** sur deux
+  exécutions du même jeu, dans les deux langues : « What is the weather like
+  today? » est toujours décliné, « Tell me a joke. » l'est une fois sur deux.
+  C'est de la variance du modèle, pas du harnais (les deux refus mesurés sont
+  authentiques, vérifiés à la lecture). Faiblesse déjà tracée par FEAT-CAG-004
+  (constatée en RAG) et désormais mesurée en CAG, en FR et en EN. Hors périmètre
+  de ce ticket (aucun critère ne couvre le garde-fou).
 - **Fluidité EN vs fidélité** : certaines réponses EN conservent des termes
   métier FR tels quels (« 10 years of experience in finance de marché »). C'est
   la conséquence directe de la consigne « never translate … job titles », qui
@@ -177,3 +184,37 @@ EN préservées dans les deux cas**, entités (`Securities Lending`, `Repo`,
   introduirait un risque de dérive sur des libellés métier (« Securities
   Lending » est aussi un nom d'activité) : laissé en l'état, à arbitrer si la
   fluidité devient un sujet.
+
+## Review post-livraison (2026-09-23) — ✅ approuvée, nits traités
+
+Review du commit `0d7bf66` : conforme à la spec (M5 vérifié jusque dans le
+byte-à-byte du préfixe mesuré, M6, F9, sécurité, conventions), aucun bloquant.
+Les 7 nits remontés ont été traités comme suit :
+
+- **N1 (marqueur `' a '`)** → corrigé : `' a '` retiré de `EN_MARKERS`
+  (`scripts/validate-cag.mjs`) — « a » est aussi le verbe avoir en français.
+  Aucune régression de détection sur les réponses enregistrées (8/8 EN, 7/7 FR).
+- **N2 (`--lang both` avec un nombre de runs impair)** → corrigé : l'impair est
+  arrondi au pair supérieur avec un log explicite, et la contrainte est
+documentée dans `--help`. Vérifié : `--runs 3` → 4 runs (2 fr / 2 en),
+  `perLanguage` équilibré.
+- **N3 (tokens de fidélité non discriminants)** → corrigé : un token peut
+  désormais être un **tableau d'alternatives** (`['10 ans', '10 years']`) et les
+  chiffres sont ancrés (`'14 million'`, `'500 000'` au lieu de `'14'`, `'500'`).
+  Les 7 questions de fidélité restent `pass` après le durcissement.
+- **N4 (`guessLanguage` et les retours à la ligne)** → corrigé : whitespace
+  normalisé avant scoring (un marqueur en début de ligne était invisible).
+- **N5 (`resolveChatLanguage` nommé d'après le seul chat)** → corrigé : renommé
+  `resolveResponseLanguage` (helper partagé par `/api/chat` et
+  `/api/job-match`), références de code et de documentation alignées.
+- **N6 (format du bloc CV dupliqué entre route et script de mesure)** →
+  corrigé : `buildCvContextBlock()` exporté par `lib/systemPrompt.mjs`, consommé
+  par les deux. Vérifié **byte-identique** avant/après refactor
+  (`stablePrefix` 10 571 caractères, 2 643 tokens estimés).
+- **N7 (`project-state.md` non touché)** → assumé, pas un oubli : le corpus
+  seo-geo est tracé dans `docs/features/seo-geo/INDEX.md` (statut par ticket) et
+  `project-state.md` ne porte pas de section seo-geo ni de ligne par ticket GEO
+  (seule GEO-08f y apparaît, citée comme spec d'un ticket UX). `CONTEXT.md` §2
+  n'autorise d'ailleurs que le cochage, la ligne « Spec : … » et la date — une
+  ligne GEO-08g dans `project-state.md` créerait un second registre à tenir à
+  jour. À rouvrir si tu veux que les livraisons seo-geo soient tracées là aussi.

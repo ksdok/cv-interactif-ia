@@ -162,6 +162,10 @@ export function assertValidChatMessages(
 /**
  * GEO-08g — résout la langue de réponse demandée par le client.
  *
+ * Partagée par `/api/chat` (champ `lang`) et `/api/job-match` (champ
+ * `language`), d'où le nom neutre (ni « chat » ni « job-match ») — review
+ * post-livraison, nit 5.
+ *
  * Contrat tranché par la spec (review M6) : whitelist `fr` | `en` ; une valeur
  * **absente ou invalide retombe sur `fr`**, jamais sur un 400 — le champ est un
  * confort de localisation, pas un prérequis de sécurité, et `fr` est le marché
@@ -170,9 +174,9 @@ export function assertValidChatMessages(
  * `isLocale` est strict (pas de toLowerCase, revue F1 de GEO-08b) : `'FR'`,
  * `'es'`, `'fr-FR'`, `42`, `null` et `undefined` tombent tous sur `fr`.
  *
- * @param value - Valeur brute du champ `lang` du corps de requête.
+ * @param value - Valeur brute du champ de langue du corps de requête.
  * @returns La locale de réponse.
  */
-export function resolveChatLanguage(value: unknown): Lang {
+export function resolveResponseLanguage(value: unknown): Lang {
   return isLocale(value) ? value : DEFAULT_LOCALE
 }

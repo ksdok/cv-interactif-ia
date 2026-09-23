@@ -26,9 +26,14 @@ const REQUEST_TIMEOUT_MS = Number(process.env.CAG_REQUEST_TIMEOUT_MS || 30_000)
 // `fidelityTokens` est un PRÉ-FILTRE mécanique : un token absent est un signal
 // d'alerte exploitable, un token présent ne prouve rien (la phrase peut être
 // fausse autour) — la revue de fidélité reste manuelle.
+//
+// Un token peut être une chaîne ou un **tableau d'alternatives** acceptées
+// (ex. `['10 ans', '10 years']`) : nécessaire pour les chiffres, dont la forme
+// dépend de la langue de réponse. Nit 3 (review post-livraison) : les chiffres
+// sont ancrés (`'14 million'`, `'500 000'`) et non nus (`'14'` matchait « 2014 »).
 const TEST_QUESTIONS = [
   { category: 'experience', question: "What is the candidate's most recent role?", fidelityTokens: ['Société Générale'] },
-  { category: 'experience', question: 'How many years of experience does the candidate have?', fidelityTokens: ['10'] },
+  { category: 'experience', question: 'How many years of experience does the candidate have?', fidelityTokens: [['10 ans', '10 years']] },
   { category: 'experience', question: 'What did the candidate do at Société Générale?', fidelityTokens: ['Société Générale'] },
   { category: 'tools', question: 'What tools and technologies does the candidate know?', fidelityTokens: ['Broadridge', 'SQL'] },
   { category: 'tools', question: 'Does the candidate have experience with Figma?' },
@@ -40,12 +45,12 @@ const TEST_QUESTIONS = [
 
 const TEST_QUESTIONS_EN = [
   { category: 'fidelity-role', question: "What is the candidate's most recent role, and at which company?", fidelityTokens: ['Société Générale'] },
-  { category: 'fidelity-figures', question: 'How many years of experience does the candidate have, and in which sector?', fidelityTokens: ['10'] },
+  { category: 'fidelity-figures', question: 'How many years of experience does the candidate have, and in which sector?', fidelityTokens: [['10 ans', '10 years']] },
   { category: 'fidelity-scope', question: 'What was the candidate responsible for on X-One Secloan?', fidelityTokens: ['Repo', 'Securities Lending', 'Triparty'] },
   { category: 'fidelity-entities', question: 'Does the candidate have hands-on experience with Securities Lending and Repo?', fidelityTokens: ['Securities Lending', 'Repo'] },
   { category: 'fidelity-editor', question: 'Which Broadridge products has the candidate worked with, and on what?', fidelityTokens: ['Broadridge', 'SFCM'] },
-  { category: 'fidelity-tools', question: 'Which front-office and back-office platforms did the candidate replace, and what was the financial impact?', fidelityTokens: ['Kondor', '500'] },
-  { category: 'fidelity-volume', question: 'What transaction volume did the platform the candidate worked on handle?', fidelityTokens: ['14'] },
+  { category: 'fidelity-tools', question: 'Which front-office and back-office platforms did the candidate replace, and what was the financial impact?', fidelityTokens: ['Kondor', ['500 000', '500,000']] },
+  { category: 'fidelity-volume', question: 'What transaction volume did the platform the candidate worked on handle?', fidelityTokens: [['14 million', '14 millions', '14 M']] },
   { category: 'achievements', question: "What are the candidate's key achievements?" },
   { category: 'off-topic', question: 'What is the weather like today?', offTopic: true },
   { category: 'off-topic', question: 'Tell me a joke.', offTopic: true },
@@ -184,23 +189,31 @@ function isLikelyPoliteDecline(response) {
 // Pré-filtre de fidélité (GEO-08g, critère 2) : les tokens attendus sont des
 // entités/chiffres qui doivent survivre à la traduction. Comparaison
 // normalisée (casse + accents) car une réponse EN peut garder « Société
-// Générale » ou l'écrire sans accent.
+// Générale » ou l'écrire sans accent. Un token peut être un tableau
+// d'alternatives (nit 3) ; `labelOf` le rend lisible dans le rapport.
 function normalizeToken(value) {
   return value
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
+    .replace(/\s+/g, ' ')
+}
+
+function labelOf(token) {
+  return Array.isArray(token) ? token.join(' | ') : token
 }
 
 function checkFidelityTokens(response, expectedTokens = []) {
   if (!expectedTokens.length) return null
   const haystack = normalizeToken(response)
-  const matched = expectedTokens.filter((token) => haystack.includes(normalizeToken(token)))
-  const missing = expectedTokens.filter((token) => !matched.includes(token))
+  const alternatives = (token) => (Array.isArray(token) ? token : [token])
+  const matches = (token) => alternatives(token).some((alt) => haystack.includes(normalizeToken(alt)))
+  const matched = expectedTokens.filter(matches)
+  const missing = expectedTokens.filter((token) => !matches(token))
   return {
-    expected: expectedTokens,
-    matched,
-    missing,
+    expected: expectedTokens.map(labelOf),
+    matched: matched.map(labelOf),
+    missing: missing.map(labelOf),
     preScreen: missing.length === 0 ? 'pass' : matched.length === 0 ? 'fail' : 'partial',
   }
 }
@@ -208,12 +221,18 @@ function checkFidelityTokens(response, expectedTokens = []) {
 // Détection de langue du pré-filtre (critère 1) : marqueurs exclusifs, volontairement
 // grossier — un texte technique FR et EN partagent trop de vocabulaire pour un
 // vrai classifieur, et le script n'a pas de dépendance externe.
+//
+// Nit 1 (review post-livraison) : `' a '` a été retiré des marqueurs EN — « a »
+// est aussi le verbe avoir en français (« il a 10 ans d'expérience »), il
+// gonflait le score EN des réponses FR. Nit 4 : les blancs (dont les retours à
+// la ligne) sont normalisés avant scoring, sinon `' le '` ratait un marqueur en
+// début de ligne.
 const FR_MARKERS = [' le ', ' la ', ' les ', ' des ', ' est ', ' avec ', ' pour ', ' une ']
-const EN_MARKERS = [' the ', ' and ', ' with ', ' is ', ' for ', ' of ', ' a ']
+const EN_MARKERS = [' the ', ' and ', ' with ', ' is ', ' for ', ' of ']
 
 function guessLanguage(response) {
   if (!response) return 'unknown'
-  const text = ` ${response.toLowerCase()} `
+  const text = ` ${response.toLowerCase().replace(/\s+/g, ' ')} `
   const frScore = FR_MARKERS.reduce((sum, marker) => sum + (text.split(marker).length - 1), 0)
   const enScore = EN_MARKERS.reduce((sum, marker) => sum + (text.split(marker).length - 1), 0)
   if (frScore === 0 && enScore === 0) return 'unknown'

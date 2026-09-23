@@ -3,7 +3,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SYSTEM_PROMPT_WITHOUT_CONTEXT } from '../lib/systemPrompt.mjs'
+import { SYSTEM_PROMPT_WITHOUT_CONTEXT, buildCvContextBlock } from '../lib/systemPrompt.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const PROJECT_ROOT = resolve(__dirname, '..')
@@ -57,7 +57,10 @@ async function main() {
   // fr/en depuis que la consigne de langue est ajoutée en fin de system prompt —
   // c'est lui qui détermine l'éligibilité au prompt caching provider-side, et il
   // n'est pas dupliqué par langue.
-  const stablePrefix = `${SYSTEM_PROMPT_WITHOUT_CONTEXT}\n\nCANDIDATE CV:\n${cvContent.trim()}\n`
+  // Nit 6 (review post-livraison) : le bloc CV vient de buildCvContextBlock(),
+  // la même fonction que celle utilisée par /api/chat — plus de format dupliqué
+  // qui pourrait diverger de la production sans que la mesure le signale.
+  const stablePrefix = `${SYSTEM_PROMPT_WITHOUT_CONTEXT}${buildCvContextBlock(cvContent)}`
 
   const report = {
     timestamp: new Date().toISOString(),

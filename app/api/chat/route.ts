@@ -26,7 +26,7 @@
 
 import { NextResponse } from 'next/server'
 import { searchDocuments } from '@/lib/rag'
-import { validateChatMessages, resolveChatLanguage } from '@/lib/validation'
+import { validateChatMessages, resolveResponseLanguage } from '@/lib/validation'
 import { getCSRFTokenFromRequest, verifyCSRFToken } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
@@ -34,7 +34,7 @@ import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds 
 import { generateResponse } from '@/lib/modelProviders'
 import { CV_CONTEXT_SOURCE } from '@/lib/modelConfig'
 import { getCVContext } from '@/lib/cvContext'
-import { buildChatSystemPrompt } from '@/lib/systemPrompt.mjs'
+import { buildChatSystemPrompt, buildCvContextBlock } from '@/lib/systemPrompt.mjs'
 
 interface Document {
   content: string
@@ -60,8 +60,7 @@ async function getChatContext(userMessage: string): Promise<string> {
   }
 
   console.log('Loading full CV context from data/cv.md (CAG mode).')
-  const cvContent = getCVContext()
-  return `\n\nCANDIDATE CV:\n${cvContent}\n`
+  return buildCvContextBlock(getCVContext())
 }
 
 export async function POST(req: Request) {
@@ -142,7 +141,7 @@ export async function POST(req: Request) {
     const context = await getChatContext(lastUserMessage)
 
     // GEO-08g : valeur absente/invalide → fr (review M6), jamais un 400.
-    const responseLanguage = resolveChatLanguage(lang)
+    const responseLanguage = resolveResponseLanguage(lang)
     console.log('Response language:', responseLanguage, '(requested:', JSON.stringify(lang) + ')')
 
     const systemPrompt = buildChatSystemPrompt(context, responseLanguage)

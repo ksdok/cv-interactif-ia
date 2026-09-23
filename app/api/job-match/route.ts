@@ -15,7 +15,7 @@
 
   GEO-08g (F9) : le client (JobMatcher.tsx) envoie déjà `language` depuis
   GEO-08b, mais la route l'ignorait — `/fr` affichait donc une UI FR avec une
-  analyse IA EN. La valeur est résolue par resolveChatLanguage() (whitelist
+  analyse IA EN. La valeur est résolue par resolveResponseLanguage() (whitelist
   fr|en, fallback fr, pas de 400) et ne pilote que les **valeurs** lisibles du
   JSON : les clés restent en anglais (contrat de type MatchAnalysis).
 */
@@ -26,7 +26,7 @@ import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds 
 import { verifyCSRFToken, getCSRFTokenFromRequest, CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { generateJobMatchResponse } from '@/lib/modelProviders'
-import { resolveChatLanguage } from '@/lib/validation'
+import { resolveResponseLanguage } from '@/lib/validation'
 
 // Input validation constraints
 const VALIDATION = {
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
     // Valeur absente/invalide → fr (même contrat que /api/chat), jamais un 400.
     // Résolu tôt pour que la langue effective soit traçable même si la
     // recherche RAG échoue ensuite (dégradation gracieuse de lib/rag.ts).
-    const analysisLanguage = resolveChatLanguage(language)
+    const analysisLanguage = resolveResponseLanguage(language)
     const analysisLanguageName = analysisLanguage === 'en' ? 'English' : 'French'
     console.log(`Analysis language: ${analysisLanguage} (requested: ${JSON.stringify(language)})`)
 

@@ -54,6 +54,8 @@ Use --use-existing-server when the server is already running; cache logs cannot 
 
 --lang both alternates fr/en runs to check that the persona+CV prefix stays shared
 between languages (GEO-08g criterion 4) and writes cache-measurement-results-both.json.
+It requires an even run count (an odd one would compare 3 fr runs against 2 en runs);
+an odd --runs value is rounded up to the next even number.
 Run the mono-language series first to keep a baseline to compare against.`)
       process.exit(0)
     }
@@ -62,6 +64,19 @@ Run the mono-language series first to keep a baseline to compare against.`)
   if (!CACHE_LANGS.includes(config.lang)) {
     console.error(`[measure-cache] Invalid --lang '${config.lang}'. Expected one of: ${CACHE_LANGS.join(', ')}`)
     process.exit(1)
+  }
+
+  if (!Number.isFinite(config.runs) || config.runs < 1) {
+    console.error(`[measure-cache] Invalid --runs '${config.runs}'. Expected a positive integer.`)
+    process.exit(1)
+  }
+
+  // Nit 2 (review post-livraison) : l'alternance fr/en est stricte, donc un
+  // nombre impair de runs donnerait un `perLanguage` déséquilibré (3 fr / 2 en)
+  // et une comparaison trompeuse. On arrondit au pair supérieur et on le dit.
+  if (config.lang === 'both' && config.runs % 2 !== 0) {
+    console.log(`[measure-cache] --lang both needs an even run count; adjusted --runs ${config.runs} → ${config.runs + 1} (balanced fr/en alternance).`)
+    config.runs += 1
   }
 
   if (config.outputFile === OUTPUT_FILE) {
