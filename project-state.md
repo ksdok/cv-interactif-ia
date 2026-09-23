@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — UX-003 (header navigable) livré ; correctifs post-review c150986
+> Dernière mise à jour : 2026-09-23 — UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée
 
 ---
 
@@ -77,6 +77,7 @@ Les tickets suivants disposent désormais d’une spec dédiée dans `docs/backl
 - `QUAL-002` → `docs/backlog/QUAL-002-structured-logging-spec.md`
 - `QUAL-003` → `docs/backlog/QUAL-003-eslint-strict-rules-spec.md`
 - `SEC-003` → `docs/backlog/SEC-003-persistent-rate-limiting-spec.md`
+- `PROJ-001` → `docs/backlog/PROJ-001-projets-github-spec.md`
 
 Ces fichiers sont prêts à être donnés à un autre LLM comme brief d’implémentation. Tout ticket ouvert de la backlog dispose désormais d’une spec dédiée.
 
@@ -260,6 +261,14 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Créer un workflow CI minimal : `type-check` + `lint` + `test` (dès que TEST-001 est fait) + `build`
   - Déploiement via Vercel Git intégration (déjà en place), mais sans vérifications pré-merge
   - Spec prête : `docs/backlog/CICD-001-minimal-ci-pipeline-spec.md`
+
+### 🆕 Feature — Projets GitHub
+
+- [ ] **PROJ-001 — Page Projets GitHub (hub + pages détail)** `MEDIUM`
+  - Hub bilingue `/fr/projets` + `/en/projets` (grille SSR sans carrousel) + page détail par projet mis en avant (`featured`)
+  - Source éditoriale bilingue `data/projects.ts` + enrichissement GitHub REST API server-side avec revalidate et fallback gracieux
+  - Décision SEO/GEO tranchée et sourcée dans la spec : hub + pages détail sélectives (anti thin content), carrousel écarté
+  - Spec : `docs/backlog/PROJ-001-projets-github-spec.md`
 
 ### 🎨 UI / UX
 
