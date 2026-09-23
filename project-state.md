@@ -260,7 +260,7 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - `timeout-minutes: 15` : un `test` en watch-mode doit échouer en minutes, pas après les 6 h du runner
   - `permissions: contents: read` ; aucun secret requis — le build est devenu secret-free (voir la note ci-dessous)
   - Restent hors périmètre : déploiement depuis GitHub Actions, previews, upload de couverture, matrice multi-Node
-  - ⏳ **Vérification remote non faite** : le run GitHub Actions réel (triggers `push` + `pull_request`, jobs verts) n'est pas encore confirmé — `main` n'est pas poussé vers `origin/main`. Les deux critères d'acceptation concernés sont de nature remote ; à confirmer au prochain push (et idéalement en exerçant une fois le trigger `pull_request`, l'historique du dépôt étant en commits directs sur `main`).
+  - ✅ **Vérification remote (partielle)** : le trigger `push` sur `main` est confirmé — run GitHub Actions `35862478119`, job `type-check · lint · test · build` vert en 40 s (2026-09-23). Le trigger `pull_request` n'est pas encore exercé (l'historique du dépôt est en commits directs sur `main`) : à valider au premier ticket passé par une branche + PR.
 
 #### Note — build secret-free (finding CICD-001)
 
