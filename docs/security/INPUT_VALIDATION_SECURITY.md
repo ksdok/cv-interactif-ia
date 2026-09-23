@@ -18,9 +18,9 @@ This document describes the input validation implementation that was added to pr
    - Returns 400 error for invalid input
    - Safe to use validated messages in downstream code
 
-3. **lib/test-validation.ts** (NEW)
-   - 40+ test cases covering valid inputs, attack vectors, and edge cases
-   - Can be imported and run in tests
+3. **lib/__tests__/validation.test.ts** (NEW)
+   - 37 test cases covering valid inputs, attack vectors, and edge cases
+   - Exécutés par Vitest (`npm run test`) — chaque sous-chaîne d'erreur attendue est une assertion bloquante
    - Covers XSS, SQL injection, DoS scenarios
 
 ### Validation Rules
@@ -260,21 +260,18 @@ if (!result.isValid) {
 
 ### Running Test Suite
 
-The test suite in `lib/test-validation.ts` can be imported and run:
+The test suite vit dans `lib/__tests__/validation.test.ts` et s'exécute avec Vitest :
 
-```typescript
-import { runValidationTests } from '@/lib/test-validation'
-
-// Run tests and get results
-const { passed, failed, total } = runValidationTests()
-console.log(`${passed}/${total} tests passed`)
+```bash
+npm run test        # exécution unique (CI)
+npm run test:watch  # mode watch (développement)
 ```
 
 ## Summary
 
 ✅ **Input validation is now implemented and tested**
 
-- 40+ test cases covering normal use, edge cases, and attack vectors
+- 37 test cases covering normal use, edge cases, and attack vectors
 - All security scenarios verified
 - Valid requests continue to work normally
 - Invalid requests return clear 400 errors

@@ -33,7 +33,7 @@ Out of scope:
 In `eslint.config.mjs`, add a config block for server code (`app/api/**`, `lib/**`) and a general block:
 
 - `no-console`: `error` for `app/api/**` and `lib/**`, with allowlist exceptions:
-  - `lib/test-validation.ts` (manual runner — removed by TEST-001; allow or delete)
+  - `**/*.test.ts` et `vitest.config.mts` (tests Vitest — TEST-001 ; `console` y est la sortie du runner)
   - `proxy.ts` only if QUAL-002 documents that the edge runtime can't use the project logger
   - `scripts/**` and `lib/systemPrompt.mjs` if they share a lint scope (console is their CLI interface) — prefer a separate block with `no-console: off`
 - Client code (`components/**`, `app/[lang]/**`): `no-console: warn` initially (a few `console.error` exist in `ChatPreview.tsx`); decide warn vs error based on actual count, tighten later.
@@ -67,7 +67,7 @@ In `eslint.config.mjs`, add a config block for server code (`app/api/**`, `lib/*
 ## Verification
 Run:
 - `npm run lint`
-- `npm run typecheck`
+- `npm run type-check`
 - `npm run build`
 - Manual negative tests: commit-attempt with a violation file, expect lint failure.
 

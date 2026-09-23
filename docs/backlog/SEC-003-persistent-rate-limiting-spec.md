@@ -85,7 +85,7 @@ Document the choice; it must be explicit in code.
 
 ## Verification
 Run:
-- `npm run lint`, `npm run typecheck`, `npm run build`
+- `npm run lint`, `npm run type-check`, `npm run build`
 - local: default memory backend works as before
 - staging/prod with backend enabled: normal flow under limit, 429 path, redeploy-survival check, store-outage simulation (block network to the store, confirm fail-open + warning log)
 

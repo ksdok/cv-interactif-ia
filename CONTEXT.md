@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-23 — GEO-08g (chat multilingue + job-match localisé) livré et revu
+> Dernière mise à jour : 2026-09-23 — TEST-001 (infrastructure Vitest + 37 cas migrés) livré
 
 ---
 
@@ -36,7 +36,9 @@ résumé.
 ```bash
 npm run dev        # http://localhost:3000 — / redirige (307) vers /fr ou /en
 npm run lint       # eslint — doit passer avant tout commit
-npm run typecheck  # tsc --noEmit — le nom documenté précédemment (« type-check ») était faux : le script s'appelle encore `typecheck` jusqu'au renommage prévu par TEST-001
+npm run type-check # tsc --noEmit (renommé depuis `typecheck` par TEST-001)
+npm run test       # vitest run — non-watch, destiné à la CI
+npm run test:watch # vitest — mode watch (développement uniquement)
 npm run build      # next build (génère aussi public/llms-full.txt via prebuild)
 ```
 
@@ -44,12 +46,14 @@ Environnement : `.env.local` requis (voir README) — `OPENAI_API_KEY`, `GEMINI_
 clés Supabase ; `CSP_REPORT_ONLY` est **optionnelle** (déploie la CSP en report-only).
 Secrets **server-only** : ne jamais exposer côté client.
 
-**Aucun test automatisé n'existe encore.** `npm run test` (Vitest) arrive avec `TEST-001` ;
-d'ici là, `npm run lint` + `npm run typecheck` ne prouvent **rien** sur le comportement — il
-faut vérifier à la main les points de la section « Verification » de la spec. Deux transitions à
-connaître : le script `typecheck` devient `type-check` (`TEST-001`), et la cible Node passe à
-**≥ 22.12** (les `engines` de Vitest 5 sont plus stricts que ceux de Next 16 : un runner Node 20
-échoue à `npm ci`).
+**Tests automatisés : Vitest 5 est en place** (`TEST-001`) — `npm run test` (non-watch)
+comme cible CI, `npm run test:watch` en dev ; la suite actuelle est
+`lib/__tests__/validation.test.ts` (37 cas migrés de l'ancien runner mort).
+`npm run lint` + `npm run type-check` ne prouvent **rien** sur le comportement runtime : il
+faut vérifier à la main les points de la section « Verification » de la spec. Deux transitions
+à connaître : le script `typecheck` est devenu `type-check` (`TEST-001`), et la cible Node est
+passée à **≥ 22.12** (`engines` — ceux de Vitest 5 sont plus stricts que ceux de Next 16 : un
+runner Node 20 échoue à `npm ci`).
 
 ## 4. Outils de recherche — à utiliser pendant l'implémentation
 
@@ -118,7 +122,7 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 2. Respecte le périmètre (In scope / Out of scope) — ne saute pas sur les tickets voisins.
 3. Les specs contiennent des **dépendances d'ordre** (ex. QUAL-002 avant QUAL-003,
    TEST-001 avant CICD-001). Vérifie dans `project-state.md` que les dépendances sont livrées.
-4. Après implémentation : `npm run lint`, `npm run typecheck`, `npm run build` + les
+4. Après implémentation : `npm run lint`, `npm run type-check`, `npm run test`, `npm run build` + les
    vérifications spécifiques de la section « Verification » de la spec.
 5. Coche le ticket dans `project-state.md` uniquement si les critères d'acceptation
    (« Acceptance criteria ») sont tous remplis.
@@ -134,7 +138,7 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 
 **Backlog ingénierie** — la plupart ont une spec dédiée dans `docs/backlog/`
 (`TICKET-ID-…-spec.md`) ; les exceptions sont signalées ci-dessous :
-- 🔴 `TEST-001` (CRITICAL, vitest) → prérequis de `CICD-001` (CI minimale)
+- ✅ `TEST-001` (infrastructure Vitest + 37 cas de validation migrés) → débloque `CICD-001` (CI minimale)
 - 🟠 `PERF-002` (streaming), `OBS-001` (Sentry), `CICD-001`
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant
 - ⚪ `PERF-003` (cache API, ancien plan sans spec dédiée), `UX-002` (dark mode, ancien plan),
@@ -147,7 +151,7 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 - **Gemini cache non confirmé** : OpenAI prefix cache validé (5/5 hits en mono-langue, 6/6 en alternance fr/en — préfixe persona + CV partagé, 2 304 tokens), Gemini 0/5 — ne pas promettre d'économies Gemini sans re-mesurer (`scripts/measure-cache.mjs`).
 - **`data/cv.md` ≈ 2 400 tokens estimés** (9 620 caractères ; préfixe stable persona + CV ≈ 2 640 tokens — `scripts/measure-cv-tokens.mjs`) : rester en CAG en dessous de ~10K tokens ; au-delà, voir `docs/cag-limits.md`.
 - **Ne pas déplacer la consigne de langue du chat** : elle est ajoutée en **fin** de prompt, après le bloc CV. La placer avant le CV donnerait deux préfixes distincts fr/en et diviserait le taux de hit du cache (GEO-08g).
-- **`npm run typecheck` peut échouer sur `.next/`** : le `include` de `tsconfig.json` prend `**/*.ts` sans exclure `.next`, donc une copie parasite (ex. `.next/types/routes.d 2.ts`) déclenche un `TS2300 Duplicate identifier`. Supprimer les `* 2.ts` sous `.next` (ou `.next` entier) et relancer : ce n'est jamais le code en cours d'édition.
+- **`npm run type-check` peut échouer sur `.next/`** : le `include` de `tsconfig.json` prend `**/*.ts` sans exclure `.next`, donc une copie parasite (ex. `.next/types/routes.d 2.ts`) déclenche un `TS2300 Duplicate identifier`. Supprimer les `* 2.ts` sous `.next` (ou `.next` entier) et relancer : ce n'est jamais le code en cours d'édition.
 - **Rapports runtime** (`scripts/results/`) : gitignorés intentionnellement.
 - **`public/llms-full.txt` est généré au build** (prebuild) — ne jamais l'éditer à la main.
 - **Latences mesurées** : OpenAI ≈ 1,4s, Gemini ≈ 8,0s — toute feature qui augmente la latence perçue du chat doit passer par PERF-002 (streaming), pas par un contournement.

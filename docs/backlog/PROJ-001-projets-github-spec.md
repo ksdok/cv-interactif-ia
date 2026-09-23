@@ -292,7 +292,7 @@ uniquement d'affichage (« dernière activité »), pas de tri primaire.
 - Footer porte le lien Projets ; **header et home inchangés**.
 - A11y : h1 unique par page, focus visible, `lang` correct sur les extraits,
   liens externes `rel="noopener noreferrer"` + annonce vocale.
-- `npm run lint`, `npm run typecheck`, `npm run build` verts ;
+- `npm run lint`, `npm run type-check`, `npm run build` verts ;
   `node scripts/check-locale.mjs` exit 0 avec les sentinelles étendues aux
   pages projets (N6 — extension assumée dans le même commit).
 

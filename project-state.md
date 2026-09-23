@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
+> Dernière mise à jour : 2026-09-23 — TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
 
 ---
 
@@ -10,7 +10,7 @@
 
 | Dimension | Score | Niveau |
 |-----------|-------|--------|
-| 🧪 Tests | **1/10** | CRITIQUE |
+| 🧪 Tests | **3/10** | INCOMPLET |
 | 📐 Qualité de code | **4/10** | INCOMPLET |
 | 🔒 Sécurité | **7/10** | BONNE BASE |
 | 🏗️ Architecture | **7/10** | SOLIDE |
@@ -19,7 +19,7 @@
 | 🔄 CI/CD | **0/10** | AUCUN PIPELINE |
 | 📚 Documentation | **7/10** | BONNE |
 
-**Score global : 3.9/10** — Produit fonctionnel et deployable, mais encore immature sur les fondamentaux d’ingénierie logicielle.
+**Score global : 4.1/10** — Produit fonctionnel et deployable, mais encore immature sur les fondamentaux d’ingénierie logicielle.
 
 ### Points forts
 - Multi-provider IA avec fallback (OpenAI → Gemini)
@@ -30,7 +30,7 @@
 - Architecture claire : `lib/` / `components/` / `app/`
 
 ### Points critiques
-- **Zéro test automatisé** — pas de framework, pas de couverture
+- **Couverture de tests embryonnaire** — Vitest installé (TEST-001) avec 37 cas sur `lib/validation.ts` ; `csrf`/`linkify`/`rateLimit` restent à couvrir, pas de seuil de couverture
 - **Aucun pipeline CI/CD** — pas de garde-fou avant déploiement
 - **Observabilité inexistante** — logs `console.*` seulement, pas de health check, pas d’alerting
 - **Performance sous-exploitée** — pas de streaming LLM, pas de code splitting sur les composants non critiques
@@ -49,9 +49,9 @@
 
 ## En cours
 
-Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, specs de délégation rédigées). Reste, par ordre de priorité :
+Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, infrastructure de tests TEST-001, specs de délégation rédigées). Reste, par ordre de priorité :
 
-- installer l’infrastructure de tests (TEST-001) — prérequis de la CI minimale (CICD-001)
+- pipeline CI minimal (CICD-001 — désormais débloqué par TEST-001)
 - streaming des réponses IA (PERF-002) et monitoring Sentry (OBS-001)
 - page Projets GitHub (PROJ-001, spec prête depuis le 2026-09-23)
 - finitions du corpus SEO/GEO (GEO-09, TECH-10, INFRA-11 — voir la synthèse ci-dessous)
@@ -154,16 +154,16 @@ _Tous les bugs identifiés lors de l'audit ont été corrigés. Voir la section 
 
 _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessous._
 
-### 🧪 Tests — Maturité 1/10 (CRITIQUE)
+### 🧪 Tests — Maturité 3/10 (INCOMPLET)
 
-- [ ] **TEST-001 — Zéro infrastructure de test** `CRITICAL`
-  - Aucun framework installé (`vitest`, `jest`, `@testing-library/react`, `playwright`)
-  - Pas de script `test` dans `package.json`
-  - `lib/test-validation.ts` est un runner manuel non connecté à un framework — inutilisé
-  - Actions P0 : installer **Vitest** + `@vitejs/plugin-react`, migrer `test-validation.ts` vers `lib/__tests__/validation.test.ts`
-  - Actions P1 : tests unitaires pour `lib/csrf.ts`, `lib/linkify.ts`, `lib/rateLimit.ts`
-  - Actions P2 : tests d'intégration API avec MSW, tests e2e Playwright
-  - Spec prête : `docs/backlog/TEST-001-automated-test-infrastructure-spec.md`
+- [x] **TEST-001 — Zéro infrastructure de test** `CRITICAL`
+  - Vitest 5 installé (+ `vite-tsconfig-paths`), `vitest.config.mts` (environnement `node`, alias `@/*` lu depuis `tsconfig.json`)
+  - Scripts : `test` (`vitest run`, non-watch — contrainte CI), `test:watch`, `type-check` (renommage de `typecheck`)
+  - 37 cas migrés de `lib/test-validation.ts` vers `lib/__tests__/validation.test.ts`, dont 24 assertions `expectedError` désormais bloquantes (elles n'étaient que `console.log`-warnées auparavant)
+  - `assertValidChatMessages()` couvert (throw sur invalide, narrowing sur valide) ; `lib/test-validation.ts` supprimé (code mort, jamais exécutable)
+  - Cible Node `>=22.12.0` (`engines`) — contrainte d'installation de Vitest 5 ; `@types/node` bumpé de `^20` à `^22` en conséquence
+  - Détail : `docs/backlog/TEST-001-automated-test-infrastructure-spec.md`
+  - Restent ouverts (P1/P2) : tests unitaires `lib/csrf.ts`, `lib/linkify.ts`, `lib/rateLimit.ts` ; tests d'intégration API avec MSW ; e2e Playwright
 
 ### 📐 Qualité de code
 
@@ -332,6 +332,7 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
 - [x] **GEO-08g** — chat Nicky multilingue (consigne de langue en fin de prompt : le préfixe persona + CV reste partagé fr/en, cache mesuré 6/6 hits) + analyse job-match localisée ; fidélité EN vérifiée en revue manuelle ; fallback `fr` sans 400 (`0d7bf66`, `c010db2`)
 
 ### Sécurité & qualité
+- [x] **TEST-001 — Infrastructure de tests automatisés** — Vitest 5 + `vite-tsconfig-paths`, scripts `test` (`vitest run`, non-watch), `test:watch`, `type-check` (renommage de `typecheck`), cible Node `>=22.12.0` ; 37 cas de validation migrés vers `lib/__tests__/validation.test.ts` (24 assertions d'erreur désormais bloquantes) + couverture d'`assertValidChatMessages()` ; `lib/test-validation.ts` (code mort) supprimé et docs sécurité corrigées (« 40+ cas / all passing » → 37 cas réellement exécutés)
 - [x] **Validation des entrées** — `lib/validation.ts`, protection injection (`7cfacc9`)
 - [x] **Supabase server-only** — clé service role inaccessible côté client (`7cfacc9`)
 - [x] **CVE Next.js / React** — dépendances mises à jour (`288411f`)

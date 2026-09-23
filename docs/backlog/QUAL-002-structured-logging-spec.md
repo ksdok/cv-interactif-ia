@@ -9,7 +9,7 @@ Current state in the repo (count of `console.*` call sites):
 - `app/api/chat/route.ts`: 20
 - `lib/modelProviders.ts`: 8
 - `lib/rag.ts`: 5
-- `lib/test-validation.ts`: 7 (manual runner — TEST-001 scope)
+- `lib/__tests__/**` : suite Vitest migrée par TEST-001 (le `console` éventuel y est la sortie du runner de test, hors périmètre)
 - `app/api/csp-report/route.ts`, `lib/validation.ts`, `lib/rateLimit.ts`, `lib/supabase.ts`: 1 each
 
 Problems:
@@ -29,7 +29,7 @@ Out of scope:
 - Sentry integration (OBS-001)
 - client-side logging (`components/`, keep `console.error` there for now)
 - `scripts/*.mjs` (standalone CLI tools, `console` is their interface)
-- `lib/test-validation.ts` (migrated by TEST-001)
+- `lib/__tests__/**` (tests Vitest — `console` éventuel = sortie du runner, hors périmètre)
 
 ## Decision to make: Pino vs in-house logger
 - **Pino** (recommended in backlog): structured JSON, tiny, fast, first-class levels. On Vercel, JSON lines are ingested by log drains (Logtail, Datadog) and by Sentry's logging integrations.
@@ -73,10 +73,10 @@ For each existing `console.*`:
 - This ticket is a prerequisite for QUAL-003's `no-console` rule — after this migration, `no-console` can be enabled without a giant allowlist.
 
 ## Acceptance criteria
-- `grep -rn "console\." app/api lib` returns only documented exceptions (e.g. `proxy.ts` if justified, `lib/test-validation.ts`).
+- `grep -rn "console\." app/api lib` returns only documented exceptions (e.g. `proxy.ts` if justified, `lib/__tests__/**`).
 - Production logs are JSON lines with level, timestamp, and route context (verified via `npm run start` locally).
 - User chat content and job descriptions never appear in logs (manual check with a canary message).
-- `npm run lint`, `npm run typecheck`, `npm run build` pass.
+- `npm run lint`, `npm run type-check`, `npm run build` pass.
 
 ## Verification
 Run:

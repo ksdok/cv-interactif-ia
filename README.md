@@ -35,6 +35,7 @@ Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.ve
 | Embeddings | OpenAI `text-embedding-3-small` for RAG/job-match |
 | Vector DB | Supabase (pgvector) |
 | i18n | `app/[lang]/` routing + in-house dictionaries `lib/i18n/` (no next-intl), locale negotiation in `proxy.ts` |
+| Testing | Vitest 5 (+ `vite-tsconfig-paths`, Node environment) |
 | Deployment | Vercel |
 
 ---
@@ -42,7 +43,7 @@ Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.ve
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 22.12+
 - Supabase project with pgvector extension enabled
 - At least one AI provider API key (OpenAI required for default chat + embeddings; Gemini recommended for fallback)
 
@@ -68,9 +69,12 @@ CSP_REPORT_ONLY=false
 
 ```bash
 npm install
-npm run dev       # http://localhost:3000 — / redirects (307) to /fr or /en (Accept-Language)
-npm run build     # production build
-npm run lint      # lint check
+npm run dev         # http://localhost:3000 — / redirects (307) to /fr or /en (Accept-Language)
+npm run build       # production build
+npm run lint        # lint check
+npm run type-check  # tsc --noEmit
+npm run test        # Vitest (single run, non-watch)
+npm run test:watch  # Vitest watch mode (development)
 ```
 
 ---
@@ -144,7 +148,7 @@ cv-interactif-ia/
 │   ├── linkify.ts                 # URL parser utility
 │   ├── types.ts                   # Shared type definitions (cross-modules)
 │   ├── systemPrompt.mjs           # Shared Nicky system prompt (server + validation scripts)
-│   └── test-validation.ts         # Standalone validation test suite
+│   └── __tests__/validation.test.ts # Validation tests (Vitest, 37 cases)
 ├── data/
 │   └── cv.md                      # Source CV used by CAG mode (FR — chatbot source)
 ├── docs/

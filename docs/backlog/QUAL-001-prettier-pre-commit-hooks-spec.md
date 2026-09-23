@@ -7,7 +7,7 @@ Standardize code formatting and guarantee lint/format checks run before every co
 Current state in the repo:
 - No Prettier — formatting relies on each contributor's editor settings; risk of noisy diffs and style debates in PRs.
 - No `husky` / `lint-staged` — nothing prevents committing code that fails `npm run lint`.
-- `package.json` has `lint` and `typecheck` scripts but nothing enforces them locally.
+- `package.json` has `lint` and `type-check` scripts but nothing enforces them locally.
 
 ## Scope
 
@@ -55,7 +55,7 @@ Add to `package.json`:
 
 ### 5. Initial formatting pass
 - Run `npm run format` once, in a dedicated commit, so the hook setup commit stays reviewable.
-- Verify the diff contains only formatting changes: `npm run lint`, `npm run typecheck`, and `npm run build` must all pass after formatting.
+- Verify the diff contains only formatting changes: `npm run lint`, `npm run type-check`, and `npm run build` must all pass after formatting.
 
 ## Implementation notes
 - Keep the Prettier config tiny — 3–5 keys max. Defaults are fine; consistency is the goal, not a house style.
@@ -65,7 +65,7 @@ Add to `package.json`:
 ## Acceptance criteria
 - `npm run format:check` passes on a clean checkout.
 - Committing a badly formatted `.ts` file triggers lint-staged and either auto-fixes it or fails the commit.
-- `npm run lint`, `npm run typecheck`, `npm run build` all pass post-formatting.
+- `npm run lint`, `npm run type-check`, `npm run build` all pass post-formatting.
 - No behavioral diff in the formatting commit (build output unchanged).
 
 ## Verification
