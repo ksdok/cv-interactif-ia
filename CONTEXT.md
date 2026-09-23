@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-23 — TEST-001 (infrastructure Vitest + 37 cas migrés) livré
+> Dernière mise à jour : 2026-09-23 — CICD-001 (workflow CI minimal, build devenu secret-free) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré
 
 ---
 
@@ -146,8 +146,9 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 
 **Backlog ingénierie** — la plupart ont une spec dédiée dans `docs/backlog/`
 (`TICKET-ID-…-spec.md`) ; les exceptions sont signalées ci-dessous :
-- ✅ `TEST-001` (infrastructure Vitest + 37 cas de validation migrés) → débloque `CICD-001` (CI minimale)
-- 🟠 `PERF-002` (streaming), `OBS-001` (Sentry), `CICD-001`
+- ✅ `TEST-001` (infrastructure Vitest + 37 cas de validation migrés) → débloque `CICD-001`
+- ✅ `CICD-001` (workflow CI minimal : `type-check` + `lint` + `test` + `build` sur PR et push `main`)
+- 🟠 `PERF-002` (streaming), `OBS-001` (Sentry)
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant
 - ⚪ `PERF-003` (cache API, ancien plan sans spec dédiée), `UX-002` (dark mode, ancien plan),
   `SEC-003` (rate limit persistant — conditionné à un déclencheur, ne pas implémenter sans accord),
@@ -156,6 +157,7 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 ## 9. Pièges connus
 
 - **`lib/rateLimit.ts` est en mémoire** : les compteurs réinitialisent à chaque déploiement — comportement connu, documenté (SEC-003 couvre la migration, reportée).
+- **`next build` est secret-free, ne pas le casser** : `lib/supabase.ts` expose `getSupabase()` (client construit au premier usage) et `lib/rag.ts` utilise `apiKey: … || ''`. Le fail-fast de production SEC-005 est volontairement au **runtime**, pas au niveau module — Next évalue les modules des API routes pendant `Collecting page data`, donc un `throw` au chargement ferait échouer la CI (qui tourne sans aucun secret). Ne pas revenir à un client construit au niveau module.
 - **Gemini cache non confirmé** : OpenAI prefix cache validé (5/5 hits en mono-langue, 6/6 en alternance fr/en — préfixe persona + CV partagé, 2 304 tokens), Gemini 0/5 — ne pas promettre d'économies Gemini sans re-mesurer (`scripts/measure-cache.mjs`).
 - **`data/cv.md` ≈ 2 400 tokens estimés** (9 620 caractères ; préfixe stable persona + CV ≈ 2 640 tokens — `scripts/measure-cv-tokens.mjs`) : rester en CAG en dessous de ~10K tokens ; au-delà, voir `docs/cag-limits.md`.
 - **Ne pas déplacer la consigne de langue du chat** : elle est ajoutée en **fin** de prompt, après le bloc CV. La placer avant le CV donnerait deux préfixes distincts fr/en et diviserait le taux de hit du cache (GEO-08g).

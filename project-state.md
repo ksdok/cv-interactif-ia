@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
+> Dernière mise à jour : 2026-09-23 — CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
 
 ---
 
@@ -16,10 +16,10 @@
 | 🏗️ Architecture | **7/10** | SOLIDE |
 | ⚡ Performance | **4/10** | SOUS-EXPLOITÉ |
 | 📊 Observabilité | **1/10** | INEXISTANTE |
-| 🔄 CI/CD | **0/10** | AUCUN PIPELINE |
+| 🔄 CI/CD | **4/10** | INCOMPLET |
 | 📚 Documentation | **7/10** | BONNE |
 
-**Score global : 4.1/10** — Produit fonctionnel et deployable, mais encore immature sur les fondamentaux d’ingénierie logicielle.
+**Score global : 4.6/10** — Produit fonctionnel et deployable, mais encore immature sur les fondamentaux d’ingénierie logicielle.
 
 ### Points forts
 - Multi-provider IA avec fallback (OpenAI → Gemini)
@@ -31,7 +31,7 @@
 
 ### Points critiques
 - **Couverture de tests embryonnaire** — Vitest installé (TEST-001) avec 37 cas sur `lib/validation.ts` ; `csrf`/`linkify`/`rateLimit` restent à couvrir, pas de seuil de couverture
-- **Aucun pipeline CI/CD** — pas de garde-fou avant déploiement
+- **CI minimale en place** (type-check + lint + test + build sur PR et push `main`) — pas de déploiement automatisé depuis GitHub Actions, pas de couverture de tests publiée
 - **Observabilité inexistante** — logs `console.*` seulement, pas de health check, pas d’alerting
 - **Performance sous-exploitée** — pas de streaming LLM, pas de code splitting sur les composants non critiques
 
@@ -49,10 +49,9 @@
 
 ## En cours
 
-Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, infrastructure de tests TEST-001, specs de délégation rédigées). Reste, par ordre de priorité :
+Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, infrastructure de tests TEST-001, pipeline CI minimal CICD-001, specs de délégation rédigées). Reste, par ordre de priorité :
 
-- pipeline CI minimal (CICD-001 — désormais débloqué par TEST-001)
-- streaming des réponses IA (PERF-002) et monitoring Sentry (OBS-001)
+- monitoring Sentry (OBS-001) et streaming des réponses IA (PERF-002)
 - page Projets GitHub (PROJ-001, spec prête depuis le 2026-09-23)
 - finitions du corpus SEO/GEO (GEO-09, TECH-10, INFRA-11 — voir la synthèse ci-dessous)
 
@@ -253,13 +252,30 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - `GET /api/health` créé — retourne `{ status: 'ok', timestamp }`, sans auth ni rate limit
   - Spec : `docs/backlog/OBS-002-health-check-endpoint-spec.md`
 
-### 🔄 CI/CD — Maturité 0/10 (CRITIQUE)
+### 🔄 CI/CD — Maturité 4/10 (INCOMPLET)
 
-- [ ] **CICD-001 — Aucun pipeline CI** `MEDIUM`
-  - Pas de `.github/workflows/` configuré
-  - Créer un workflow CI minimal : `type-check` + `lint` + `test` (dès que TEST-001 est fait) + `build`
-  - Déploiement via Vercel Git intégration (déjà en place), mais sans vérifications pré-merge
-  - Spec prête : `docs/backlog/CICD-001-minimal-ci-pipeline-spec.md`
+- [x] **CICD-001 — Pipeline CI minimal** `MEDIUM`
+  - `.github/workflows/ci.yml` : déclenché sur `push` vers `main` et sur `pull_request`
+  - Ordre : `npm ci` → `type-check` → `lint` → `test` → `build`, sur **Node 22** (`actions/setup-node`, `cache: npm`)
+  - `timeout-minutes: 15` : un `test` en watch-mode doit échouer en minutes, pas après les 6 h du runner
+  - `permissions: contents: read` ; aucun secret requis — le build est devenu secret-free (voir la note ci-dessous)
+  - Restent hors périmètre : déploiement depuis GitHub Actions, previews, upload de couverture, matrice multi-Node
+
+#### Note — build secret-free (finding CICD-001)
+
+`next build` échouait sans variables d'environnement : `lib/supabase.ts` levait son
+fail-fast **au niveau module** (SEC-005), or Next évalue les modules des API routes
+pendant `Collecting page data`, et `lib/rag.ts` construisait `new OpenAI({apiKey: undefined})`
+(qui lève à la construction). Un build n'a pas besoin d'accéder à la base ni au provider :
+
+- `lib/supabase.ts` expose désormais `getSupabase()` — client construit au premier usage ;
+  le throw de production SEC-005 est conservé, simplement déplacé au runtime.
+- `lib/rag.ts` utilise `apiKey: process.env.OPENAI_API_KEY || ''` (même garde que
+  `lib/modelProviders.ts`, BUG-008).
+
+Conséquence : la CI tourne sans aucun secret, et le fail-fast de production reste effectif
+au premier appel réel. Le détail (et le compromis assumé vis-à-vis de SEC-005 §3) est dans
+le corps du commit.
 
 ### 🆕 Feature — Projets GitHub
 
@@ -332,6 +348,7 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
 - [x] **GEO-08g** — chat Nicky multilingue (consigne de langue en fin de prompt : le préfixe persona + CV reste partagé fr/en, cache mesuré 6/6 hits) + analyse job-match localisée ; fidélité EN vérifiée en revue manuelle ; fallback `fr` sans 400 (`0d7bf66`, `c010db2`)
 
 ### Sécurité & qualité
+- [x] **CICD-001 — Pipeline CI minimal** — `.github/workflows/ci.yml` (Node 22, `npm ci` → `type-check` → `lint` → `test` → `build`, `timeout-minutes: 15`, `permissions: contents: read`) ; pour rendre la CI sans secret, `lib/supabase.ts` expose un client paresseux `getSupabase()` (fail-fast SEC-005 conservé au runtime) et `lib/rag.ts` tolère une clé OpenAI absente (`|| ''`)
 - [x] **TEST-001 — Infrastructure de tests automatisés** — Vitest 5 + `vite-tsconfig-paths`, scripts `test` (`vitest run`, non-watch), `test:watch`, `type-check` (renommage de `typecheck`), cible Node `>=22.12.0` ; 37 cas de validation migrés vers `lib/__tests__/validation.test.ts` (24 assertions d'erreur désormais bloquantes) + couverture d'`assertValidChatMessages()` ; `lib/test-validation.ts` (code mort) supprimé et docs sécurité corrigées (« 40+ cas / all passing » → 37 cas réellement exécutés)
 - [x] **Validation des entrées** — `lib/validation.ts`, protection injection (`7cfacc9`)
 - [x] **Supabase server-only** — clé service role inaccessible côté client (`7cfacc9`)

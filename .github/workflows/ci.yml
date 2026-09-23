@@ -1,0 +1,51 @@
+# CICD-001 — garde-fou CI minimal.
+#
+# Contrats hérités de TEST-001 (ne pas les réinventer ici) :
+# - `npm run test` = `vitest run` (non-watch). Un script `vitest` sans `run`
+#   ferait pendre le job jusqu'au timeout du runner (6 h) — d'où
+#   `timeout-minutes` ci-dessous : un blocage doit se voir en minutes.
+# - `npm run type-check` (renommé depuis `typecheck` par TEST-001).
+# - Node 22 : `engines.node` de Vitest 5 (`^22.12.0 || ^24.0.0 || >=26.0.0`)
+#   est plus strict que celui de Next 16 ; sur un runner Node 20, `npm ci`
+#   échoue à l'installation sans message utile.
+#
+# Le build est volontairement exécuté sans aucun secret : les chemins de code
+# qui consomment des clés (Supabase, OpenAI) sont chargés paresseusement et
+# n'exigent donc rien au build (voir `lib/supabase.ts` et `lib/rag.ts`).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: type-check · lint · test · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test
+
+      - name: Build
+        run: npm run build

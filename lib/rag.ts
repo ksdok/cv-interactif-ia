@@ -1,8 +1,12 @@
-import { supabase } from './supabase'
+import { getSupabase } from './supabase'
 import OpenAI from 'openai'
 
+// `|| ''` : même garde que `lib/modelProviders.ts` (BUG-008). Le SDK OpenAI
+// lève à la construction si `apiKey` est `undefined`, ce qui faisait échouer
+// `next build` sans clé provider ; une chaîne vide reporte l'échec à l'appel
+// réel, où le `try/catch` de `searchDocuments` dégrade proprement.
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || '',
 })
 
 /*
@@ -42,7 +46,7 @@ export async function searchDocuments(
 
     // Call the Supabase RPC 'match_documents' which performs the vector similarity search.
     // Note: the stored procedure determines how match_threshold / filtering are applied.
-    const { data, error } = await supabase.rpc('match_documents', {
+    const { data, error } = await getSupabase().rpc('match_documents', {
       query_embedding: queryEmbedding,
       match_count: matchCount,
       filter: filter,

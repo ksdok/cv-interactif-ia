@@ -36,6 +36,7 @@ Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.ve
 | Vector DB | Supabase (pgvector) |
 | i18n | `app/[lang]/` routing + in-house dictionaries `lib/i18n/` (no next-intl), locale negotiation in `proxy.ts` |
 | Testing | Vitest 5 (+ `vite-tsconfig-paths`, Node environment) |
+| CI | GitHub Actions — `type-check` · `lint` · `test` · `build` on PR + push `main` (`.github/workflows/ci.yml`) |
 | Deployment | Vercel |
 
 ---
@@ -154,6 +155,8 @@ cv-interactif-ia/
 ├── docs/
 │   ├── cag-limits.md              # CAG/RAG size thresholds and decision rules
 │   └── features/seo-geo/          # Ticketed SEO/GEO corpus (INDEX.md + per-ticket specs)
+├── vitest.config.mts              # Vitest config (Node env, @/* alias via vite-tsconfig-paths)
+├── .github/workflows/ci.yml       # CI: npm ci → type-check → lint → test → build (CICD-001)
 ├── proxy.ts                       # Proxy (runtime Node.js — ex-middleware, Next 16):
 │                                  # 301 (GET) / 308 (other methods) vercel.app→canonical,
 │                                  # locale negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
@@ -358,6 +361,19 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
 4. Deploy — automatic on every push to `main`
+
+`npm run build` (and therefore the CI build step) requires **no** environment variable:
+the Supabase client is created on first use (`getSupabase()` in `lib/supabase.ts`, see
+[CICD-001](docs/backlog/CICD-001-minimal-ci-pipeline-spec.md)) and the OpenAI client
+tolerates a missing key until it is actually called. Runtime still fails fast in
+production when `SUPABASE_SERVICE_ROLE_KEY` is missing (SEC-005).
+
+### Continuous Integration
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every pull request and on
+every push to `main`: `npm ci` → `type-check` → `lint` → `test` → `build`, on Node 22,
+with a 15-minute job timeout. Vercel still handles deployment — GitHub Actions does not
+deploy.
 
 ---
 
