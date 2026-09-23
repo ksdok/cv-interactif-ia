@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-23 — CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 (durcissement du garde-fou hors-sujet) créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) — décision enregistrée : rester sur `gpt-5.4-mini`
+> Dernière mise à jour : 2026-09-23 — CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) et décision prise : **bascule vers `gpt-6-luna`**, gatée par le durcissement du refus hors-sujet
 
 ---
 
@@ -13,7 +13,7 @@ Un recruteur peut discuter avec **Nicky**, un assistant IA dont les réponses so
 dans les données réelles du CV (CAG par défaut, RAG Supabase en fallback configurable).
 
 - **Stack** : Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind CSS 4 · Supabase (pgvector) · Vercel
-- **IA** : OpenAI GPT-5.4 mini (actif) + Gemini 3.5 Flash (fallback) — commutateur dans `lib/modelConfig.ts`
+- **IA** : OpenAI GPT-5.4 mini (**actif aujourd'hui**) + Gemini 3.5 Flash (fallback) — commutateur dans `lib/modelConfig.ts`. Bascule vers **`gpt-6-luna`** décidée (≈ ×11.6 moins cher par appel), **gatée** par le durcissement du refus hors-sujet et par `reasoning_effort: 'none'` épinglé (`MODEL-004`)
 - **Chat** : `/api/chat` — contexte CAG depuis `data/cv.md` (défaut) ou RAG Supabase
 - **Job Matcher** : `/api/job-match` — reste sur RAG/Supabase quel que soit `CV_CONTEXT_SOURCE`
 - **Package manager** : **npm** (pas pnpm/yarn)
@@ -175,7 +175,7 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 - ✅ `CICD-001` (workflow CI minimal : `type-check` + `lint` + `test` + `build` sur PR et push `main`)
 - 🟠 `CICD-002` (durcissement CI : actions v4 → v7, `concurrency`, image de runner épinglée) — signaux du premier run réel
 - 🟠 `PERF-002` (streaming), `OBS-001` (Sentry)
-- 🟠 `MODEL-004` (durcissement du garde-fou hors-sujet du chat : persona, jeu hors-sujet élargi, détecteur réparé) — **décision enregistrée : rester sur `gpt-5.4-mini`**, le classement public ne tranche pas le critère produit (banc du 2026-09-23)
+- 🟠 `MODEL-004` (**bascule vers `gpt-6-luna`** + durcissement du garde-fou hors-sujet : persona, jeu élargi, détecteur réparé) — le gain de coût est retenu, mais la bascule est **gatée** : si le jeu hors-sujet ne passe pas à 100 % sur Luna, pré-filtre déterministe ou rollback vers `gpt-5.4-mini` (banc du 2026-09-23)
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant
 - ⚪ `QUAL-004` (gitlink orphelin `.claude/worktrees/*` + `.claude/**` suivis malgré `.gitignore` — cause du warning `git exit 128` en CI), `TEST-002` (`vite-tsconfig-paths` → `resolve.tsconfigPaths` natif, supprime `tsconfck` non maintenu), `PERF-003` (cache API, ancien plan sans spec dédiée), `UX-002` (dark mode, ancien plan),
   `SEC-003` (rate limit persistant — conditionné à un déclencheur, ne pas implémenter sans accord),
@@ -190,7 +190,7 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 - **`data/cv.md` ≈ 2 400 tokens estimés** (9 620 caractères ; préfixe stable persona + CV ≈ 2 640 tokens — `scripts/measure-cv-tokens.mjs`) : rester en CAG en dessous de ~10K tokens ; au-delà, voir `docs/cag-limits.md`.
 - **Ne pas déplacer la consigne de langue du chat** : elle est ajoutée en **fin** de prompt, après le bloc CV. La placer avant le CV donnerait deux préfixes distincts fr/en et diviserait le taux de hit du cache (GEO-08g).
 - **`npm run type-check` peut échouer sur `.next/`** : le `include` de `tsconfig.json` prend `**/*.ts` sans exclure `.next`, donc une copie parasite (ex. `.next/types/routes.d 2.ts`) déclenche un `TS2300 Duplicate identifier`. Ce sont des copies de conflit de synchro dossier (iCloud/Drive) qui touchent **tout** `.next`, pas seulement `types/` : `find .next -name '* [0-9].*' -delete` puis relancer. Ce n'est jamais le code en cours d'édition.
-- **`reasoning_effort` est aujourd'hui hérité du défaut provider** (`lib/modelProviders.ts` ne l'envoie pas) : `none` pour `gpt-5.4-mini`, mais `medium` pour les familles GPT-5.6/6 — mesuré au banc du 2026-09-23 : **+74 % de TTFT** et +34 % de coût, et c'est ce bras qui racontait des blagues. Ne pas changer de modèle sur la foi d'un classement : le garde-fou hors-sujet est le critère qui a départagé (MODEL-004).
+- **`reasoning_effort` est aujourd'hui hérité du défaut provider** (`lib/modelProviders.ts` ne l'envoie pas) : `none` pour `gpt-5.4-mini`, mais `medium` pour les familles GPT-5.6/6 — mesuré au banc du 2026-09-23 : **+74 % de TTFT** et +34 % de coût, et c'est ce bras qui racontait des blagues. C'est **le** piège de la bascule vers `gpt-6-luna` (MODEL-004) : le défaut passe de `none` à `medium` sans qu'aucune ligne de code ne change — l'épingler explicitement fait partie du ticket.
 - **Rapports runtime** (`scripts/results/`) : gitignorés intentionnellement.
 - **`public/llms-full.txt` est généré au build** (prebuild) — ne jamais l'éditer à la main.
 - **Latences mesurées** : OpenAI ≈ 1,4s, Gemini ≈ 8,0s — toute feature qui augmente la latence perçue du chat doit passer par PERF-002 (streaming), pas par un contournement.
