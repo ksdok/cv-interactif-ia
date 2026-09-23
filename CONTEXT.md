@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-23 — CICD-001 (workflow CI minimal, build devenu secret-free) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré
+> Dernière mise à jour : 2026-09-23 — CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002)
 
 ---
 
@@ -148,9 +148,10 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 (`TICKET-ID-…-spec.md`) ; les exceptions sont signalées ci-dessous :
 - ✅ `TEST-001` (infrastructure Vitest + 37 cas de validation migrés) → débloque `CICD-001`
 - ✅ `CICD-001` (workflow CI minimal : `type-check` + `lint` + `test` + `build` sur PR et push `main`)
+- 🟠 `CICD-002` (durcissement CI : actions v4 → v7, `concurrency`, image de runner épinglée) — signaux du premier run réel
 - 🟠 `PERF-002` (streaming), `OBS-001` (Sentry)
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant
-- ⚪ `PERF-003` (cache API, ancien plan sans spec dédiée), `UX-002` (dark mode, ancien plan),
+- ⚪ `QUAL-004` (gitlink orphelin `.claude/worktrees/*` + `.claude/**` suivis malgré `.gitignore` — cause du warning `git exit 128` en CI), `TEST-002` (`vite-tsconfig-paths` → `resolve.tsconfigPaths` natif, supprime `tsconfck` non maintenu), `PERF-003` (cache API, ancien plan sans spec dédiée), `UX-002` (dark mode, ancien plan),
   `SEC-003` (rate limit persistant — conditionné à un déclencheur, ne pas implémenter sans accord),
   `SEO-001` (probablement absorbé par SEO-03 ✅ — à confirmer avant de travailler dessus)
 

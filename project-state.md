@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
+> Dernière mise à jour : 2026-09-23 — 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5)
 
 ---
 
@@ -76,6 +76,9 @@ Les tickets suivants disposent désormais d’une spec dédiée dans `docs/backl
 - `QUAL-003` → `docs/backlog/QUAL-003-eslint-strict-rules-spec.md`
 - `SEC-003` → `docs/backlog/SEC-003-persistent-rate-limiting-spec.md`
 - `PROJ-001` → `docs/backlog/PROJ-001-projets-github-spec.md`
+- `CICD-002` → `docs/backlog/CICD-002-ci-workflow-hardening-spec.md`
+- `QUAL-004` → `docs/backlog/QUAL-004-tracked-claude-artifacts-spec.md`
+- `TEST-002` → `docs/backlog/TEST-002-native-tsconfig-paths-spec.md`
 
 Ces fichiers sont prêts à être donnés à un autre LLM comme brief d’implémentation. Tout ticket ouvert de la backlog dispose désormais d’une spec dédiée.
 
@@ -164,6 +167,12 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Détail : `docs/backlog/TEST-001-automated-test-infrastructure-spec.md`
   - Restent ouverts (P1/P2) : tests unitaires `lib/csrf.ts`, `lib/linkify.ts`, `lib/rateLimit.ts` ; tests d'intégration API avec MSW ; e2e Playwright
 
+- [ ] **TEST-002 — Retirer `vite-tsconfig-paths` au profit de `resolve.tsconfigPaths` natif** `LOW`
+  - Chaque `npm run test` émet un warning « plugin detected » (Vite résout désormais nativement les chemins du tsconfig)
+  - `npm ci` émet `npm warn deprecated tsconfck@3.1.6: unmaintained`, atteignable uniquement via `vite-tsconfig-paths`
+  - Suppléé TEST-001 §1/§3 sur le mécanisme de résolution d'alias uniquement ; l'import `@/*` doit rester comme preuve
+  - Spec : `docs/backlog/TEST-002-native-tsconfig-paths-spec.md`
+
 ### 📐 Qualité de code
 
 - [ ] **QUAL-001 — Prettier + hooks pre-commit manquants** `LOW`
@@ -184,6 +193,12 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Ajouter des règles : `no-console`, `prefer-const`, `no-unused-vars`
   - Envisager `eslint-plugin-security` pour les patterns dangereux
   - Spec : `docs/backlog/QUAL-003-eslint-strict-rules-spec.md` — dépend de QUAL-002
+
+- [ ] **QUAL-004 — Artefacts `.claude/` suivis par git + gitlink orphelin** `LOW`
+  - `.gitignore:47` déclare `.claude/` ignoré, mais des fichiers `.claude/**` sont **suivis** (une règle d'ignore ne désuit pas)
+  - `.claude/worktrees/crazy-lederberg` est committé comme **gitlink** (mode d'index `160000`) alors qu'aucun `.gitmodules` n'existe
+  - Conséquence : `fatal: No url found for submodule path` + `The process '/usr/bin/git' failed with exit code 128` dans le post-step de `actions/checkout` à chaque run CI
+  - Spec : `docs/backlog/QUAL-004-tracked-claude-artifacts-spec.md`
 
 ### 🔒 Sécurité
 
@@ -277,6 +292,13 @@ pendant `Collecting page data`, et `lib/rag.ts` construisait `new OpenAI({apiKey
 Conséquence : la CI tourne sans aucun secret, et le fail-fast de production reste effectif
 au premier appel réel. Le détail (et le compromis assumé vis-à-vis de SEC-005 §3) est dans
 le corps du commit.
+
+- [ ] **CICD-002 — Durcissement du workflow CI** `MEDIUM`
+  - Signaux du premier run réel (`35862478119`) : `Node.js 20 is deprecated` — `actions/checkout@v4` et `actions/setup-node@v4` ciblent Node 20 et sont forcés sur Node 24
+  - `ubuntu-latest` migrera vers Ubuntu 26 à partir du **2026-10-19** (non-déterminisme : l'image change sans commit)
+  - `concurrency` absent : les runs supplantés ne sont pas annulés (minutes de runner brûlées)
+  - Cibles vérifiées : `actions/checkout` dernier tag `v7.0.1`, `actions/setup-node` `v7.0.0`, les deux en `runs.using: node24`
+  - Spec : `docs/backlog/CICD-002-ci-workflow-hardening-spec.md`
 
 ### 🆕 Feature — Projets GitHub
 
