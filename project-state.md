@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-19 — rédaction des specs manquantes (PERF-002, OBS-001, QUAL-001/002/003, SEC-003)
+> Dernière mise à jour : 2026-09-23 — UX-003 (header navigable) livré ; correctifs post-review c150986
 
 ---
 
@@ -262,6 +262,13 @@ _Tous les tickets MODEL ont été traités. Voir la section "Terminé" ci-dessou
   - Spec prête : `docs/backlog/CICD-001-minimal-ci-pipeline-spec.md`
 
 ### 🎨 UI / UX
+
+- [x] **UX-003 — Header navigable : lien CV + logo cliquable** `LOW`
+  - Lien « CV » dans le sticky header vers la page CV de la locale courante (+ lien interne site-wide vers `/cv`, gain SEO-03/GEO-08h)
+  - Logo (nom + tagline) cliquable vers la home de la locale courante ; aria-label composé contenant le libellé visible (WCAG 2.5.3 Label in Name)
+  - Responsive vérifié par mesures CDP (Chrome headless) : header 80 px de 320 à 520 px (tagline masquée sous `sm`), 99 px ≥ 640 px, zéro débordement 320-1280 px
+  - Wording dans les dictionnaires FR/EN (`header.cvLink`, `cvLinkAria`, `homeLinkAria`)
+  - Spec : `docs/features/seo-geo/GEO-08f-switcher-langue-header.md` (itération 3, 2026-09-23) — commits `c150986`, `411db33`
 
 - [ ] **UX-002 — Dark mode natif** `LOW`
   - Configurer Tailwind pour `prefers-color-scheme: dark`

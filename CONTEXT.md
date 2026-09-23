@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-19
+> Dernière mise à jour : 2026-09-23
 
 ---
 
@@ -33,7 +33,7 @@ Ne modifie jamais `project-state.md` en dehors de : cochage du ticket, ajout de 
 ```bash
 npm run dev        # http://localhost:3000 — / redirige (307) vers /fr ou /en
 npm run lint       # eslint — doit passer avant tout commit
-npm run type-check # tsc --noEmit
+npm run typecheck  # tsc --noEmit — le nom documenté précédemment (« type-check ») était faux : le script s'appelle encore `typecheck` jusqu'au renommage prévu par TEST-001
 npm run build      # next build (génère aussi public/llms-full.txt via prebuild)
 ```
 
@@ -42,7 +42,7 @@ clés Supabase ; `CSP_REPORT_ONLY` est **optionnelle** (déploie la CSP en repor
 Secrets **server-only** : ne jamais exposer côté client.
 
 **Aucun test automatisé n'existe encore.** `npm run test` (Vitest) arrive avec `TEST-001` ;
-d'ici là, `npm run lint` + `npm run type-check` ne prouvent **rien** sur le comportement — il
+d'ici là, `npm run lint` + `npm run typecheck` ne prouvent **rien** sur le comportement — il
 faut vérifier à la main les points de la section « Verification » de la spec. Deux transitions à
 connaître : le script `typecheck` devient `type-check` (`TEST-001`), et la cible Node passe à
 **≥ 22.12** (les `engines` de Vitest 5 sont plus stricts que ceux de Next 16 : un runner Node 20
@@ -115,7 +115,7 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 2. Respecte le périmètre (In scope / Out of scope) — ne saute pas sur les tickets voisins.
 3. Les specs contiennent des **dépendances d'ordre** (ex. QUAL-002 avant QUAL-003,
    TEST-001 avant CICD-001). Vérifie dans `project-state.md` que les dépendances sont livrées.
-4. Après implémentation : `npm run lint`, `npm run type-check`, `npm run build` + les
+4. Après implémentation : `npm run lint`, `npm run typecheck`, `npm run build` + les
    vérifications spécifiques de la section « Verification » de la spec.
 5. Coche le ticket dans `project-state.md` uniquement si les critères d'acceptation
    (« Acceptance criteria ») sont tous remplis.
