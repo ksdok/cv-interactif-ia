@@ -28,23 +28,35 @@ export default function Header({ dictionary, lang }: HeaderProps) {
   // Retire le préfixe de locale courant : '/fr' → '', '/fr/cv' → '/cv'.
   const rest = pathname.replace(new RegExp(`^/${lang}`), '') || ''
   const switcherAria = { fr: dictionary.header.switcherAriaFr, en: dictionary.header.switcherAriaEn }
+  // M1 (review c150986, WCAG 2.5.3 Label in Name) : le nom accessible du lien
+  // logo DOIT contenir le libellé visible (« Kim-san DOK ») — on compose donc
+  // name + homeLinkAria au lieu de remplacer le texte visible par l'aria-label.
+  const homeAria = `${dictionary.header.name} — ${dictionary.header.homeLinkAria}`
 
   return (
     <nav className="sticky top-0 w-full z-50 bg-surface/80 backdrop-blur-xl">
-      <div className="flex justify-between items-center w-full px-8 py-6 max-w-7xl mx-auto">
+      {/* B1 (review c150986) : gap resserré sous sm — le cluster CV|FR/EN
+          consommait ~60 px en permanence et faisait passer la tagline sur 2
+          lignes dès 375 px. */}
+      <div className="flex justify-between items-center w-full px-4 sm:px-8 py-6 max-w-7xl mx-auto">
         {/* Logo — lien vers la home de la locale courante (l'ensemble
-            name + tagline est cliquable, tree d'accessibilité porté par
-            l'aria-label du lien) */}
+            name + tagline est cliquable ; nom accessible composé ci-dessus,
+            conforme WCAG 2.5.3) */}
         <a
           href={`/${lang}`}
-          aria-label={dictionary.header.homeLinkAria}
+          aria-label={homeAria}
           className="flex flex-col"
         >
           <span className="text-2xl font-semibold tracking-[-0.02em] text-on-surface">{dictionary.header.name}</span>
-          <span className="text-[10px] uppercase tracking-widest text-secondary mt-1">{dictionary.header.tagline}</span>
+          {/* B1 : tagline masquée sous sm — non essentielle, rétablissait un
+              header de 114 px (2 lignes) sur les mobiles ≤ 414 px. */}
+          <span className="hidden sm:block text-[10px] uppercase tracking-widest text-secondary mt-1">{dictionary.header.tagline}</span>
         </a>
-        <div className="flex items-center gap-6 text-[0.75rem] tracking-wider uppercase">
-          {/* Lien CV — page locale courante (GEO-08h), highlight si déjà sur /cv */}
+        <div className="flex items-center gap-3 sm:gap-6 text-[0.75rem] tracking-wider uppercase">
+          {/* Lien CV — page locale courante (GEO-08h). N5 (review c150986) :
+              invariant = Next 16 ne sert pas de trailing slash (redirige), donc
+              l'égalité stricte rest === '/cv' est correcte ; si une sous-page
+              /cv/<x> apparaissait, étendre le test. */}
           <a
             href={`/${lang}/cv`}
             aria-label={dictionary.header.cvLinkAria}
@@ -59,27 +71,32 @@ export default function Header({ dictionary, lang }: HeaderProps) {
           </a>
           {/* Séparateur CV | switcher — décoratif, exclu du tree d'accessibilité */}
           <span aria-hidden="true" className="h-4 w-px bg-surface-variant" />
-          {/* GEO-08f — switcher FR / EN, highlight sur la locale active */}
+          {/* GEO-08f — switcher FR / EN, highlight sur la locale active.
+              M2 (review c150986) : sur /fr/cv, ce lien FR et le lien CV portent
+              tous deux aria-current="page" vers le même href — assumé : le
+              switcher désigne la page courante dans l'ensemble des locales
+              (convention GEO-08f validée itération 2), le lien CV désigne la
+              page courante du site. */}
           <div className="flex items-center gap-2">
-          {LANGUAGES.map((l, i) => (
-            <Fragment key={l}>
-              {i > 0 && <span aria-hidden="true" className="text-surface-variant">{'/'}</span>}
-              <a
-                href={`/${l}${rest}`}
-                hrefLang={l}
-                lang={l}
-                aria-label={switcherAria[l]}
-                aria-current={l === lang ? 'page' : undefined}
-                className={
-                  l === lang
-                    ? 'font-semibold text-on-surface'
-                    : 'text-secondary hover:text-on-surface transition-colors'
-                }
-              >
-                {l.toUpperCase()}
-              </a>
-            </Fragment>
-          ))}
+            {LANGUAGES.map((l, i) => (
+              <Fragment key={l}>
+                {i > 0 && <span aria-hidden="true" className="text-surface-variant">{'/'}</span>}
+                <a
+                  href={`/${l}${rest}`}
+                  hrefLang={l}
+                  lang={l}
+                  aria-label={switcherAria[l]}
+                  aria-current={l === lang ? 'page' : undefined}
+                  className={
+                    l === lang
+                      ? 'font-semibold text-on-surface'
+                      : 'text-secondary hover:text-on-surface transition-colors'
+                  }
+                >
+                  {l.toUpperCase()}
+                </a>
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>

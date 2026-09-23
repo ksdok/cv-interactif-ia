@@ -76,6 +76,9 @@ const fr = {
     switcherAriaFr: 'Version française',
     switcherAriaEn: 'Switch to English',
     // Lien direct vers la page CV de la locale courante (/fr/cv, GEO-08h).
+    // N4 (review c150986) : valeur identique à footer.cvLink — dupliquée
+    // volontairement (clé par section, pas de couplage header→footer) ; si
+    // l'un des deux libellés change, vérifier l'autre.
     cvLink: 'CV',
     cvLinkAria: 'Voir le CV',
     // Logo cliquable → home de la locale courante.

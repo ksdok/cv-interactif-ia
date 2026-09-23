@@ -73,6 +73,9 @@ const en: Dictionary = {
     switcherAriaFr: 'Passer en français',
     switcherAriaEn: 'English version',
     // Direct link to the CV page of the current locale (/en/cv, GEO-08h).
+    // N4 (review c150986): value mirrors footer.cvLink — intentionally
+    // duplicated (per-section key, no header→footer coupling); if one label
+    // changes, check the other.
     cvLink: 'CV',
     cvLinkAria: 'View CV',
     // Clickable logo → home of the current locale.
