@@ -18,8 +18,9 @@ Trois raisons, dans l'ordre du poids :
 
 1. **Le corpus est trop petit pour justifier du retrieval.** Le CV complet
    (`data/cv.md`) faisait ~1 848 tokens à la bascule, ~2 405 aujourd'hui —
-   soit 1-2 % des fenêtres de contexte des modèles utilisés (GPT-5.4 mini
-   ~128K, Gemini 3.5 Flash ~1M). Découper en chunks puis en retrouver 10 par
+   soit 1-2 % des fenêtres de contexte des modèles utilisés (GPT-6 Luna
+   ~1,05 M, Gemini 3.5 Flash ~1 M ; le modèle OpenAI était GPT-5.4 mini
+   ~128 K avant la bascule MODEL-004 du 2026-09-25). Découper en chunks puis en retrouver 10 par
    recherche vectorielle est une machine à résoudre un problème qui n'existe pas.
 2. **Le RAG coûtait de la latence sans contrepartie.** Chaque requête chat
    déclenchait un aller-retour Supabase (embedding + RPC `match_documents`)
@@ -60,8 +61,8 @@ Trois raisons, dans l'ordre du poids :
 ## Évolutions post-livraison (à connaître)
 
 - **GEO-08g (2026-09-23)** : la consigne de langue du chat est ajoutée **en fin** de prompt, après le bloc CV, pour que le préfixe persona + CV reste byte-identique entre fr/en — sinon le cache se scinde en deux entrées et le hit rate est divisé. Ne pas déplacer cette consigne (`c010db2`, `0d7bf66`).
-- **Mesures actuelles** (re-mesuré le 2026-09-23, `scripts/measure-cv-tokens.mjs`) : CV 9 620 chars ≈ **2 405 tokens**, préfixe stable ≈ **2 643 tokens**, décision `stay-on-cag`. Le baseline chiffré de `docs/cag-limits.md` a été rafraîchi sur ces valeurs le même jour (l'ancien baseline 2026-06-22 y est conservé en note d'historique).
-- **Banc de modèles** (`cfb1b8e`, 2026-09-23) : A/B de modèles sur le prompt CAG réel, à l'origine du choix GPT-5.4 mini actif.
+- **Mesures actuelles** (re-mesuré le 2026-09-25, `scripts/measure-cv-tokens.mjs`) : CV 9 620 chars ≈ **2 405 tokens**, préfixe stable ≈ **2 869 tokens** (2 643 avant le durcissement de la persona par MODEL-004), décision `stay-on-cag`. Le baseline chiffré de `docs/cag-limits.md` a été rafraîchi sur ces valeurs le même jour (l'ancien baseline 2026-06-22 y est conservé en note d'historique).
+- **Banc de modèles** (`cfb1b8e`, 2026-09-23) : A/B de modèles sur le prompt CAG réel, à l'origine du choix GPT-5.4 mini alors actif. **Remplacé depuis** : MODEL-004 (2026-09-25) a basculé le modèle OpenAI sur **`gpt-6-luna`** (≈ ×11,6 moins cher par appel), après durcissement du garde-fou hors-sujet et vérification au banc — la référence GPT-5.4 mini de ce document décrit le modèle de l'époque, pas le modèle livré aujourd'hui.
 
 ## Limites et règles de décision
 

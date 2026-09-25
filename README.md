@@ -30,7 +30,8 @@ Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.ve
 | Framework | Next.js 16 (App Router, Turbopack) |
 | Language | TypeScript |
 | Styling | Tailwind CSS 4 |
-| AI Providers | OpenAI GPT-5.4 mini, Google Gemini 3.5 Flash |
+| AI Providers | OpenAI GPT-6 Luna (fallback: Google Gemini 3.5 Flash) |
+| Model routing | `lib/modelConfig.ts` — `MODEL_CONFIG.openai.model`, `reasoning_effort` pinned to `none` in `lib/modelProviders.ts` (MODEL-004) |
 | Chat context | CAG from `data/cv.md` by default; RAG fallback via Supabase |
 | Embeddings | OpenAI `text-embedding-3-small` for RAG/job-match |
 | Vector DB | Supabase (pgvector) |
@@ -88,6 +89,11 @@ Edit `lib/modelConfig.ts` — this is the only file you need to touch for provid
 export const CV_CONTEXT_SOURCE: CVContextSource = 'cag'  // 'cag' | 'rag'
 export const ACTIVE_PROVIDER: Provider = 'openai'         // 'openai' | 'gemini'
 export const FALLBACK_ORDER: Provider[] = ['gemini']
+
+export const MODEL_CONFIG = {
+  openai: { model: 'gpt-6-luna', maxTokens: 1024 },   // chat **and** job-match
+  gemini: { model: 'gemini-3.5-flash', maxTokens: 1024 },
+}
 ```
 
 The fallback chain is applied automatically — if the active provider fails, the next in the list is tried.
@@ -97,6 +103,28 @@ The fallback chain is applied automatically — if the active provider fails, th
 - `rag`: retrieves the top CV snippets from Supabase using embeddings.
 
 `/api/job-match` continues to use RAG/Supabase retrieval.
+
+### Model and reasoning effort (MODEL-004)
+
+`MODEL_CONFIG` is indexed **by provider, not by endpoint**: changing
+`MODEL_CONFIG.openai.model` switches `/api/chat` **and** `/api/job-match` at once.
+`reasoning_effort` is **pinned to `'none'`** in `lib/modelProviders.ts` for both
+endpoints: it must never be inherited from the provider default, which is `none`
+for `gpt-5.4-mini` but `medium` for the GPT-6 family (+74% TTFT, +34% cost, and the
+default-effort arm was the one that leaked off-topic jokes).
+
+The current model was picked with the in-repo A/B bench, not a public ranking:
+
+```bash
+node scripts/bench-models.mjs --models gpt-5.4-mini,gpt-6-luna --effort none --lang both
+node scripts/smoke-job-match.mjs          # job-match JSON conformance, fr + en
+```
+
+The switch is gated by the off-topic guardrail (`lib/guardrail.mjs` + a
+broadened FR/EN off-topic suite in the bench). **Rollback = one line**: set
+`MODEL_CONFIG.openai.model` back to `'gpt-5.4-mini'` and redeploy; the bench
+numbers in `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md` are the
+comparison baseline either way.
 
 ---
 
@@ -149,6 +177,7 @@ cv-interactif-ia/
 │   ├── linkify.ts                 # URL parser utility
 │   ├── types.ts                   # Shared type definitions (cross-modules)
 │   ├── systemPrompt.mjs           # Shared Nicky system prompt (server + validation scripts)
+│   ├── guardrail.mjs              # Off-topic pre-screen (refusal markers, MODEL-004 §5)
 │   └── __tests__/validation.test.ts # Validation tests (Vitest, 37 cases)
 ├── data/
 │   └── cv.md                      # Source CV used by CAG mode (FR — chatbot source)
@@ -161,6 +190,9 @@ cv-interactif-ia/
 │                                  # 301 (GET) / 308 (other methods) vercel.app→canonical,
 │                                  # locale negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
 ├── scripts/
+│   ├── bench-models.mjs           # Model A/B bench — TTFT, cost, fidelity, off-topic gate (MODEL-004)
+│   ├── smoke-job-match.mjs        # /api/job-match JSON smoke test, fr + en (MODEL-004)
+│   ├── chat-response.mjs          # Decodes the /api/chat NDJSON body (shared by the scripts below)
 │   ├── validate-cag.mjs           # CAG validation questionnaire
 │   ├── measure-cache.mjs          # Provider cache hit measurement
 │   ├── measure-cv-tokens.mjs      # CV token estimate report

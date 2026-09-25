@@ -10,7 +10,7 @@ Measured with:
 node scripts/measure-cv-tokens.mjs
 ```
 
-Current `data/cv.md` size (measured 2026-09-23):
+Current `data/cv.md` size (measured 2026-09-25):
 
 | Metric | Value |
 |---|---:|
@@ -18,29 +18,34 @@ Current `data/cv.md` size (measured 2026-09-23):
 | Words | 1,353 |
 | Lines | 108 |
 | Estimated CV tokens | ~2,405 |
-| Estimated stable prefix tokens (system prompt + CV) | ~2,643 |
+| Estimated stable prefix tokens (system prompt + CV) | ~2,869 |
 
 Token estimate uses the conservative `chars / 4` approximation.
 
 > History: the baseline at the CAG switch (2026-06-22) was 7,391 chars /
-> ~1,848 CV tokens / ~2,069 prefix tokens. The CV grew since; re-measure
-> whenever `data/cv.md` changes.
+> ~1,848 CV tokens / ~2,069 prefix tokens. The prefix grew to ~2,643 tokens by
+> 2026-09-23, then to ~2,869 on 2026-09-25 with the MODEL-004 guardrail hardening
+> (the CV itself is unchanged at 9,620 chars). Re-measure
+> whenever `data/cv.md` or the persona changes.
 
 ## Context windows
 
 | Provider | Model | Context window | Current CV impact |
 |---|---|---:|---:|
 | Gemini | Gemini 3.5 Flash | ~1M tokens | negligible |
-| OpenAI | GPT-5.4 mini | ~128K tokens | negligible |
+| OpenAI | GPT-6 Luna | ~1.05M tokens (max input 922K) | negligible |
 
 The current CV is far below both model context windows.
+
+> History: this table listed `GPT-5.4 mini` (~128K tokens) until the MODEL-004
+> switch to `gpt-6-luna` (2026-09-25).
 
 ## Prompt caching thresholds
 
 | Provider | Cache behavior | Threshold | Current stable prefix |
 |---|---|---:|---:|
-| OpenAI | Automatic prefix caching | >= 1,024 tokens | eligible (~2,643) |
-| Gemini | Provider-side context/cache metadata | >= 2,048 tokens | eligible by estimate (~2,643) |
+| OpenAI | Automatic prefix caching | >= 1,024 tokens | eligible (~2,869) |
+| Gemini | Provider-side context/cache metadata | >= 2,048 tokens | eligible by estimate (~2,869) |
 
 Runtime validation on the 2026-06-22 baseline (CV ~1,848 tokens) showed Gemini
 `promptTokenCount` around 1,951 tokens with no `cachedContentTokenCount` over 5
@@ -48,8 +53,9 @@ repeated runs. The prefix has since grown above the ~2,048 threshold
 (~2,643 estimated), so Gemini caching may now engage — still **unconfirmed**;
 re-run `node scripts/measure-cache.mjs` before promising Gemini savings. OpenAI
 remains confirmed: 5/5 hits, 1,280 cached tokens (2026-06-22, mono-language),
-then 6/6 hits, 2,304 cached tokens (2026-09-23, alternating fr/en — shared
-persona + CV prefix, see GEO-08g).
+6/6 hits, 2,304 cached tokens (2026-09-23, alternating fr/en — shared
+persona + CV prefix, see GEO-08g), and 36/36 hits, ~2,739 cached tokens
+(2026-09-25, `gpt-6-luna`, after the MODEL-004 persona hardening).
 
 ## Recommended limit
 
@@ -104,9 +110,11 @@ else:
   ```text
   [modelProviders] OpenAI cache hit: <n> cached tokens
   ```
-  Latest measurements: 5/5 cache hits, 1,280 cached tokens, ~1.4s average
-  latency (2026-06-22, mono-language); 6/6 hits, 2,304 cached tokens
-  (2026-09-23, alternating fr/en).
+  Latest measurements (2026-09-25, `gpt-6-luna`, hardened persona): 36/36 cache
+  hits, ~2,739 cached tokens, TTFT ~773 ms average (bench-models, 36 questions,
+  warm cache, `reasoning_effort: none`). The prompt change invalidated the cache
+  once, as expected — the counter was restored after re-warming. Earlier: 6/6
+  hits, 2,304 cached tokens (2026-09-23, alternating fr/en).
 - Gemini usage is logged as:
   ```text
   [modelProviders] Gemini usage: {...}
