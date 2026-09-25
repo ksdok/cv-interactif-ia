@@ -29,7 +29,12 @@ const OUTPUT_FILE = resolve(
 // suffixe optionnel, la mesure annonçait 0/N hits alors que le cache fonctionne
 // (constaté en vérifiant MODEL-004 le 2026-09-25).
 const OPENAI_CACHE_RE = /\[modelProviders\] OpenAI cache hit(?: \(stream\))?: (\d+) cached tokens/
-const GEMINI_USAGE_RE = /\[modelProviders\] Gemini usage: ({.*})/
+// MODEL-003 (revue) : même angle mort côté Gemini — le chemin streaming (le seul
+// mode de /api/chat depuis PERF-002) logge `Gemini usage (stream): {…}` et le
+// suffixe optionnel manquait, donc `rawGeminiUsage` dégradait à null sans erreur.
+// La distinction stream/non-stream reste à la source (ligne de log inchangée) ;
+// on élargit le parseur, miroir de la convention OpenAI ci-dessus.
+const GEMINI_USAGE_RE = /\[modelProviders\] Gemini usage(?: \(stream\))?: ({.*})/
 const PROVIDER_RE = /\[modelProviders\] Trying provider: (\w+)/
 
 function parseArgs() {

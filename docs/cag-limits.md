@@ -125,10 +125,13 @@ else:
 - The FR injection probe added by MODEL-004 (revue M#6) is verified on the
   `gpt-6-luna` + `reasoning_effort: none` arm only; the 3-arm gate was not re-run
   with it, so its evidence does not extend to the other arms.
-- Gemini usage is logged as:
+- Gemini usage is logged as (the `(stream)` suffix distinguishes the streaming path used by
+  `/api/chat` since PERF-002 from the non-streaming path):
   ```text
-  [modelProviders] Gemini usage: {...}
+  [modelProviders] Gemini usage: {...}          # non-streaming
+  [modelProviders] Gemini usage (stream): {...}  # streaming (/api/chat)
   ```
+  `scripts/measure-cache.mjs` parses both forms (optional `(stream)` suffix, MODEL-003).
   Latest measurement: 0/5 explicit cache hits, `promptTokenCount` around
   1,951 tokens, ~9.9s average latency (2026-06-22 baseline — predates CV
   growth to ~2,643 prefix tokens; re-measure before concluding on Gemini
