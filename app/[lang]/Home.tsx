@@ -28,12 +28,15 @@ export default function Home({ dictionary, locale }: HomeProps) {
     <div className="min-h-screen bg-surface flex flex-col">
       <Header dictionary={dictionary} lang={locale} />
 
-      <div className="w-full pt-16">
+      {/* A11Y-01 : landmark <main> unique (audit Lighthouse landmark-one-main).
+          Même structure que app/[lang]/cv/page.tsx : header/footer hors du main. */}
+      <main className="w-full pt-16 flex-1">
         <Hero dictionary={dictionary} />
         <ChatPreview csrfToken={csrfToken} dictionary={dictionary} locale={locale} />
         <ExperienceGrid dictionary={dictionary} lang={locale} onOpenJobMatcher={() => setJobMatcherOpen(true)} />
-        <Footer dictionary={dictionary} lang={locale} />
-      </div>
+      </main>
+
+      <Footer dictionary={dictionary} lang={locale} />
 
       {jobMatcherOpen && (
         <JobMatcher isOpen onClose={() => setJobMatcherOpen(false)} dictionary={dictionary} locale={locale} />

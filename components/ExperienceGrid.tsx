@@ -19,7 +19,9 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
         <div className="md:col-span-2 bg-surface-container-low rounded-lg p-10 flex flex-col justify-between group overflow-hidden relative min-h-[400px]">
           <div className="z-10">
             <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.featuredLabel}</span>
-            <h3 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.featuredTitle}</h3>
+            {/* A11Y-01 : h2 (était h3) — pas de saut h1→h3 (audit Lighthouse
+                heading-order) ; classes inchangées, rendu visuel identique. */}
+            <h2 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.featuredTitle}</h2>
             <p className="text-secondary">{experience.featuredCompany}</p>
           </div>
           <div className="mt-8 z-10">
@@ -94,7 +96,7 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
         <div className="md:col-span-2 bg-surface-container-low rounded-lg p-10 flex flex-col justify-between group overflow-hidden relative">
           <div className="z-10">
             <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.matcherLabel}</span>
-            <h3 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.matcherTitle}</h3>
+            <h2 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.matcherTitle}</h2>
             <p className="text-secondary text-sm">{experience.matcherSubtitle}</p>
           </div>
           <div className="mt-8 z-10">
@@ -119,7 +121,7 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
         {/* CTA — 3 cols full width, dark card */}
         <div className="md:col-span-3 bg-on-background rounded-lg p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
           <div className="max-w-md">
-            <h3 className="text-2xl font-bold mb-4 text-on-primary">{experience.ctaTitle}</h3>
+            <h2 className="text-2xl font-bold mb-4 text-on-primary">{experience.ctaTitle}</h2>
             <p className="text-secondary-fixed-dim text-sm leading-relaxed">
               {experience.ctaBody}
             </p>
