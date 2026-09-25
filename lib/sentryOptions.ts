@@ -19,7 +19,7 @@ import type { BrowserOptions, Breadcrumb, ErrorEvent, NodeOptions } from '@sentr
 
 type SentryInitOptions = BrowserOptions & NodeOptions
 
-export const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN
+const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN
 
 export const isSentryEnabled = Boolean(SENTRY_DSN)
 
@@ -39,6 +39,11 @@ export function scrubEvent(event: ErrorEvent): ErrorEvent {
     delete event.request.data
     delete event.request.cookies
     delete event.request.query_string
+    // Defensive: the query string can also be baked into `url`; strip it there
+    // too so a token/email passed as a query param never reaches Sentry.
+    if (event.request.url?.includes('?')) {
+      event.request.url = event.request.url.split('?')[0]
+    }
     if (event.request.headers) {
       for (const header of ['cookie', 'Cookie', 'authorization', 'Authorization']) {
         delete event.request.headers[header]
