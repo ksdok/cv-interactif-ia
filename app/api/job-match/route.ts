@@ -27,6 +27,7 @@ import { verifyCSRFToken, getCSRFTokenFromRequest, CSRF_COOKIE_CONFIG } from '@/
 import { cookies } from 'next/headers'
 import { generateJobMatchResponse } from '@/lib/modelProviders'
 import { resolveResponseLanguage } from '@/lib/validation'
+import { captureException } from '@sentry/nextjs'
 
 // Input validation constraints
 const VALIDATION = {
@@ -292,6 +293,10 @@ RESPONSE LANGUAGE:
       message: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
     })
+
+    // OBS-001 §3 — report real 500s (rate limit / CSRF / validation paths
+    // return early above and are deliberately not instrumented, §4).
+    captureException(error, { tags: { errorCode: 'SERVER', phase: 'request', endpoint: 'job-match' } })
 
     // Return generic error message to client
     return NextResponse.json(
