@@ -1,6 +1,6 @@
 # OBS-001 — Error Monitoring & Alerting Spec
 
-> **Statut : PROPOSÉE** — revue kimi-analyst 2026-09-25 : À AMENDER → amendements 1–9 appliqués (10–11 reportés), en attente de validation opérateur.
+> **Statut : VALIDÉE — opérateur 2026-09-25** — revue kimi-analyst 2026-09-25 : À AMENDER → amendements 1–9 appliqués (10–11 reportés) ; livrée sur branche `obs-001-sentry` (8 commits, `fadbc9b`→`3e0a237`), locale, non poussée ni fusionnée — trace de livraison dans `project-state.md`.
 
 ## Goal
 Get automatic visibility into production errors (500s, provider failures, unhandled exceptions) with alerting, instead of discovering issues from Vercel log noise.
