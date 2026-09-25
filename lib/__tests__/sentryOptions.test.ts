@@ -7,7 +7,7 @@
  * Le critère d'acceptation « no chat content leaks into Sentry events » ne peut
  * pas être vérifié sans DSN : ces cas le rendent testable côté payload.
  */
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import type { Breadcrumb, ErrorEvent } from '@sentry/nextjs'
 import { buildSentryOptions, isSentryEnabled, scrubBreadcrumb, scrubEvent } from '@/lib/sentryOptions'
 
@@ -15,6 +15,7 @@ describe('scrubEvent — aucun contenu de requête ne part vers Sentry', () => {
   it('supprime body, cookies, query string et en-têtes sensibles', () => {
     const event = {
       request: {
+        url: 'https://kimsandok.com/api/chat?token=SECRET&q=SECRET',
         data: { messages: [{ role: 'user', content: 'SECRET CHAT MESSAGE' }] },
         cookies: { session: 'abc' },
         query_string: 'q=SECRET',
@@ -33,6 +34,7 @@ describe('scrubEvent — aucun contenu de requête ne part vers Sentry', () => {
     expect(scrubbed.request?.data).toBeUndefined()
     expect(scrubbed.request?.cookies).toBeUndefined()
     expect(scrubbed.request?.query_string).toBeUndefined()
+    expect(scrubbed.request?.url).toBe('https://kimsandok.com/api/chat')
     expect(scrubbed.request?.headers).toEqual({ 'user-agent': 'vitest' })
   })
 
@@ -75,6 +77,12 @@ describe('scrubBreadcrumb — pas d’arguments console ni de corps HTTP', () =>
 
 describe('buildSentryOptions — garde DSN et échantillonnage explicite', () => {
   it('reste inerte sans NEXT_PUBLIC_SENTRY_DSN (dev / build secret-free)', () => {
+    // Hypothèse verrouillée explicitement plutôt que supposée : l'absence de DSN
+    // dans l'environnement de test est ce qui rend `isSentryEnabled` faux. Stub
+    // volontaire malgré l'inertie (le module lit l'env à l'import) : le test
+    // échoue de façon lisible si quelqu'un exporte un DSN dans la CI.
+    vi.stubEnv('NEXT_PUBLIC_SENTRY_DSN', undefined)
+
     expect(process.env.NEXT_PUBLIC_SENTRY_DSN).toBeUndefined()
     expect(isSentryEnabled).toBe(false)
   })
