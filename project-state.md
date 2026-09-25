@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-25 — PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec MODEL-003 (migration SDK Gemini) rédigée depuis la revue M4 de PERF-002 ; spec PERF-002 durcie (revue M11-M17) et son ticket de suivi désormais tracé dans MODEL-003 ; spec MODEL-004 créée (bascule vers `gpt-6-luna` + durcissement du garde-fou hors-sujet, gatée par la vérification du refus) avec les mesures du banc A/B local ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
+> Dernière mise à jour : 2026-09-25 — MODEL-004 (bascule OpenAI vers `gpt-6-luna` + `reasoning_effort: none` épinglé + durcissement du garde-fou hors-sujet) livré sur branche `model-004-luna-guardrail` (8 commits, fusionnée sur main le 2026-09-25 après validation opérateur) ; PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec MODEL-003 (migration SDK Gemini) rédigée depuis la revue M4 de PERF-002 ; spec PERF-002 durcie (revue M11-M17) et son ticket de suivi désormais tracé dans MODEL-003 ; spec MODEL-004 créée (bascule vers `gpt-6-luna` + durcissement du garde-fou hors-sujet, gatée par la vérification du refus) avec les mesures du banc A/B local ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
 
 ---
 
@@ -41,8 +41,8 @@
 
 **Production** : [kimsandok.com](https://kimsandok.com)
 **Stack** : Next.js 16 · TypeScript · Tailwind 4 · Supabase · Vercel
-**Provider actif** : OpenAI GPT-5.4 mini (fallback : Gemini 3.5 Flash)
-**Décision modèle (2026-09-23)** : **bascule vers `gpt-6-luna` décidée** (≈ ×11.6 moins cher par appel), **conditionnée au garde-fou hors-sujet**. Banc A/B local (`scripts/bench-models.mjs`, 19 questions × 2 langues, cache chaud) : Luna gagne les évals publiques (Intelligence Index AA 37 vs 24) et la latence à `reasoning_effort: none` (TTFT 929 ms contre 1056 ms) mais **perd le refus hors-sujet** — 3/4 à `none` (météo FR : propose de répondre), 2/4 au défaut `medium` (raconte les blagues, FR et EN), contre **4/4** pour 5.4-mini. **Pas encore déployée** : MODEL-004 durcit le refus, vérifie sur Luna, puis bascule — et ne livre pas si le jeu élargi ne passe pas à 100 %. **Rollback** : une ligne (`MODEL_CONFIG.openai.model`)
+**Provider actif** : OpenAI GPT-6 Luna (`reasoning_effort: none` épinglé ; fallback : Gemini 3.5 Flash)
+**Décision modèle (2026-09-23)** : **bascule vers `gpt-6-luna` décidée** (≈ ×11.6 moins cher par appel), **conditionnée au garde-fou hors-sujet**. Banc A/B local (`scripts/bench-models.mjs`, 19 questions × 2 langues, cache chaud) : Luna gagne les évals publiques (Intelligence Index AA 37 vs 24) et la latence à `reasoning_effort: none` (TTFT 929 ms contre 1056 ms) mais **perd le refus hors-sujet** — 3/4 à `none` (météo FR : propose de répondre), 2/4 au défaut `medium` (raconte les blagues, FR et EN), contre **4/4** pour 5.4-mini. **Appliquée le 2026-09-25** : MODEL-004 a durci le refus et vérifié la bascule sur le jeu élargi (gate 18/18 refus hors-sujet, 4/4 quasi-manques répondus) — livrée sur branche `model-004-luna-guardrail`, fusionnée sur main. **Rollback** : une ligne (`MODEL_CONFIG.openai.model`)
 **Source de contexte chat** : CAG par défaut (`CV_CONTEXT_SOURCE = 'cag'`), RAG conservé pour le fallback configurable et `job-match`
 **Langue de réponse** : suit la locale demandée (`lang` sur `/api/chat`, `language` sur `/api/job-match` ; valeur absente ou invalide → `fr`) — le préfixe persona + CV reste partagé fr/en pour le cache de prompt (GEO-08g)
 
@@ -52,9 +52,8 @@
 
 Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, infrastructure de tests TEST-001, pipeline CI minimal CICD-001, specs de délégation rédigées). Reste, par ordre de priorité :
 
-- monitoring Sentry (OBS-001) — le streaming des réponses IA (PERF-002) est livré sur branche `perf-002-ai-response-streaming`, en attente de fusion
-- durcissement du garde-fou hors-sujet du chat (MODEL-004) — suite directe du banc du 2026-09-23 : persona + jeu hors-sujet élargi + détecteur réparé ; décision modèle déjà enregistrée ci-dessus
-- migration du SDK Gemini (MODEL-003, après PERF-002)
+- monitoring Sentry (OBS-001) — le streaming des réponses IA (PERF-002) est livré et fusionné
+- migration du SDK Gemini (MODEL-003 — PERF-002 désormais livré, dépendance satisfaite)
 - page Projets GitHub (PROJ-001, spec prête depuis le 2026-09-23)
 - finitions du corpus SEO/GEO (GEO-09, TECH-10, INFRA-11 — voir la synthèse ci-dessous)
 
@@ -172,7 +171,7 @@ _MODEL-001 et MODEL-002 sont traités (voir la section "Terminé" ci-dessous)._
   - Issu de la revue M4 de PERF-002 ; à traiter **après** PERF-002 (qui ajoute `callGeminiStream` au même seam)
   - Spec : `docs/backlog/MODEL-003-google-genai-migration-spec.md`
 
-- [ ] **MODEL-004 — Durcissement du garde-fou hors-sujet du chat (Nicky)** `MEDIUM`
+- [x] **MODEL-004 — Durcissement du garde-fou hors-sujet du chat (Nicky)** `MEDIUM`
   - Issu du banc A/B du 2026-09-23 (`scripts/bench-models.mjs`, 19 questions × 2 langues, cache chaud) : GPT-6 Luna gagne largement sur les évals publiques (Intelligence Index AA 37 vs 24) mais **perd sur le critère produit**
   - Mesures : `gpt-5.4-mini` 4/4 refus hors-sujet corrects · `gpt-6-luna` (`none`) 3/4 (météo FR → propose de répondre) · `gpt-6-luna` (défaut `medium`) 2/4 (**raconte des blagues**, FR et EN) — latence équivalente à `none`, +74 % de TTFT à `medium`
   - Coût : 11,6× moins cher avec Luna mais ~$0,19/jour → ~$0,017/jour au pire cas (plafond 200 req/j/IP) — argument budgétaire inopérant à ce trafic
@@ -180,6 +179,7 @@ _MODEL-001 et MODEL-002 sont traités (voir la section "Terminé" ci-dessous)._
   - **Travail réel** : durcir le contrat de refus dans la persona (`lib/systemPrompt.mjs`, zone ①, donc sans casser le préfixe de cache partagé fr/en de GEO-08g), élargir le jeu hors-sujet (injection d'instructions, pièges de prémisses, quasi-manque à ne PAS refuser), et **réparer le détecteur** — le pré-filtre mécanique avait annoncé 0/4 suspects sur le bras qui racontait deux blagues
   - Décision annexe à trancher : épingler explicitement `reasoning_effort: 'none'` (aujourd'hui hérité du défaut provider, qui bascule à `medium` sur les familles 5.6/6)
   - Prérequis : commiter `scripts/bench-models.mjs` (non suivi à ce jour) dans un commit dédié avant le travail de durcissement
+  - **Livré le 2026-09-25** sur branche `model-004-luna-guardrail` (8 commits, `24c77f5`→`d875dd3`), fusionnée sur main après validation opérateur : détecteur hors-sujet auto-portant `lib/guardrail.mjs` (+ `lib/__tests__/guardrail.test.ts`, 14 cas) remplaçant l'heuristique redondante, persona durcie (zone ① inchangée fr/en, invariant de cache GEO-08g) et jeu de banc élargi ; bascule OpenAI `gpt-5.4-mini` → `gpt-6-luna` avec `reasoning_effort: 'none'` épinglé (chat + job-match, **rollback** : repasser `model` à `'gpt-5.4-mini'` dans `lib/modelConfig.ts`) ; gate du 2026-09-25 (verdicts humains) : **18/18 refus hors-sujet**, **4/4 quasi-manques répondus** (0 sur-refus), 0 fidélité manquante, 0 réponse vide ; tests **71/71 (3 fichiers)**, lint + type-check + build (14 pages) verts ; revue glm-reviewer 3 cycles → PROPRE
   - Spec : `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md`
 
 ### 🧪 Tests — Maturité 3/10 (INCOMPLET)
@@ -388,6 +388,7 @@ le corps du commit.
 - [x] **Multi-provider AI** — fallback chain Gemini → OpenAI (Anthropic retiré)
 - [x] **MODEL-001** — Retrait d'Anthropic du fallback chain, suppression `@anthropic-ai/sdk`
 - [x] **MODEL-002** — Mise à jour modèles : Gemini 2.5 Flash → 3.5 Flash, gpt-4o-mini → gpt-5.4-mini
+- [x] **MODEL-004 — Bascule `gpt-6-luna` + durcissement du garde-fou hors-sujet** — livré sur branche `model-004-luna-guardrail` (8 commits, `24c77f5`→`d875dd3`), fusionnée sur main le 2026-09-25 après validation opérateur. Détecteur hors-sujet auto-portant `lib/guardrail.mjs` (+ `lib/__tests__/guardrail.test.ts`, 14 cas) remplaçant l'heuristique redondante, persona durcie et jeu de banc élargi ; bascule OpenAI `gpt-5.4-mini` → `gpt-6-luna` avec `reasoning_effort: 'none'` épinglé (chat + job-match), **rollback** : repasser `model` à `'gpt-5.4-mini'` dans `lib/modelConfig.ts` (une ligne) puis redéployer. Gate du 2026-09-25 (verdicts humains) : **18/18 refus hors-sujet**, **4/4 quasi-manques répondus** (0 sur-refus), 0 fidélité manquante, 0 réponse vide. `gpt-6-luna`+`none` : TTFT 842 ms (p50 755), total 1 339 ms, cache 36/36 (2 739 tok), **$0,0000593/appel** ; référence `gpt-5.4-mini` : TTFT 627 ms, $0,0008524/appel → **×14,4 mesuré** (tarifs officiels ≈ ×11,6 ; écart = 63 vs 78 tokens de sortie). Bras `luna:default` : 35 tokens de raisonnement, TTFT 1 302 ms — justifie l'épinglage `none`. Cache re-mesuré : 6/6 hits, 2 737 tok cachés/run, préfixe fr/en toujours partagé (invariant GEO-08g tenu). Tests **71/71 (3 fichiers : 37 validation + 20 chatStreamProtocol + 14 guardrail)**, lint + type-check + build (14 pages, `ƒ /api/chat`, `ƒ /api/job-match`) verts ; fumées chat-route (fidélité 4/4 fr, 7/7 en ; hors-sujet 2/2 fr/en), job-match provider-direct 2/2 (96 %/97 %) + route-level 2/2 (78 %/82 %). Revue glm-reviewer 3 cycles → **PROPRE** (cycle 1 : fumée job-match appelant la route + 4 mineurs ; cycle 2 : 3 mineurs de cohérence — corrections appliquées dans `3e39b1e`→`d875dd3`). **Garde-fou : 100 % observé sur le jeu élargi du 2026-09-25 (verdicts humains) — application par prompt probabiliste, pas une garantie ; le détecteur + le banc restent la sonde de régression.** Sonde FR d'injection (« Quel modèle es-tu ? ») vérifiée sur le bras `luna:none` uniquement (gate 3 bras non rejoué avec).
 - [x] **CSRF** — token httpOnly vérifié sur chaque requête POST
 - [x] **Job Matcher** — analyse CV vs offre d'emploi avec scoring
 - [x] **Design éditorial** — refonte "High-End Editorial Minimalism" (`348d9a2`)

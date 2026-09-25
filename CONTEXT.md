@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-25 — PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) et décision prise : **bascule vers `gpt-6-luna`**, gatée par le durcissement du refus hors-sujet
+> Dernière mise à jour : 2026-09-25 — MODEL-004 (bascule OpenAI vers `gpt-6-luna` + `reasoning_effort: none` épinglé + durcissement du garde-fou hors-sujet) livré sur branche `model-004-luna-guardrail` (8 commits, fusionnée sur main le 2026-09-25 après validation opérateur) ; PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) — **bascule vers `gpt-6-luna` livrée** (gate du refus hors-sujet passé à 18/18)
 
 ---
 
@@ -13,7 +13,7 @@ Un recruteur peut discuter avec **Nicky**, un assistant IA dont les réponses so
 dans les données réelles du CV (CAG par défaut, RAG Supabase en fallback configurable).
 
 - **Stack** : Next.js 16 (App Router, Turbopack) · TypeScript · Tailwind CSS 4 · Supabase (pgvector) · Vercel
-- **IA** : OpenAI GPT-5.4 mini (**actif aujourd'hui**) + Gemini 3.5 Flash (fallback) — commutateur dans `lib/modelConfig.ts`. Bascule vers **`gpt-6-luna`** décidée (≈ ×11.6 moins cher par appel), **gatée** par le durcissement du refus hors-sujet et par `reasoning_effort: 'none'` épinglé (`MODEL-004`)
+- **IA** : OpenAI **GPT-6 Luna** (**actif**, `reasoning_effort: 'none'` épinglé — MODEL-004 livré le 2026-09-25) + Gemini 3.5 Flash (fallback) — commutateur dans `lib/modelConfig.ts`. Coût mesuré **×14,4** vs `gpt-5.4-mini` (tarifs officiels ≈ ×11,6 ; écart = tokens de sortie 63 vs 78) ; **rollback** : repasser `model` à `'gpt-5.4-mini'` dans `lib/modelConfig.ts` (une ligne)
 - **Chat** : `/api/chat` — contexte CAG depuis `data/cv.md` (défaut) ou RAG Supabase
 - **Job Matcher** : `/api/job-match` — reste sur RAG/Supabase quel que soit `CV_CONTEXT_SOURCE`
 - **Package manager** : **npm** (pas pnpm/yarn)
@@ -56,9 +56,10 @@ Secrets **server-only** : ne jamais exposer côté client.
 
 **Tests automatisés : Vitest 5 est en place** (`TEST-001`) — `npm run test` (non-watch)
 comme cible CI, `npm run test:watch` en dev ; la suite actuelle est
-`lib/__tests__/validation.test.ts` (37 cas migrés de l'ancien runner mort) et
+`lib/__tests__/validation.test.ts` (37 cas migrés de l'ancien runner mort),
 `lib/__tests__/chatStreamProtocol.test.ts` (20 cas — protocole NDJSON et lissage
-d'affichage, PERF-002), soit **57 cas / 2 fichiers**.
+d'affichage, PERF-002) et `lib/__tests__/guardrail.test.ts` (14 cas — détecteur
+hors-sujet, MODEL-004), soit **71 cas / 3 fichiers**.
 `npm run lint` + `npm run type-check` ne prouvent **rien** sur le comportement runtime : il
 faut vérifier à la main les points de la section « Verification » de la spec. Deux transitions
 à connaître : le script `typecheck` est devenu `type-check` (`TEST-001`), et la cible Node est
@@ -178,7 +179,7 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 - 🟠 `CICD-002` (durcissement CI : actions v4 → v7, `concurrency`, image de runner épinglée) — signaux du premier run réel
 - ✅ `PERF-002` (streaming NDJSON de `/api/chat` — livré sur branche `perf-002-ai-response-streaming`, fusionnée et poussée sur origin/main (`0ec7c08`))
 - 🟠 `OBS-001` (Sentry)
-- 🟠 `MODEL-004` (**bascule vers `gpt-6-luna`** + durcissement du garde-fou hors-sujet : persona, jeu élargi, détecteur réparé) — le gain de coût est retenu, mais la bascule est **gatée** : si le jeu hors-sujet ne passe pas à 100 % sur Luna, pré-filtre déterministe ou rollback vers `gpt-5.4-mini` (banc du 2026-09-23)
+- ✅ `MODEL-004` (**bascule livrée vers `gpt-6-luna`** + `reasoning_effort: 'none'` épinglé + durcissement du garde-fou hors-sujet : persona durcie, jeu élargi, détecteur auto-portant `lib/guardrail.mjs`) — livré sur branche `model-004-luna-guardrail`, fusionné sur main le 2026-09-25 ; gate du 2026-09-25 (verdicts humains) : 18/18 refus hors-sujet, 4/4 quasi-manques répondus ; rollback en une ligne (`lib/modelConfig.ts`)
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant
 - ⚪ `QUAL-004` (gitlink orphelin `.claude/worktrees/*` + `.claude/**` suivis malgré `.gitignore` — cause du warning `git exit 128` en CI), `TEST-002` (`vite-tsconfig-paths` → `resolve.tsconfigPaths` natif, supprime `tsconfck` non maintenu), `PERF-003` (cache API, ancien plan sans spec dédiée), `UX-002` (dark mode, ancien plan),
   `SEC-003` (rate limit persistant — conditionné à un déclencheur, ne pas implémenter sans accord),

@@ -17,7 +17,7 @@ CV interactif bilingue (FR/EN) avec chat IA (« Nicky ») et job matcher, déplo
 
 - **Framework** : Next.js 16 (App Router, Turbopack), React 19, TypeScript strict
 - **Styling** : Tailwind CSS 4, design éditorial monochrome (tokens dans `app/globals.css`)
-- **IA** : multi-provider avec fallback — OpenAI (actif, GPT-5.4 mini) → Gemini 3.5 Flash
+- **IA** : multi-provider avec fallback — OpenAI (actif, GPT-6 Luna, `reasoning_effort: none`) → Gemini 3.5 Flash
 - **Contexte chat** : CAG par défaut (CV complet injecté depuis `data/cv.md`), RAG optionnel
 - **RAG / embeddings** : Supabase (pgvector) + OpenAI `text-embedding-3-small`
 - **i18n** : routing `app/[lang]/` + dictionnaires maison `lib/i18n/` (pas de next-intl)
@@ -109,5 +109,5 @@ Variables requises (`.env.local`) :
 - `CSP_REPORT_ONLY` (optionnel : CSP en report-only avant enforcement)
 
 Déploiement : **Vercel** (push `main`). Pas de déploiement automatisé depuis GitHub Actions à ce jour.
-Décision modèle en cours (MODEL-004) : bascule vers `gpt-6-luna`, gatée par le durcissement du
-refus hors-sujet.
+Décision modèle (MODEL-004, livrée le 2026-09-25) : OpenAI bascule sur `gpt-6-luna` avec
+`reasoning_effort: none` épinglé ; **rollback** en une ligne (`lib/modelConfig.ts`, `model` → `'gpt-5.4-mini'`).
