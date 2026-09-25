@@ -4,7 +4,7 @@
  * (MODEL-004, décision 4 — complète `smoke-job-match.mjs`, provider-direct).
  *
  * Différence avec `smoke-job-match.mjs` : ce script n'appelle pas le provider
- * lui-même. Il démarre le serveur de dev et fait un POST réel sur
+ * lui-même. Il suppose un serveur de dev joignable (voir « Usage ») et fait un POST réel sur
  * `/api/job-match` (pipeline complet : rate limit → CSRF → validation → RAG →
  * provider), en FR et EN, puis valide la forme de la réponse HTTP et du JSON.
  * C'est la vérification que le modèle livré répond bien **à travers la route**,

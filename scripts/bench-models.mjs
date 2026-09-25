@@ -296,9 +296,9 @@ async function main() {
     const warm = await runOne(openai, {
       model,
       effort,
-      lang: 'fr',
+      lang: config.langs[0],
       question: "What is the candidate's most recent role?",
-      systemPrompt: prompts.fr,
+      systemPrompt: prompts[config.langs[0]],
       maxTokens: config.maxTokens,
     })
     console.log(warm.error ? `ERREUR: ${warm.error}` : 'ok')

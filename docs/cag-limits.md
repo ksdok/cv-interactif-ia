@@ -109,7 +109,8 @@ else:
   cached-input, **cache-write** and output tokens (`prompt_tokens_details`).
   `gpt-6-luna` bills cache writes at $0.125/M (absent from the 5.4-mini sheet), so a
   cold-prefix call is more expensive than a warm one — e.g. the provider-direct job
-  match smoke on a cold prefix costs ~$0.0008 against ~$0.0004 if writes were ignored.
+  match smoke on a cold prefix (2,584 write tokens) reports ~$0.00055 per call with writes
+  billed, against ~$0.00048 if writes were ignored.
   The `$0.0000593/call` figure for the warm 36-question bench is unaffected (no writes).
 - Results are written to `scripts/results/` and are gitignored.
 - OpenAI cache hits are logged as:
@@ -121,6 +122,9 @@ else:
   warm cache, `reasoning_effort: none`). The prompt change invalidated the cache
   once, as expected — the counter was restored after re-warming. Earlier: 6/6
   hits, 2,304 cached tokens (2026-09-23, alternating fr/en).
+- The FR injection probe added by MODEL-004 (revue M#6) is verified on the
+  `gpt-6-luna` + `reasoning_effort: none` arm only; the 3-arm gate was not re-run
+  with it, so its evidence does not extend to the other arms.
 - Gemini usage is logged as:
   ```text
   [modelProviders] Gemini usage: {...}

@@ -28,8 +28,8 @@ export const FALLBACK_ORDER_JOB_MATCH: Provider[] = ['gemini']
 // MODEL-004 : `gpt-6-luna` remplace `gpt-5.4-mini` (tarifs officiels ≈ ×11,6
 // moins cher par appel ; banc du 2026-09-25 mesuré : $0,0000593 contre $0,000852,
 // soit ×14,4 — 36 questions, fr + en, cache chaud). La bascule est **conditionnée**
-// au garde-fou hors-sujet : 17/17 refus sur le jeu élargi (verdicts humains), 4/4
-// quasi-manques répondus, 0 token de fidélité manquant — cf.
+// au garde-fou hors-sujet : 17/17 au gate 3 bras + sonde fr dédiée : 18/18 refus
+// (verdicts humains), 4/4 quasi-manques répondus, 0 token de fidélité manquant — cf.
 // `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md`.
 //
 // ROLLBACK (une ligne, décision 5) : repasser `model` à `'gpt-5.4-mini'` ci-dessous,
