@@ -347,6 +347,11 @@ le corps du commit.
   - Wording dans les dictionnaires FR/EN (`header.cvLink`, `cvLinkAria`, `homeLinkAria`)
   - Spec : `docs/features/seo-geo/GEO-08f-switcher-langue-header.md` (itération 3, 2026-09-23) — commits `c150986`, `411db33`
 
+- [ ] **UX-004 — Perte de focus de l'input chat sur envoi (Enter)** `LOW`
+  - Sur desktop, Entrée dans l'input chat → focus perdu (input `disabled={isLoading}` pendant la génération, jamais re-focusé) ; il faut re-cliquer pour retaper
+  - Décision produit arbitrée : input **actif pendant le streaming** (garde anti-double-envoi conservée) ; blur mobile `< 768 px` inchangé
+  - Spec : `docs/backlog/UX-004-chat-input-focus-spec.md` — statut **PROPOSÉE** (2026-09-25), en attente de validation
+
 - [ ] **UX-002 — Dark mode natif** `LOW`
   - Configurer Tailwind pour `prefers-color-scheme: dark`
   - Définir les variables CSS dark dans `globals.css`
