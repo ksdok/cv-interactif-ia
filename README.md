@@ -117,7 +117,8 @@ The current model was picked with the in-repo A/B bench, not a public ranking:
 
 ```bash
 node scripts/bench-models.mjs --models gpt-5.4-mini,gpt-6-luna --effort none --lang both
-node scripts/smoke-job-match.mjs          # job-match JSON conformance, fr + en
+node scripts/smoke-job-match.mjs          # job-match JSON conformance, fr + en (provider-direct)
+node scripts/smoke-job-match-route.mjs    # same check through POST /api/job-match (dev server up)
 ```
 
 The switch is gated by the off-topic guardrail (`lib/guardrail.mjs` + a
@@ -191,7 +192,8 @@ cv-interactif-ia/
 │                                  # locale negotiation (x-locale), nonce (x-nonce), CSP, CSRF cookie
 ├── scripts/
 │   ├── bench-models.mjs           # Model A/B bench — TTFT, cost, fidelity, off-topic gate (MODEL-004)
-│   ├── smoke-job-match.mjs        # /api/job-match JSON smoke test, fr + en (MODEL-004)
+│   ├── smoke-job-match.mjs        # /api/job-match JSON smoke test, fr + en (MODEL-004, provider-direct)
+│   ├── smoke-job-match-route.mjs  # /api/job-match smoke **through the route** (CSRF + RAG), fr + en
 │   ├── chat-response.mjs          # Decodes the /api/chat NDJSON body (shared by the scripts below)
 │   ├── validate-cag.mjs           # CAG validation questionnaire
 │   ├── measure-cache.mjs          # Provider cache hit measurement
