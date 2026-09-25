@@ -38,6 +38,7 @@ import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds 
 import { streamResponse } from '@/lib/modelProviders'
 import { encodeChatStreamEvent } from '@/lib/chatStreamProtocol'
 import { CV_CONTEXT_SOURCE } from '@/lib/modelConfig'
+import { captureException } from '@sentry/nextjs'
 import { getCVContext } from '@/lib/cvContext'
 import { buildChatSystemPrompt, buildCvContextBlock } from '@/lib/systemPrompt.mjs'
 
@@ -185,6 +186,17 @@ export async function POST(req: Request) {
             console.log('Client disconnected — upstream provider stream aborted.')
           } else {
             console.error('Streaming error:', error)
+            // OBS-001 §3 — phase 2 failures never return a 500: the failure is
+            // swallowed into an NDJSON `error` event inside an already-200
+            // response, so auto-instrumentation can never see it. Report it
+            // explicitly; the AbortError branch above stays untouched.
+            captureException(error, {
+              tags: {
+                errorCode: 'SERVER',
+                phase: 'streaming',
+                cvContextSource: CV_CONTEXT_SOURCE,
+              },
+            })
             controller.enqueue(encoder.encode(encodeChatStreamEvent({ type: 'error', errorCode: 'SERVER' })))
           }
         } finally {
@@ -216,6 +228,10 @@ export async function POST(req: Request) {
   } catch (error) {
     // Log the error server-side for debugging and return a generic 500 error to the client.
     console.error('API error:', error)
+    // OBS-001 §3 — phase 1 failures (the ones that really return a 500).
+    captureException(error, {
+      tags: { errorCode: 'SERVER', phase: 'request', cvContextSource: CV_CONTEXT_SOURCE },
+    })
     return NextResponse.json(
       { error: 'Failed to generate response. Please try again.', errorCode: 'SERVER' },
       { status: 500 }

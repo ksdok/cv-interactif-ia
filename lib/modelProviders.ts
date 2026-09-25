@@ -8,6 +8,7 @@
 import OpenAI from 'openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { ACTIVE_PROVIDER, FALLBACK_ORDER, ACTIVE_PROVIDER_JOB_MATCH, FALLBACK_ORDER_JOB_MATCH, MODEL_CONFIG, type Provider } from './modelConfig'
+import { captureMessage } from '@sentry/nextjs'
 
 // ─── SDK clients (initialized once at module level) ────────────────────────
 
@@ -193,6 +194,17 @@ export async function generateResponse(messages: ChatMessage[], system: string):
       const text = await PROVIDERS[provider](messages, system)
       if (provider !== ACTIVE_PROVIDER) {
         console.warn(`[modelProviders] Active provider '${ACTIVE_PROVIDER}' failed. Used fallback: '${provider}'`)
+        // OBS-001 §3 — a successful fallback means the primary provider is down:
+        // a breadcrumb alone (console.warn) stays invisible, so emit an event.
+        captureMessage('Provider fallback used', {
+          level: 'warning',
+          tags: {
+            source: 'chat',
+            activeProvider: ACTIVE_PROVIDER,
+            fallbackProvider: provider,
+            fallbackProviderModel: MODEL_CONFIG[provider].model,
+          },
+        })
       }
       return text
     } catch (err) {
@@ -240,6 +252,16 @@ export async function* streamResponse(
 
       if (provider !== ACTIVE_PROVIDER) {
         console.warn(`[modelProviders] Active provider '${ACTIVE_PROVIDER}' failed. Used streaming fallback: '${provider}'`)
+        // OBS-001 §3 — same signal as the non-streaming path, tagged separately.
+        captureMessage('Provider fallback used', {
+          level: 'warning',
+          tags: {
+            source: 'chat-stream',
+            activeProvider: ACTIVE_PROVIDER,
+            fallbackProvider: provider,
+            fallbackProviderModel: MODEL_CONFIG[provider].model,
+          },
+        })
       }
       return
     } catch (err) {
@@ -276,6 +298,16 @@ export async function generateJobMatchResponse(prompt: string): Promise<string> 
       const text = await PROVIDERS[provider]([{ role: 'user', content: prompt }], '')
       if (provider !== ACTIVE_PROVIDER_JOB_MATCH) {
         console.warn(`[modelProviders:jobMatch] Active provider '${ACTIVE_PROVIDER_JOB_MATCH}' failed. Used fallback: '${provider}'`)
+        // OBS-001 §3 — fallback signal for the job-match endpoint.
+        captureMessage('Provider fallback used', {
+          level: 'warning',
+          tags: {
+            source: 'job-match',
+            activeProvider: ACTIVE_PROVIDER_JOB_MATCH,
+            fallbackProvider: provider,
+            fallbackProviderModel: MODEL_CONFIG[provider].model,
+          },
+        })
       }
       return text
     } catch (err) {
