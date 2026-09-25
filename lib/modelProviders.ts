@@ -19,6 +19,22 @@ const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
 import type { ChatMessage } from './types'
 export type { ChatMessage }
 
+// ─── MODEL-004 (décision 2) — `reasoning_effort` épinglé ───────────────────
+// Ne jamais laisser ce paramètre hériter du défaut provider : il vaut `none`
+// pour `gpt-5.4-mini` mais **`medium`** pour la famille GPT-6, donc la bascule
+// vers `gpt-6-luna` changerait le comportement sans qu'aucune ligne de code ne
+// bouge. Mesuré au banc : +74 % de TTFT et +34 % de coût, et c'est le bras
+// `medium` qui cédait sur le garde-fou hors-sujet (2026-09-23). Confirmé le
+// 2026-09-25 — `gpt-6-luna` défaut provider : 32 tokens de raisonnement,
+// TTFT 1325 ms, $0,000085/appel ; avec `'none'` : 0 token, 773 ms, $0,000058.
+//
+// `'none'` est accepté par l'API pour ces modèles mais absent de l'union
+// `ReasoningEffort` du SDK (openai@6.7.0 : `'minimal' | 'low' | 'medium' |
+// 'high' | null`). Le cast est confiné à cette constante : substituer
+// `'minimal'` serait une autre valeur, jamais mesurée ici.
+type ChatReasoningEffort = Parameters<typeof openai.chat.completions.create>[0]['reasoning_effort']
+const CHAT_REASONING_EFFORT = 'none' as unknown as ChatReasoningEffort
+
 // ─── Per-provider call functions ────────────────────────────────────────────
 
 async function callOpenAI(messages: ChatMessage[], system: string): Promise<string> {
@@ -26,6 +42,8 @@ async function callOpenAI(messages: ChatMessage[], system: string): Promise<stri
   const response = await openai.chat.completions.create({
     model: config.model,
     max_completion_tokens: config.maxTokens,
+    // MODEL-004 décision 2 — épinglé, jamais hérité (voir la constante en tête).
+    reasoning_effort: CHAT_REASONING_EFFORT,
     messages: [
       { role: 'system', content: system },
       ...messages,
@@ -81,6 +99,8 @@ async function* callOpenAIStream(
     {
       model: config.model,
       max_completion_tokens: config.maxTokens,
+      // MODEL-004 décision 2 — épinglé, jamais hérité (voir la constante en tête).
+      reasoning_effort: CHAT_REASONING_EFFORT,
       messages: [
         { role: 'system', content: system },
         ...messages,
@@ -237,6 +257,10 @@ export async function* streamResponse(
 
 // ─── Job match entry point with fallback ────────────────────────────────────
 // Uses a single prompt (no conversation history) — each provider wraps it correctly.
+// MODEL-004 décision 2 : `/api/job-match` partage `MODEL_CONFIG.openai.model`
+// (décision 4) et donc `callOpenAI`, où `reasoning_effort` est épinglé à `'none'` :
+// la sortie attendue est un JSON court et rapide, la même valeur est retenue pour
+// cet endpoint (recommandation de la spec, tranchée ici).
 
 export async function generateJobMatchResponse(prompt: string): Promise<string> {
   const chain: Provider[] = [
