@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { decodeChatResponse } from './chat-response.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const RESULTS_DIR = resolve(__dirname, 'results')
@@ -23,7 +24,11 @@ const OUTPUT_FILE = resolve(
   `cache-measurement-results${LANG === 'fr' ? '' : `-${LANG}`}.json`,
 )
 
-const OPENAI_CACHE_RE = /\[modelProviders\] OpenAI cache hit: (\d+) cached tokens/
+// PERF-002 : le chemin streaming a renommé la ligne de log en
+// `[modelProviders] OpenAI cache hit (stream): N cached tokens` — sans le
+// suffixe optionnel, la mesure annonçait 0/N hits alors que le cache fonctionne
+// (constaté en vérifiant MODEL-004 le 2026-09-25).
+const OPENAI_CACHE_RE = /\[modelProviders\] OpenAI cache hit(?: \(stream\))?: (\d+) cached tokens/
 const GEMINI_USAGE_RE = /\[modelProviders\] Gemini usage: ({.*})/
 const PROVIDER_RE = /\[modelProviders\] Trying provider: (\w+)/
 
@@ -154,11 +159,12 @@ async function postChat(baseUrl, question, lang) {
   })
   const latencyMs = Date.now() - startedAt
   const rawBody = await response.text()
-  let body
-  try {
-    body = JSON.parse(rawBody)
-  } catch {
-    body = { error: rawBody || `HTTP ${response.status}` }
+  // PERF-002 : le succès est un flux NDJSON, plus un objet JSON unique.
+  const decoded = decodeChatResponse(rawBody)
+  const body = {
+    response: decoded.response,
+    error: decoded.error ?? (response.ok ? null : `HTTP ${response.status}`),
+    errorCode: decoded.errorCode,
   }
   return { status: response.status, latencyMs, body }
 }

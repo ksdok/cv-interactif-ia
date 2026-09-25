@@ -3,6 +3,8 @@
 import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { decodeChatResponse } from './chat-response.mjs'
+import { analyzeOffTopicAnswer } from '../lib/guardrail.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const RESULTS_DIR = resolve(__dirname, 'results')
@@ -152,38 +154,15 @@ function getRateLimitHeaders(headers) {
   return result
 }
 
-// GEO-08g : les signaux couvrent FR **et** EN — depuis la livraison, la langue
-// de réponse suit la locale demandée, donc un jeu de questions EN peut produire
-// une réponse FR. Heuristique de pré-filtre assumée : elle ne remplace pas la
-// lecture de la réponse (`manualQualityReviewRequired`).
-function isLikelyPoliteDecline(response) {
-  const text = response.toLowerCase()
-  const scopeSignals = [
-    'candidate',
-    'professional background',
-    'skills and experience',
-    "dok's professional",
-    'dok kim-san',
-    'candidat',
-    'parcours',
-    'expérience professionnelle',
-    'compétences',
-  ]
-  const refusalSignals = [
-    'only able to answer',
-    'only answer',
-    'specifically to answer',
-    'cannot',
-    "can't",
-    'not able',
-    'would be glad to share',
-    'seulement',
-    'uniquement',
-    'ne peux pas',
-    'ne peut pas',
-    'pas en mesure',
-  ]
-  return scopeSignals.some((signal) => text.includes(signal)) && refusalSignals.some((signal) => text.includes(signal))
+// Pré-filtre hors-sujet (MODEL-004 §5) : délégué au détecteur partagé
+// `lib/guardrail.mjs`, qui remplace l'heuristique bespoke de GEO-08g — celle-ci
+// annonçait 0/2 en EN pour des refus corrects, faute de connaître la formulation
+// exacte du modèle (« professional experience or skills » ne matchait aucun de
+// ses signaux de périmètre). Un refus correct ⇒ `suspect = false`. La qualité
+// reste relue manuellement (`manualQualityReviewRequired`) : le détecteur n'est
+// qu'un signal, jamais la preuve.
+function isLikelyPoliteDecline(response, lang) {
+  return !analyzeOffTopicAnswer(response, lang).suspect
 }
 
 // Pré-filtre de fidélité (GEO-08g, critère 2) : les tokens attendus sont des
@@ -259,11 +238,12 @@ async function askQuestion(baseUrl, question, lang) {
 
   const latencyMs = Date.now() - startedAt
   const rawBody = await response.text()
-  let body
-  try {
-    body = JSON.parse(rawBody)
-  } catch {
-    body = { error: rawBody || `HTTP ${response.status}` }
+  // PERF-002 : le succès est un flux NDJSON, plus un objet JSON unique.
+  const decoded = decodeChatResponse(rawBody)
+  const body = {
+    response: decoded.response,
+    error: decoded.error ?? (response.ok ? null : `HTTP ${response.status}`),
+    errorCode: decoded.errorCode,
   }
 
   return {
@@ -328,7 +308,7 @@ async function main() {
         latencyMs: result.latencyMs,
         hasAnswer: result.hasAnswer,
         offTopic: Boolean(test.offTopic),
-        offTopicCorrectlyDeclined: test.offTopic ? isLikelyPoliteDecline(result.response) : null,
+        offTopicCorrectlyDeclined: test.offTopic ? isLikelyPoliteDecline(result.response, config.lang) : null,
         // GEO-08g — critères 1 et 2 (pré-filtres)
         requestedLanguage: config.lang,
         detectedLanguage,
