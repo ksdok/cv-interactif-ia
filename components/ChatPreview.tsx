@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import TypingEffect from './TypingEffect'
 import LinkifiedText from './LinkifiedText'
-import type { ApiErrorCode, Dictionary } from '@/lib/i18n/types'
+import { ChatStreamDecoder, resolveApiErrorMessage } from '@/lib/chatStreamProtocol'
+import type { Dictionary } from '@/lib/i18n/types'
 import type { Lang } from '@/lib/i18n/config'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
-  isTyping?: boolean
+  /** PERF-002 : true tant que la réponse assistant est en cours de streaming. */
+  streaming?: boolean
 }
 
 interface ChatPreviewProps {
@@ -53,10 +54,17 @@ export default function ChatPreview({
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  // PERF-002 (review M7) : contrôleur de la requête en vol — abort au démontage
+  // et à chaque nouvel envoi.
+  const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     setIsTokenReady(!!csrfToken)
   }, [csrfToken])
+
+  useEffect(() => () => {
+    abortRef.current?.abort()
+  }, [])
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -89,6 +97,63 @@ export default function ChatPreview({
       }
     }, 500)
     setIsLoading(true)
+    // PERF-002 : la réponse assistant est un placeholder consommé par le flux NDJSON.
+    setMessages((prev) => [...prev, { role: 'assistant', content: '', streaming: true }])
+
+    // Cycle de vie (review M7) : abort au démontage et à chaque nouvel envoi.
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    // PERF-002 (review M16) : les deltas sont coalescés et vidés une fois par
+    // frame — la région aria-live ne doit pas être réannoncée à chaque token.
+    let buffered = ''
+    let frame = 0
+    const flush = () => {
+      frame = 0
+      if (!buffered) return
+      const text = buffered
+      buffered = ''
+      setMessages((prev) =>
+        prev.map((m) => (m.streaming ? { ...m, content: m.content + text } : m))
+      )
+      scrollToBottom()
+    }
+    const scheduleFlush = () => {
+      if (!frame) frame = requestAnimationFrame(flush)
+    }
+    const cancelFlush = () => {
+      if (frame) {
+        cancelAnimationFrame(frame)
+        frame = 0
+      }
+    }
+    const finalizeStream = () => {
+      cancelFlush()
+      flush()
+      setMessages((prev) => prev.map((m) => (m.streaming ? { ...m, streaming: false } : m)))
+    }
+    // Review M7 : si du texte a déjà été affiché, on le garde et on ajoute
+    // l'erreur comme nouveau message ; sinon l'erreur s'affiche seule.
+    const showError = (errorCode: string | undefined, fallback: string) => {
+      cancelFlush()
+      flush()
+      const text = resolveApiErrorMessage(dictionary, errorCode) ?? fallback
+      setMessages((prev) => {
+        const streamed = prev.find((m) => m.streaming)
+        if (streamed && streamed.content.length > 0) {
+          return [
+            ...prev.map((m) => (m.streaming ? { ...m, streaming: false } : m)),
+            { role: 'assistant' as const, content: text },
+          ]
+        }
+        return prev.map((m) =>
+          m.streaming ? { role: 'assistant' as const, content: text } : m
+        )
+      })
+    }
+
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null
 
     try {
       const response = await fetch('/api/chat', {
@@ -104,43 +169,86 @@ export default function ChatPreview({
           // appliquée par resolveResponseLanguage(), pas ici.
           lang: locale,
         }),
+        signal: controller.signal,
       })
 
-      if (!response.headers.get('content-type')?.includes('application/json')) {
+      const contentType = response.headers.get('content-type') ?? ''
+
+      // Échecs pré-stream : contrat JSON inchangé (429/403/400/500).
+      if (contentType.includes('application/json')) {
+        const data = await response.json()
+
+        if (data.error) {
+          // Review M4 : l'API renvoie un errorCode agnostique de la langue ; le
+          // client mappe vers le message localisé. Exception F3 (review GEO-08b) :
+          // pour VALIDATION, le message serveur est actionnable (longueur,
+          // structure) — le générique du dictionnaire effacerait le détail.
+          const mapped = resolveApiErrorMessage(dictionary, data.errorCode)
+          throw new Error(
+            data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error)
+          )
+        }
+
+        // Défensif : plus attendu depuis PERF-002, mais on garde la forme
+        // non-streaming fonctionnelle si elle revenait.
+        finalizeStream()
+        return
+      }
+
+      if (!contentType.includes('application/x-ndjson') || !response.body) {
         throw new Error(dictionary.apiErrors.SERVER)
       }
-      const data = await response.json()
 
-      if (data.error) {
-        // Review M4 : l'API renvoie un errorCode agnostique de la langue ; le
-        // client mappe vers le message localisé. Exception F3 (review GEO-08b) :
-        // pour VALIDATION, le message serveur est actionnable (longueur,
-        // structure) — le générique du dictionnaire effacerait le détail.
-        const mapped = typeof data.errorCode === 'string'
-          ? dictionary.apiErrors[data.errorCode as ApiErrorCode]
-          : undefined
-        throw new Error(
-          data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error)
-        )
+      reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      const protocol = new ChatStreamDecoder()
+      let receivedDelta = false
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        let sawDone = false
+        for (const event of protocol.push(decoder.decode(value, { stream: true }))) {
+          if (event.type === 'delta') {
+            receivedDelta = true
+            buffered += event.text
+            scheduleFlush()
+          } else if (event.type === 'error') {
+            showError(event.errorCode, dictionary.apiErrors.SERVER)
+            return
+          } else {
+            sawDone = true
+          }
+        }
+
+        if (sawDone) {
+          finalizeStream()
+          return
+        }
       }
 
-      setMessages((prev) => [
-        ...prev,
-        { role: 'assistant', content: data.response, isTyping: true },
-      ])
+      // Flux terminé sans événement `done`.
+      if (receivedDelta) {
+        finalizeStream()
+      } else {
+        showError('SERVER', dictionary.apiErrors.SERVER)
+      }
     } catch (error) {
+      // Les abort (démontage / nouvel envoi) ne sont pas des erreurs visibles.
+      if ((error as Error)?.name === 'AbortError') return
       console.error('Error:', error)
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content:
-            error instanceof Error && error.message
-              ? error.message
-              : dictionary.chat.errorMessage,
-        },
-      ])
+      const message =
+        error instanceof Error && error.message ? error.message : dictionary.chat.errorMessage
+      showError(undefined, message)
     } finally {
+      cancelFlush()
+      try {
+        await reader?.cancel()
+      } catch {
+        // Lecteur déjà libéré.
+      }
+      if (abortRef.current === controller) abortRef.current = null
       setIsLoading(false)
     }
   }
@@ -196,16 +304,15 @@ export default function ChatPreview({
                     ? 'bg-primary text-on-primary-fixed'
                     : 'bg-surface-container-low text-on-surface'
                 }`}>
-                  {message.role === 'assistant' && message.isTyping ? (
-                    <TypingEffect
-                      text={message.content}
-                      onUpdate={scrollToBottom}
-                      onComplete={() => {
-                        setMessages(prev => prev.map((msg, idx) =>
-                          idx === index ? { ...msg, isTyping: false } : msg
-                        ))
-                      }}
-                    />
+                  {message.role === 'assistant' && message.streaming ? (
+                    // PERF-002 (review M16) : texte brut pendant le streaming —
+                    // `LinkifiedText` re-parse le texte entier à chaque rendu
+                    // (O(n²) sur une réponse qui grandit) ; on ne bascule vers
+                    // les liens qu'une fois le `done` reçu.
+                    <div className="whitespace-pre-wrap">
+                      {message.content}
+                      <span className="inline-block w-[2px] h-4 bg-on-surface ml-[2px] align-middle animate-blink" />
+                    </div>
                   ) : (
                     <div className="whitespace-pre-wrap">
                       <LinkifiedText text={message.content} />
@@ -214,7 +321,7 @@ export default function ChatPreview({
                 </div>
               </div>
             ))}
-            {isLoading && (
+            {isLoading && !messages.some((m) => m.streaming && m.content.length > 0) && (
               <div className="flex justify-start">
                 <div className="bg-surface-container-low rounded-2xl px-6 py-4">
                   <div className="flex space-x-2">

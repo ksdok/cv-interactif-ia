@@ -12,8 +12,12 @@
   2. Use the last user message as the context query when RAG is enabled.
   3. Build context from the configured source (`CV_CONTEXT_SOURCE`).
   4. Build the system prompt: persona + context + consigne de langue (GEO-08g).
-  5. Call generateResponse() — uses ACTIVE_PROVIDER with automatic fallback.
-  6. Return the response text as JSON.
+  5. PERF-002 — two phases:
+     - Phase 1 (preparation): rate limit → CSRF → validation → context build.
+       Failures here keep returning today's JSON shape `{ error, errorCode }`.
+     - Phase 2 (streaming): `streamResponse()` uses ACTIVE_PROVIDER with
+       first-byte-commit fallback, and the response is an NDJSON stream
+       (`application/x-ndjson`): `delta` / `done` / `error` events.
 
   GEO-08g : `lang` (`'fr'` | `'en'`, tout le reste → `fr`, sans 400) n'altère ni
   le persona ni le bloc de contexte — il n'ajoute qu'une consigne de langue en
@@ -31,7 +35,8 @@ import { getCSRFTokenFromRequest, verifyCSRFToken } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds } from '@/lib/rateLimit'
-import { generateResponse } from '@/lib/modelProviders'
+import { streamResponse } from '@/lib/modelProviders'
+import { encodeChatStreamEvent } from '@/lib/chatStreamProtocol'
 import { CV_CONTEXT_SOURCE } from '@/lib/modelConfig'
 import { getCVContext } from '@/lib/cvContext'
 import { buildChatSystemPrompt, buildCvContextBlock } from '@/lib/systemPrompt.mjs'
@@ -146,21 +151,68 @@ export async function POST(req: Request) {
 
     const systemPrompt = buildChatSystemPrompt(context, responseLanguage)
 
-    // Call the configured AI provider (with automatic fallback).
-    // To change provider or model: edit lib/modelConfig.ts
-    console.log('Calling generateResponse...')
-    const text = await generateResponse(messages, systemPrompt)
-    console.log('Response received (truncated):', text ? text.slice(0, 300) : '<empty>')
+    // ══════════════════════════════════════════════════════════════════════
+    // Phase 2 — streaming (PERF-002, review M8)
+    //
+    // Anything that can fail *before* the stream opens (rate limit, CSRF,
+    // validation, context build) lives in phase 1 above and keeps returning
+    // today's JSON error shape. From here on every failure is reported as an
+    // NDJSON `error` event inside an already-200 stream.
+    // ══════════════════════════════════════════════════════════════════════
+    const encoder = new TextEncoder()
 
-    // Return the extracted text to the client as JSON.
-    console.log('Returning response to client.')
-    // Include rate limit headers so client knows how many requests remain
-    return NextResponse.json(
-      { response: text },
-      {
-        headers: getRateLimitHeaders(rateLimit),
-      }
-    )
+    console.log('Opening NDJSON stream...')
+
+    const stream = new ReadableStream<Uint8Array>({
+      async start(controller) {
+        try {
+          // `request.signal` is threaded down to the provider SDK call so an
+          // abandoned chat aborts the upstream request instead of leaving the
+          // handler running to completion (review M13).
+          for await (const delta of streamResponse(messages, systemPrompt, { signal: req.signal })) {
+            controller.enqueue(encoder.encode(encodeChatStreamEvent({ type: 'delta', text: delta })))
+          }
+
+          // Do not emit `done` on a client disconnect — nobody is reading.
+          if (!req.signal.aborted) {
+            controller.enqueue(encoder.encode(encodeChatStreamEvent({ type: 'done' })))
+            console.log('Stream completed.')
+          } else {
+            console.log('Client disconnected — stream aborted before completion.')
+          }
+        } catch (error) {
+          if (req.signal.aborted || (error as Error)?.name === 'AbortError') {
+            console.log('Client disconnected — upstream provider stream aborted.')
+          } else {
+            console.error('Streaming error:', error)
+            controller.enqueue(encoder.encode(encodeChatStreamEvent({ type: 'error', errorCode: 'SERVER' })))
+          }
+        } finally {
+          try {
+            controller.close()
+          } catch {
+            // Stream already closed / cancelled.
+          }
+        }
+      },
+      cancel() {
+        console.log('Client cancelled the response stream.')
+      },
+    })
+
+    // Stream response headers (review M5). Never set `Content-Length`. Rate
+    // limit headers must ride on the initial response — they cannot be added
+    // once the body has started streaming.
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/x-ndjson',
+        'Cache-Control': 'no-cache, no-transform',
+        // nginx-like proxies buffer by default; harmless on Vercel.
+        'X-Accel-Buffering': 'no',
+        ...getRateLimitHeaders(rateLimit),
+      },
+    })
   } catch (error) {
     // Log the error server-side for debugging and return a generic 500 error to the client.
     console.error('API error:', error)

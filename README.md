@@ -125,11 +125,10 @@ cv-interactif-ia/
 ├── components/                    # All wording injected via dictionary props (GEO-08b)
 │   ├── Header.tsx                 # Sticky header, logo cliquable, lien CV + language switcher (GEO-08f)
 │   ├── Hero.tsx                   # Editorial hero — H1 = name + role (SEO-02)
-│   ├── ChatPreview.tsx            # Collapsible AI chat interface
+│   ├── ChatPreview.tsx            # Collapsible AI chat interface (consumes the NDJSON stream, PERF-002)
 │   ├── ExperienceGrid.tsx         # Bento-style experience cards
 │   ├── Footer.tsx                 # Copyright + social links
 │   ├── JobMatcher.tsx             # Job match modal
-│   ├── TypingEffect.tsx           # Typewriter animation
 │   └── LinkifiedText.tsx          # URL → clickable link renderer
 ├── content/
 │   ├── cv-en.tsx                  # EN editorial CV content served at /en/cv
@@ -137,7 +136,8 @@ cv-interactif-ia/
 ├── lib/
 │   ├── i18n/                      # config.ts (locales), dictionaries.ts, fr.ts, en.ts, types.ts
 │   ├── modelConfig.ts             # ← Edit here to switch AI provider/context
-│   ├── modelProviders.ts          # OpenAI / Gemini abstraction
+│   ├── modelProviders.ts          # OpenAI / Gemini abstraction (streaming + fallback)
+│   ├── chatStreamProtocol.ts      # /api/chat NDJSON protocol: encode/decode + errorCode mapping (PERF-002)
 │   ├── cvContext.ts               # Server-only CAG loader for data/cv.md
 │   ├── rag.ts                     # Embedding + Supabase vector search
 │   ├── supabase.ts                # Server-only Supabase client
@@ -193,10 +193,20 @@ or RAG: top 10 CV snippets from Supabase
 System prompt built with CV context + Nicky persona + response-language
 directive (from the body's `lang`, GEO-08g)
     ↓
-generateResponse() → active provider (with fallback)
+streamResponse() → active provider (with fallback, committed at first byte)
     ↓
-{ response: text }
+NDJSON stream (application/x-ndjson)
+{"type":"delta","text":"..."} … {"type":"done"}
 ```
+
+The handler runs in two phases (PERF-002): everything that can fail **before**
+the stream opens (rate limit, CSRF, input validation, context build) still
+returns today's JSON error shape (`{ error, errorCode }` with 429/403/400/500).
+Once the stream is open, provider failures are reported as an
+`{"type":"error","errorCode":"..."}` event inside the already-`200` stream. The
+provider choice is committed at the first byte written: a failure before that
+falls back silently to the next provider, a failure after it never switches
+provider (it would stitch two models together).
 
 The Nicky persona and the prompt assembly live in `lib/systemPrompt.mjs`
 (`buildChatSystemPrompt`). Edit this to change the assistant's name, tone, or
@@ -275,7 +285,7 @@ Current rule of thumb: stay in CAG below ~10K CV tokens, benchmark above 10K, an
 ### `POST /api/chat`
 
 ```json
-// Request
+// Request (unchanged)
 {
   "messages": [
     { "role": "user", "content": "What is your experience with fintech?" }
@@ -285,14 +295,24 @@ Current rule of thumb: stay in CAG below ~10K CV tokens, benchmark above 10K, an
   "lang": "en"
 }
 
-// Response 200
-{ "response": "..." }
+// Response 200 — NDJSON event stream (application/x-ndjson, no Content-Length)
+{"type":"delta","text":"Your experience with "}
+{"type":"delta","text":"fintech spans..."}
+{"type":"done"}
+// or, on a provider failure after the stream started:
+{"type":"error","errorCode":"SERVER"}
 
-// Response 429
-{ "error": "Rate limit exceeded: 200 requests per day maximum", "retryAfter": 28800 }
+// Response 429 — pre-stream failures keep the JSON error shape (PERF-002)
+{ "error": "Rate limit exceeded: 200 requests per day maximum", "errorCode": "RATE_LIMIT", "retryAfter": 28800 }
 ```
 
 Headers required: `X-CSRF-Token`, `Content-Type: application/json`
+
+Success responses stream `application/x-ndjson` (`Cache-Control: no-cache, no-transform`);
+the client reads them with `fetch` + `ReadableStream` and maps each `errorCode` to a
+localized message (`lib/chatStreamProtocol.ts`). `X-RateLimit-*` headers ride on the
+initial response. Errors that can occur **before** the stream opens (429, 403, 400,
+500) are still JSON, so the non-streaming error path is unchanged.
 
 `lang` only appends a language directive at the end of the system prompt — the
 persona + CV prefix stays identical between locales so the provider prompt cache
