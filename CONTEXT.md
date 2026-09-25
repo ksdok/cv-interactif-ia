@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-25 — PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (non fusionnée/poussée au moment de la validation) ; CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) et décision prise : **bascule vers `gpt-6-luna`**, gatée par le durcissement du refus hors-sujet
+> Dernière mise à jour : 2026-09-25 — PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) et décision prise : **bascule vers `gpt-6-luna`**, gatée par le durcissement du refus hors-sujet
 
 ---
 
@@ -176,7 +176,7 @@ fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 - ✅ `TEST-001` (infrastructure Vitest + 37 cas de validation migrés) → débloque `CICD-001`
 - ✅ `CICD-001` (workflow CI minimal : `type-check` + `lint` + `test` + `build` sur PR et push `main`)
 - 🟠 `CICD-002` (durcissement CI : actions v4 → v7, `concurrency`, image de runner épinglée) — signaux du premier run réel
-- ✅ `PERF-002` (streaming NDJSON de `/api/chat` — livré sur branche `perf-002-ai-response-streaming`, non fusionnée/poussée au moment de la validation)
+- ✅ `PERF-002` (streaming NDJSON de `/api/chat` — livré sur branche `perf-002-ai-response-streaming`, fusionnée et poussée sur origin/main (`0ec7c08`))
 - 🟠 `OBS-001` (Sentry)
 - 🟠 `MODEL-004` (**bascule vers `gpt-6-luna`** + durcissement du garde-fou hors-sujet : persona, jeu élargi, détecteur réparé) — le gain de coût est retenu, mais la bascule est **gatée** : si le jeu hors-sujet ne passe pas à 100 % sur Luna, pré-filtre déterministe ou rollback vers `gpt-5.4-mini` (banc du 2026-09-23)
 - 🟡 `QUAL-002` (logger) → puis `QUAL-003` (ESLint) ; `QUAL-001` (Prettier/husky) indépendant
