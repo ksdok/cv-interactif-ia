@@ -12,8 +12,11 @@
 import { describe, it, expect } from 'vitest'
 import {
   ChatStreamDecoder,
+  computeRevealChars,
   encodeChatStreamEvent,
   resolveApiErrorMessage,
+  REVEAL_CATCHUP_THRESHOLD_CHARS,
+  REVEAL_MAX_LAG_CHARS,
   type ChatStreamEvent,
 } from '@/lib/chatStreamProtocol'
 import fr from '@/lib/i18n/fr'
@@ -127,5 +130,73 @@ describe('resolveApiErrorMessage — mapping errorCode → message localisé (fr
   it('retourne undefined pour un code inconnu ou absent (jamais de message en dur)', () => {
     expect(resolveApiErrorMessage(fr, 'NOPE')).toBeUndefined()
     expect(resolveApiErrorMessage(fr, undefined)).toBeUndefined()
+  })
+})
+
+describe('computeRevealChars — lissage de révélation (PERF-002 post-spec)', () => {
+  // Rythme nominal : 60 caractères/s tant que le tampon reste court.
+  it('révèle au rythme nominal quand le tampon est court', () => {
+    // 0,5 s à 60 c/s → 30 caractères (tampon de 90 insuffisant pour saturer).
+    expect(computeRevealChars(90, 500)).toEqual({ chars: 30, remainder: 0 })
+    // 1 frame ~60 fps → 1 caractère.
+    expect(computeRevealChars(90, 1000 / 60)).toEqual({
+      chars: 1,
+      remainder: expect.any(Number),
+    })
+  })
+
+  it('ne révèle jamais plus que le tampon disponible', () => {
+    const budget = computeRevealChars(5, 1000, 0, true)
+    expect(budget.chars).toBe(5)
+    expect(budget.remainder).toBe(0)
+  })
+
+  it('ne révèle rien sans tampon ou sans temps écoulé', () => {
+    expect(computeRevealChars(0, 16)).toEqual({ chars: 0, remainder: 0 })
+    expect(computeRevealChars(50, 0)).toEqual({ chars: 0, remainder: 0 })
+    expect(computeRevealChars(-3, 16)).toEqual({ chars: 0, remainder: 0 })
+  })
+
+  // Rattrapage : au-delà du seuil, le débit dépasse le nominal.
+  it('accélère progressivement au-delà du seuil de retard', () => {
+    const nominal = computeRevealChars(REVEAL_CATCHUP_THRESHOLD_CHARS, 100).chars
+    const ramp = computeRevealChars(120, 100).chars // mi-pente vers le plafond
+    const capped = computeRevealChars(REVEAL_MAX_LAG_CHARS, 100).chars
+
+    expect(nominal).toBe(6) // 60 c/s × 0,1 s
+    expect(ramp).toBeGreaterThan(nominal)
+    expect(capped).toBeGreaterThan(ramp)
+    // Au plafond : ×4 le nominal.
+    expect(capped).toBe(24)
+  })
+
+  // Borne de retard : le débit croît avec le retard → drainage toujours < 2,5 s.
+  it('borne le retard sous ~2,5 s, même pour un très gros tampon', () => {
+    const elapsed = 50
+    for (const backlog of [10, 50, 90, 91, 120, 150, 300, 1000]) {
+      const { chars } = computeRevealChars(backlog, elapsed)
+      expect(chars).toBeGreaterThan(0)
+      const charsPerSecond = (chars / elapsed) * 1000
+      const secondsToDrain = backlog / charsPerSecond
+      expect(secondsToDrain).toBeLessThan(2.5)
+    }
+  })
+
+  it('forceCatchUp (fin de flux) vide le reliquat au débit maximal', () => {
+    const normal = computeRevealChars(50, 100).chars
+    const forced = computeRevealChars(50, 100, 0, true).chars
+    expect(forced).toBeGreaterThan(normal)
+    expect(forced).toBe(24) // 60 × 4 × 0,1 s
+  })
+
+  // Anti-stutter : la fraction non révélée est reportée à la frame suivante.
+  it('reporte la fraction non révélée (pas de blocage à 0 caractère)', () => {
+    const first = computeRevealChars(60, 10)
+    expect(first.chars).toBe(0)
+    expect(first.remainder).toBeCloseTo(0.6, 5)
+
+    const second = computeRevealChars(60, 10, first.remainder)
+    expect(second.chars).toBe(1)
+    expect(second.remainder).toBeCloseTo(0.2, 5)
   })
 })

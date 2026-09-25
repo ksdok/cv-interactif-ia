@@ -94,6 +94,82 @@ function parseChatStreamEvent(line: string): ChatStreamEvent | null {
   }
 }
 
+/* -------------------------------------------------------------------------
+ * Lissage de l'affichage côté client (PERF-002, décision produit opérateur
+ * post-spec).
+ *
+ * Le serveur et le protocole NDJSON sont INTACTS : le TTFT reste le premier
+ * octet réseau. Ces helpers ne font que calibrer le *rythme de révélation* du
+ * texte déjà reçu, pour une lecture naturelle au lieu d'un déversement
+ * instantané. Module pur et isomorphe (importé par `ChatPreview.tsx`).
+ * ---------------------------------------------------------------------- */
+
+/** Rythme nominal de révélation, en caractères par seconde (≈ lecture naturelle). */
+export const REVEAL_CHARS_PER_SECOND = 60
+
+/** Retard tamponné (≈ 1,5 s au rythme nominal) au-delà duquel on accélère. */
+export const REVEAL_CATCHUP_THRESHOLD_CHARS = 90
+
+/** Retard maximal ciblé (≈ 2,5 s au rythme nominal) : borne haute du rattrapage. */
+export const REVEAL_MAX_LAG_CHARS = 150
+
+/** Facteur de rattrapage atteint au seuil de retard ; au-delà, il croît avec le retard. */
+export const REVEAL_CATCHUP_MAX_MULTIPLIER = 4
+
+/** Budget de révélation d'une frame : caractères affichés + report fractionnaire. */
+export interface RevealBudget {
+  /** Caractères à révéler maintenant (entier, jamais > `backlog`). */
+  chars: number
+  /** Fraction de caractère reportée à la frame suivante (anti-stutter 0/1). */
+  remainder: number
+}
+
+/**
+ * Calcule combien de caractères révéler sur une frame, à partir du tampon en
+ * attente (`backlog`), du temps écoulé (`elapsedMs`) et d'un éventuel report
+ * fractionnaire.
+ *
+ * Politique (décision produit opérateur) :
+ * - rythme nominal constant `REVEAL_CHARS_PER_SECOND` tant que le tampon reste
+ *   court (affichage régulier, non nerveux) ;
+ * - au-delà de `REVEAL_CATCHUP_THRESHOLD_CHARS`, accélération progressive
+ *   jusqu'à `REVEAL_CATCHUP_MAX_MULTIPLIER` × au seuil `REVEAL_MAX_LAG_CHARS` ;
+ * - au-delà de ce seuil, le débit croît proportionnellement au retard, ce qui
+ *   garantit que le tampon se résorbe (retard borné) même si le réseau débite
+ *   plus vite que le rattrapage maximal ;
+ * - `forceCatchUp` (fin de flux) impose le rattrapage pour vider le reliquat
+ *   sans traîner, avant finalisation.
+ */
+export function computeRevealChars(
+  backlog: number,
+  elapsedMs: number,
+  remainder = 0,
+  forceCatchUp = false
+): RevealBudget {
+  if (backlog <= 0 || elapsedMs <= 0) return { chars: 0, remainder: 0 }
+
+  let multiplier = 1
+  if (backlog >= REVEAL_MAX_LAG_CHARS) {
+    multiplier = REVEAL_CATCHUP_MAX_MULTIPLIER * (backlog / REVEAL_MAX_LAG_CHARS)
+  } else if (backlog > REVEAL_CATCHUP_THRESHOLD_CHARS) {
+    const span = REVEAL_MAX_LAG_CHARS - REVEAL_CATCHUP_THRESHOLD_CHARS
+    const progress = (backlog - REVEAL_CATCHUP_THRESHOLD_CHARS) / span
+    multiplier = 1 + (REVEAL_CATCHUP_MAX_MULTIPLIER - 1) * progress
+  }
+  if (forceCatchUp) {
+    multiplier = Math.max(multiplier, REVEAL_CATCHUP_MAX_MULTIPLIER)
+  }
+
+  const owed = (REVEAL_CHARS_PER_SECOND * multiplier * elapsedMs) / 1000 + remainder
+  const target = Math.floor(owed)
+
+  // Rien à révéler cette frame : on reporte la fraction accumulée.
+  if (target <= 0) return { chars: 0, remainder: owed }
+  // Le tampon est entièrement rattrapé : on le vide et on jette le surplus.
+  if (target >= backlog) return { chars: backlog, remainder: 0 }
+  return { chars: target, remainder: owed - target }
+}
+
 /**
  * Map a language-agnostic API `errorCode` to its localized message using the
  * page dictionary. Extracted from `ChatPreview.tsx` so the

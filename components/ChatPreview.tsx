@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import LinkifiedText from './LinkifiedText'
-import { ChatStreamDecoder, resolveApiErrorMessage } from '@/lib/chatStreamProtocol'
+import { ChatStreamDecoder, computeRevealChars, resolveApiErrorMessage } from '@/lib/chatStreamProtocol'
 import type { Dictionary } from '@/lib/i18n/types'
 import type { Lang } from '@/lib/i18n/config'
 
@@ -57,12 +57,17 @@ export default function ChatPreview({
   // PERF-002 (review M7) : contrôleur de la requête en vol — abort au démontage
   // et à chaque nouvel envoi.
   const abortRef = useRef<AbortController | null>(null)
+  // Lissage (PERF-002 post-spec) : la boucle de révélation rAF peut survivre au
+  // retour de `doSend` (drainage post-`done`) ; ce garde empêche tout setState
+  // après démontage.
+  const mountedRef = useRef(true)
 
   useEffect(() => {
     setIsTokenReady(!!csrfToken)
   }, [csrfToken])
 
   useEffect(() => () => {
+    mountedRef.current = false
     abortRef.current?.abort()
   }, [])
 
@@ -105,39 +110,94 @@ export default function ChatPreview({
     const controller = new AbortController()
     abortRef.current = controller
 
-    // PERF-002 (review M16) : les deltas sont coalescés et vidés une fois par
-    // frame — la région aria-live ne doit pas être réannoncée à chaque token.
+    // PERF-002 (review M16) + lissage post-spec : les deltas alimentent un
+    // tampon, révélé à un rythme de lecture par une boucle rAF via
+    // `computeRevealChars()`. Le serveur et le protocole NDJSON sont intacts —
+    // le TTFT reste le 1er octet réseau ; seul l'affichage est lissé.
     let buffered = ''
     let frame = 0
-    const flush = () => {
-      frame = 0
-      if (!buffered) return
-      const text = buffered
-      buffered = ''
-      setMessages((prev) =>
-        prev.map((m) => (m.streaming ? { ...m, content: m.content + text } : m))
-      )
-      scrollToBottom()
-    }
-    const scheduleFlush = () => {
-      if (!frame) frame = requestAnimationFrame(flush)
-    }
-    const cancelFlush = () => {
+    // Report fractionnaire entre frames (anti-stutter à 0/1 caractère).
+    let remainder = 0
+    let lastFrameTime = 0
+    // `done` reçu : on finit de drainer le tampon restant en rattrapage, puis
+    // on finalise (curseur retiré, `LinkifiedText`).
+    let streamEnded = false
+    let stopped = false
+    // Frame bornée : après un onglet en arrière-plan, rAF reprend avec un écart
+    // énorme — on le plafonne pour ne pas déverser tout le tampon d'un coup.
+    const DEFAULT_FRAME_MS = 1000 / 60
+    const MAX_FRAME_MS = 100
+
+    const stopAnimation = () => {
+      stopped = true
       if (frame) {
         cancelAnimationFrame(frame)
         frame = 0
       }
     }
-    const finalizeStream = () => {
-      cancelFlush()
-      flush()
-      setMessages((prev) => prev.map((m) => (m.streaming ? { ...m, streaming: false } : m)))
+
+    const reveal = (text: string) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.streaming ? { ...m, content: m.content + text } : m))
+      )
+      scrollToBottom()
     }
+
+    const finalizeStream = () => {
+      stopAnimation()
+      buffered = ''
+      if (!mountedRef.current) return
+      setMessages((prev) => prev.map((m) => (m.streaming ? { ...m, streaming: false } : m)))
+      setIsLoading(false)
+    }
+
+    const pump = (now: number) => {
+      frame = 0
+      if (stopped || !mountedRef.current) return
+      const elapsed = lastFrameTime
+        ? Math.min(now - lastFrameTime, MAX_FRAME_MS)
+        : DEFAULT_FRAME_MS
+      lastFrameTime = now
+      const budget = computeRevealChars(buffered.length, elapsed, remainder, streamEnded)
+      remainder = budget.remainder
+      if (budget.chars > 0) {
+        const text = buffered.slice(0, budget.chars)
+        buffered = buffered.slice(budget.chars)
+        reveal(text)
+      }
+      if (buffered.length > 0) {
+        frame = requestAnimationFrame(pump)
+      } else if (streamEnded) {
+        finalizeStream()
+      } else {
+        // Boucle au repos : le prochain delta repart d'un écart court.
+        lastFrameTime = 0
+      }
+    }
+
+    const schedulePump = () => {
+      if (!frame && !stopped) frame = requestAnimationFrame(pump)
+    }
+
+    // Fin de flux : drainer le reliquat en rattrapage, puis finaliser.
+    const endStream = () => {
+      streamEnded = true
+      if (buffered.length > 0) schedulePump()
+      else finalizeStream()
+    }
+
     // Review M7 : si du texte a déjà été affiché, on le garde et on ajoute
     // l'erreur comme nouveau message ; sinon l'erreur s'affiche seule.
     const showError = (errorCode: string | undefined, fallback: string) => {
-      cancelFlush()
-      flush()
+      stopAnimation()
+      // Erreur : on révèle immédiatement le tampon reçu (aucun contenu perdu),
+      // sans attendre le drainage lissé.
+      if (buffered) {
+        const pending = buffered
+        buffered = ''
+        reveal(pending)
+      }
+      if (!mountedRef.current) return
       const text = resolveApiErrorMessage(dictionary, errorCode) ?? fallback
       setMessages((prev) => {
         const streamed = prev.find((m) => m.streaming)
@@ -151,7 +211,10 @@ export default function ChatPreview({
           m.streaming ? { role: 'assistant' as const, content: text } : m
         )
       })
+      setIsLoading(false)
     }
+
+    let aborted = false
 
     let reader: ReadableStreamDefaultReader<Uint8Array> | null = null
 
@@ -213,7 +276,7 @@ export default function ChatPreview({
           if (event.type === 'delta') {
             receivedDelta = true
             buffered += event.text
-            scheduleFlush()
+            schedulePump()
           } else if (event.type === 'error') {
             showError(event.errorCode, dictionary.apiErrors.SERVER)
             return
@@ -223,33 +286,40 @@ export default function ChatPreview({
         }
 
         if (sawDone) {
-          finalizeStream()
+          endStream()
           return
         }
       }
 
       // Flux terminé sans événement `done`.
       if (receivedDelta) {
-        finalizeStream()
+        endStream()
       } else {
         showError('SERVER', dictionary.apiErrors.SERVER)
       }
     } catch (error) {
       // Les abort (démontage / nouvel envoi) ne sont pas des erreurs visibles.
-      if ((error as Error)?.name === 'AbortError') return
+      if ((error as Error)?.name === 'AbortError') {
+        aborted = true
+        return
+      }
       console.error('Error:', error)
       const message =
         error instanceof Error && error.message ? error.message : dictionary.chat.errorMessage
       showError(undefined, message)
     } finally {
-      cancelFlush()
+      // Seul l'abort doit couper la boucle de révélation : un `done` normal a
+      // confié le drainage à `endStream()`, qui finalise lui-même.
+      if (aborted) {
+        stopAnimation()
+        buffered = ''
+      }
       try {
         await reader?.cancel()
       } catch {
         // Lecteur déjà libéré.
       }
       if (abortRef.current === controller) abortRef.current = null
-      setIsLoading(false)
     }
   }
 
