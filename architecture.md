@@ -49,6 +49,9 @@ cv-interactif-ia/
 ├── lib/                         # Logique métier réutilisable (voir §3)
 ├── data/cv.md                   # Source de vérité du CV (CAG)
 ├── content/cv/                  # Contenus éditoriaux
+├── instrumentation.ts           # Instrumentation serveur Sentry (garde DSN — OBS-001)
+├── instrumentation-client.ts    # Instrumentation client Sentry (garde DSN)
+├── sentry.server.config.ts      # Config runtime Node Sentry
 ├── proxy.ts                     # Ex-middleware (Next 16, runtime Node) — voir §4
 ├── scripts/
 │   ├── generate-llms-full.mjs   # Prébuild : génère llms.txt / llms-full.txt
@@ -107,6 +110,7 @@ Variables requises (`.env.local`) :
 - `OPENAI_API_KEY`, `GEMINI_API_KEY` (fallback recommandé)
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
 - `CSP_REPORT_ONLY` (optionnel : CSP en report-only avant enforcement)
+- `NEXT_PUBLIC_SENTRY_DSN` (optionnel : active le monitoring d'erreurs `@sentry/nextjs` — garde DSN, SDK inactif sans DSN ; tunnel `/monitoring`, CSP `connect-src` inchangée — OBS-001)
 
 Déploiement : **Vercel** (push `main`). Pas de déploiement automatisé depuis GitHub Actions à ce jour.
 Décision modèle (MODEL-004, livrée le 2026-09-25) : OpenAI bascule sur `gpt-6-luna` avec
