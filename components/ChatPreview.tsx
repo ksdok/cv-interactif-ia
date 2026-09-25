@@ -247,9 +247,15 @@ export default function ChatPreview({
           // pour VALIDATION, le message serveur est actionnable (longueur,
           // structure) — le générique du dictionnaire effacerait le détail.
           const mapped = resolveApiErrorMessage(dictionary, data.errorCode)
-          throw new Error(
+          // Erreur métier : message déjà localisé (ou actionnable pour
+          // VALIDATION). On l'affiche directement plutôt que de la `throw`,
+          // afin que le `catch` ne reçoive plus que des exceptions réelles
+          // (réseau, lecture) — voir le `catch` ci-dessous.
+          showError(
+            data.errorCode,
             data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error)
           )
+          return
         }
 
         // Défensif : plus attendu depuis PERF-002, mais on garde la forme
@@ -259,7 +265,10 @@ export default function ChatPreview({
       }
 
       if (!contentType.includes('application/x-ndjson') || !response.body) {
-        throw new Error(dictionary.apiErrors.SERVER)
+        // Erreur métier déjà localisée : affichée directement (même raison que
+        // la branche JSON ci-dessus) — le message du dictionnaire, jamais brut.
+        showError('SERVER', dictionary.apiErrors.SERVER)
+        return
       }
 
       reader = response.body.getReader()
@@ -304,9 +313,10 @@ export default function ChatPreview({
         return
       }
       console.error('Error:', error)
-      const message =
-        error instanceof Error && error.message ? error.message : dictionary.chat.errorMessage
-      showError(undefined, message)
+      // Exception réelle (échec réseau, lecture interrompue) : on n'affiche
+      // JAMAIS `error.message` (ex. « Failed to fetch », en anglais) — le
+      // wording passe par le dictionnaire (architecture.md §5.1, revue M7).
+      showError(undefined, dictionary.chat.errorMessage)
     } finally {
       // Seul l'abort doit couper la boucle de révélation : un `done` normal a
       // confié le drainage à `endStream()`, qui finalise lui-même.
