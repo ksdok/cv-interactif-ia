@@ -25,11 +25,12 @@ export const ACTIVE_PROVIDER_JOB_MATCH: Provider = 'openai'
 export const FALLBACK_ORDER_JOB_MATCH: Provider[] = ['gemini']
 
 // ─── Per-provider model settings ───────────────────────────────────────────
-// MODEL-004 : `gpt-6-luna` remplace `gpt-5.4-mini` (≈ ×11,6 moins cher par appel :
-// $0,000058 contre $0,00087 mesurés au banc du 2026-09-25, 36 questions × 2 langues,
-// cache chaud). La bascule est **conditionnée** au garde-fou hors-sujet : 17/17 refus
-// sur le jeu élargi (verdicts humains), 4/4 quasi-manques répondus, 0 token de fidélité
-// manquant — cf. `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md`.
+// MODEL-004 : `gpt-6-luna` remplace `gpt-5.4-mini` (tarifs officiels ≈ ×11,6
+// moins cher par appel ; banc du 2026-09-25 mesuré : $0,0000593 contre $0,000852,
+// soit ×14,4 — 36 questions, fr + en, cache chaud). La bascule est **conditionnée**
+// au garde-fou hors-sujet : 17/17 refus sur le jeu élargi (verdicts humains), 4/4
+// quasi-manques répondus, 0 token de fidélité manquant — cf.
+// `docs/backlog/MODEL-004-chat-guardrail-hardening-spec.md`.
 //
 // ROLLBACK (une ligne, décision 5) : repasser `model` à `'gpt-5.4-mini'` ci-dessous,
 // redéployer. Référence de comparaison au banc du 2026-09-25 : TTFT moy 641 ms /
