@@ -65,6 +65,14 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 # Security (optional)
 # Set to true to deploy CSP in report-only mode before enforcing.
 CSP_REPORT_ONLY=false
+
+# Observability (optional — OBS-001)
+# Without NEXT_PUBLIC_SENTRY_DSN the Sentry SDK stays completely inert.
+# NEXT_PUBLIC_SENTRY_DSN=https://<key>@o<org>.ingest.sentry.io/<project>
+# SENTRY_ORG=<org-slug>          # build-time only (source maps)
+# SENTRY_PROJECT=<project-slug>  # build-time only (source maps)
+# SENTRY_AUTH_TOKEN=sntrys_...   # build-time only — never a NEXT_PUBLIC_* var
+# NEXT_PUBLIC_SENTRY_ENVIRONMENT=production  # optional; VERCEL_ENV covers the server
 ```
 
 ### Install & Run
@@ -414,6 +422,7 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
+   - `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_AUTH_TOKEN` (optional; observability, see below)
 4. Deploy — automatic on every push to `main`
 
 `npm run build` (and therefore the CI build step) requires **no** environment variable:
@@ -421,6 +430,24 @@ the Supabase client is created on first use (`getSupabase()` in `lib/supabase.ts
 [CICD-001](docs/backlog/CICD-001-minimal-ci-pipeline-spec.md)) and the OpenAI client
 tolerates a missing key until it is actually called. Runtime still fails fast in
 production when `SUPABASE_SERVICE_ROLE_KEY` is missing (SEC-005).
+
+The same holds for Sentry (OBS-001): with no `SENTRY_AUTH_TOKEN` the source-map upload
+is simply skipped — it is not a build failure — and `withSentryConfig` runs with a
+non-fatal `errorHandler` (the `SENTRY_ALLOW_FAILURE=true` env var can be set as an extra
+safety net). CI therefore builds with zero Sentry env vars.
+
+### Error monitoring (Sentry, OBS-001)
+
+- Client, server and route-handler errors are reported through `@sentry/nextjs`
+  (`instrumentation-client.ts`, `instrumentation.ts`, `sentry.server.config.ts`).
+- Events are sent through a **same-origin tunnel** (`tunnelRoute: '/monitoring'`): the
+  strict CSP (`connect-src 'self'`, no `unsafe-*`) needs no widening.
+- There is **no edge runtime** in this repo (`proxy.ts` runs on the Node runtime), so no
+  `sentry.edge.config.ts` is created.
+- Privacy: `sendDefaultPii: false` plus scrubbers drop request bodies, cookies and
+  console-breadcrumb arguments (the chat/job-match paths log short user-content slices).
+- Performance sampling is explicit: `tracesSampleRate: 0.1` in production, `0` otherwise.
+- Alerts: Sentry's default “new issue” notification is the V1 policy.
 
 ### Continuous Integration
 
