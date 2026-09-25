@@ -6,14 +6,34 @@
  */
 
 import OpenAI from 'openai'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI, type GenerateContentResponse } from '@google/genai'
 import { ACTIVE_PROVIDER, FALLBACK_ORDER, ACTIVE_PROVIDER_JOB_MATCH, FALLBACK_ORDER_JOB_MATCH, MODEL_CONFIG, type Provider } from './modelConfig'
 import { captureMessage } from '@sentry/nextjs'
 
 // ─── SDK clients (initialized once at module level) ────────────────────────
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || '' })
-const gemini = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '')
+
+// ─── MODEL-003 (décision 2) — retry Gemini explicite ───────────────────────
+// Le nouveau SDK embarque `p-retry`. Nuance VÉRIFIÉE dans `@google/genai@2.24.0`
+// (`dist/index.mjs`, `ApiClient.apiCall`) : sans `httpOptions.retryOptions`, il
+// n'y a AUCUN retry (`if (!retryOptions) return runFetch()`) — l'omission
+// équivaut donc exactement au comportement de l'ancien SDK, qui n'en avait pas.
+// Le défaut documenté de 5 tentatives ne s'applique que si `retryOptions` est
+// fourni SANS `attempts`. On suit l'Option A de la spec : un retry unique et
+// explicite (codes réessayables par défaut : 408/429/5xx), car Gemini est le
+// DERNIER maillon de la chaîne (`FALLBACK_ORDER = ['gemini']`) et le seul
+// incident transitoire observé ici est un `503 … high demand`.
+// `attempts` compte l'appel initial → 2 = 1 retry (équivaut à `maxRetries: 1`).
+const GEMINI_RETRY_ATTEMPTS = 2
+
+// L'absence de clé reste tolérée (`|| ''`) — pas de fail-fast au chargement
+// (CONTEXT.md §9, build secret-free). Note : le SDK émet un simple `console.warn`
+// « API key should be set… » si la clé est absente au moment de la construction.
+const gemini = new GoogleGenAI({
+  apiKey: process.env.GEMINI_API_KEY || '',
+  httpOptions: { retryOptions: { attempts: GEMINI_RETRY_ATTEMPTS } },
+})
 
 // ─── Message type shared across providers ──────────────────────────────────
 
@@ -61,12 +81,11 @@ async function callOpenAI(messages: ChatMessage[], system: string): Promise<stri
 
 async function callGemini(messages: ChatMessage[], system: string): Promise<string> {
   const config = MODEL_CONFIG.gemini
-  const model = gemini.getGenerativeModel({
-    model: config.model,
-    systemInstruction: system,
-  })
 
-  // Convert to Gemini history format (all messages except the last user message)
+  // Convert to Gemini history format (all messages except the last user message).
+  // MODEL-003 : conversion byte-identique à l'ancien SDK — même ordre, mêmes
+  // rôles (`assistant` → `model`), même chaîne de dernier message. Seule la
+  // librairie cliente change (préfixe persona+CV du cache provider intact).
   const history = messages.slice(0, -1).map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
@@ -74,15 +93,24 @@ async function callGemini(messages: ChatMessage[], system: string): Promise<stri
 
   const lastMessage = messages[messages.length - 1].content
 
-  const chat = model.startChat({ history })
-  const result = await chat.sendMessage(lastMessage)
+  // MODEL-003 (décision 1) : `chats.create` + `sendMessage` est le pendant
+  // direct de `getGenerativeModel` + `startChat` + `sendMessage`.
+  const chat = gemini.chats.create({
+    model: config.model,
+    history,
+    config: { systemInstruction: system },
+  })
+  const response = await chat.sendMessage({ message: lastMessage })
 
-  const usage = result.response.usageMetadata
+  // `usageMetadata` conserve `cachedContentTokenCount` — la ligne de log reste
+  // format-identique (contrat de `scripts/measure-cache.mjs`).
+  const usage = response.usageMetadata
   if (usage) {
     console.log(`[modelProviders] Gemini usage: ${JSON.stringify(usage)}`)
   }
 
-  return result.response.text()
+  // MODEL-003 : `.text` est une propriété dans le nouveau SDK (plus une méthode).
+  return response.text ?? ''
 }
 
 // ─── Per-provider streaming call functions (PERF-002) ───────────────────────
@@ -133,10 +161,6 @@ async function* callGeminiStream(
   signal?: AbortSignal
 ): AsyncGenerator<string> {
   const config = MODEL_CONFIG.gemini
-  const model = gemini.getGenerativeModel({
-    model: config.model,
-    systemInstruction: system,
-  })
 
   const history = messages.slice(0, -1).map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
@@ -145,19 +169,33 @@ async function* callGeminiStream(
 
   const lastMessage = messages[messages.length - 1].content
 
-  const chat = model.startChat({ history })
-  // M2 (review): `sendMessageStream` is the minimal-diff counterpart of
-  // `sendMessage`; `generateContentStream` would drop the chat session.
-  const result = await chat.sendMessageStream(lastMessage, { signal })
+  const chat = gemini.chats.create({
+    model: config.model,
+    history,
+    config: { systemInstruction: system },
+  })
 
-  for await (const chunk of result.stream) {
-    const text = chunk.text()
+  // M2 (review): `sendMessageStream` stays the minimal-diff counterpart of
+  // `sendMessage`.
+  // MODEL-003 : `abortSignal` voyage dans le config **per-request**, qui ne
+  // fusionne PAS avec le config chat-level (piège de la spec) — `systemInstruction`
+  // est donc répété ici au lieu d'être hérité.
+  const stream = await chat.sendMessageStream({
+    message: lastMessage,
+    config: { systemInstruction: system, abortSignal: signal },
+  })
+
+  // MODEL-003 (décision 4) : l'ancien `sendMessageStream` exposait `{ stream,
+  // response }` et `response` (await) portait l'`usageMetadata`. Le nouveau
+  // renvoie `Promise<AsyncGenerator<…>>` sans promesse agrégée : on lit
+  // l'`usageMetadata` sur le(s) chunk(s) qui le portent (typiquement le dernier).
+  let usage: GenerateContentResponse['usageMetadata'] | undefined
+  for await (const chunk of stream) {
+    const text = chunk.text
     if (text) yield text
+    if (chunk.usageMetadata) usage = chunk.usageMetadata
   }
 
-  // `result.response` resolves with the aggregated result — usage logging in
-  // streaming mode is therefore trivial (spec §1, review M2).
-  const usage = (await result.response).usageMetadata
   if (usage) {
     console.log(`[modelProviders] Gemini usage (stream): ${JSON.stringify(usage)}`)
   }
