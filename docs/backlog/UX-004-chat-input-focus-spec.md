@@ -1,6 +1,10 @@
 # UX-004 — Perte de focus de l'input chat sur envoi (Enter)
 
 > **Statut : PROPOSÉE** — pending validation utilisateur (2026-09-25)
+>
+> **Revue kimi-analyst 2026-09-25 : À AMENDER** → amendements 1–4 appliqués (re-focus chemin
+> bouton [blocant], garde IME, ciblage `aria-busy`, correction des notes de re-render) ; en
+> attente de re-validation opérateur. La spec **n'est pas passée à VALIDÉE**.
 > **Ticket proposé** : UX-004 · **Date** : 2026-09-25 · **Backlog** : UI / UX · **Base de code** : `main` @ `a4cafd4`
 > Taille S · Un seul composant touché (`components/ChatPreview.tsx`) + un libellé de dictionnaire au maximum.
 
@@ -38,18 +42,34 @@ streaming l'a rendu plus perceptible car on enchaîne plus vite les messages.
 2. **Blur mobile conservé** — le `blur()` volontaire après envoi (`< 768 px`, referme le
    clavier iOS) reste inchangé ; le fix ne concerne que le chemin desktop.
 3. **Aucun remount** — l'élément `<input>` doit rester monté et identique entre les rendus
-   : React restaure nativement le focus/la sélection d'un contrôle contrôlé qui n'est ni
-   démonté ni désactivé (source React, cf. Sources).
+   : le navigateur ne retire **jamais** le focus d'un élément monté et actif ; le focus est
+   donc conservé tant que l'input n'est **jamais désactivé** et n'est **pas démonté**
+   (démontage / `key` changeante / déplacement dans l'arbre seuls recréeraient le nœud —
+   aucun n'est introduit ici). Il ne s'agit **pas** d'une « restauration » par React : un
+   simple changement d'attribut ne recrée pas le nœud DOM (cf. §7).
 
 ## 4. Scope
 
 Dans le périmètre :
 - `components/ChatPreview.tsx` : retirer `disabled={isLoading}` de l'input ; signaler
-  l'état de chargement sans retirer l'interactivité (`aria-busy`, style visuel léger) ;
+  l'état de chargement sans retirer l'interactivité (`aria-busy` sur le **conteneur de
+  messages**, cf. §6.1 ; style visuel léger optionnel) ;
 - garde anti-double-envoi préservée (early-return `isLoading` dans `doSend()`, déjà en
   place — vérifier qu'elle est exhaustive : Entrée + clic bouton) ;
-- focus préservé pendant le stream (aucun code nouveau nécessaire si l'élément n'est plus
-  jamais désactivé) ; le `blur()` mobile `< 768 px` reste tel quel ;
+- **re-focus explicite pour le chemin bouton (blocant)** : retirer `disabled={isLoading}`
+  préserve le focus après **Entrée** (critère 1), mais après un **clic bouton** le focus
+  est sur le bouton — lui-même `disabled` pendant `isLoading` (`components/ChatPreview.tsx`
+  l. 436) → le focus retombe sur `<body>` et le critère 2 échoue sans code additionnel.
+  Ajouter dans `doSend()` (ou sur le `onClick` du bouton) :
+  `if (window.innerWidth >= 768) inputRef.current?.focus()`, placé **avant** le
+  `setTimeout(500)` mobile et **jamais exécuté sur mobile** (le `blur()` l. 99 doit
+  refermer le clavier iOS — pas de rebond focus/blur) ;
+- **garde IME (majeur)** : `handleKeyDown` (l. 336–341) n'a pas de garde `isComposing` ;
+  Entrée envoie pendant la composition IME (jp/zh/kr). Ajouter une ligne
+  `if (e.nativeEvent.isComposing) return` en tête du handler (1 ligne, sans wording) — bug
+  pré-existant, mais figé par cette spec qui déclarait ce code « inchangé » ;
+- focus préservé pendant le stream sur le chemin Entrée ; le `blur()` mobile `< 768 px`
+  reste tel quel ;
 - un libellé de dictionnaire si l'état visuel de l'input pendant la génération nécessite
   un `title`/`placeholder` spécifique (sinon aucun wording).
 
@@ -69,7 +89,12 @@ Hors périmètre :
 ## 6. Changements requis
 
 1. **Retirer `disabled={isLoading}`** de l'input ; à la place :
-   - `aria-busy={isLoading}` (accessibilité : la section annonce déjà `aria-live="polite"`) ;
+   - `aria-busy={isLoading}` posé sur le **conteneur de messages**
+     (`<div ref={messagesContainerRef} … aria-live="polite" aria-atomic="false">`, l. 376),
+     **pas** sur l'input ni sur la `<section>` : `aria-busy` est le compagnon d'`aria-live`
+     et marque la région en cours de mise à jour comme occupée — corrige la mention initiale
+     situant le `aria-live` « sur la section ». (Le défaut « aucun style visuel » ci-dessous
+     porte sur le feedback de l'input, pas sur `aria-busy`.) ;
    - si un feedback visuel est voulu : opacité/placeholder inchangés ou `title` — sans
      bloquer la frappe. Option retenue par défaut : **aucun style d'état**, l'utilisateur
      voit la réponse s'écrire, l'input est simplement actif.
@@ -88,10 +113,14 @@ Hors périmètre :
 - **Ne pas remounter l'input** : pas de `key` dynamique, pas de rendu conditionnel du
   `<input>` (le composant le garde monté — vérifier que `expanded` ne change que des
   classes, pas la structure).
-- Le focus React-restauré ne vaut que si l'élément n'est **jamais désactivé** : c'est le
-  cœur du fix ; toute réintroduction de `disabled` sur l'input recrée le bug.
-- Contraindre les re-rendus : l'ajout de `aria-busy` ne doit pas forcer un re-render qui
-  recrée l'input (même position dans l'arbre, même `ref`).
+- Le focus n'est conservé que si l'élément n'est **jamais désactivé** : c'est le cœur du
+  fix ; toute réintroduction de `disabled` sur l'input recrée le bug. Le focus est préservé
+  parce que le navigateur ne le retire jamais d'un élément monté et actif (pas de
+  « restauration React ») — la citation `ReactInputSelection.js` surévaluait le mécanisme.
+- **Aucun risque de re-render** : un changement d'attribut (`aria-busy`, etc.) ne recrée
+  jamais le nœud DOM en React ; seuls démontage / `key` changeante / déplacement le
+  feraient (déjà couverts en §3.3). Poser `aria-busy` sur le conteneur de messages est donc
+  sans effet sur le montage de l'input.
 - Vitest (environnement Node) ne couvre pas ce composant : aucune automatisation possible
   sans `@testing-library` (hors scope, cf. MODEL-004).
 
@@ -99,8 +128,10 @@ Hors périmètre :
 
 1. Sur desktop (> 768 px), après **Entrée** : le focus **reste** dans l'input pendant
    toute la génération ; l'utilisateur peut continuer à taper sans recliquer.
-2. Sur desktop, après l'envoi par **clic bouton** : le focus revient sur l'input à la
-   fin de la réponse (sans re-clic).
+2. Sur desktop, après l'envoi par **clic bouton** : le focus est ramené sur l'input par un
+   `focus()` explicite (dans `doSend()`, desktop uniquement) — sans lui le focus
+   retomberait sur `<body>` (le bouton prend le focus au clic puis devient `disabled`) ; le
+   focus est donc sur l'input à la fin de la réponse (sans re-clic).
 3. Pendant la génération, appuyer sur Entrée **ne déclenche pas** de second envoi
    (garde `isLoading` intacte, aucun POST dupliqué dans les logs serveur).
 4. Pendant la génération, l'input accepte la frappe et la conserve après la fin de la
@@ -130,9 +161,10 @@ Hors périmètre :
   même `setTimeout(500)` — le patch ne doit pas le modifier (test manuel critère 5).
 - **Double envoi** : lever le `disabled` de l'input déplace toute la protection sur le
   garde `isLoading` de `doSend()` — vérifier les deux chemins (Entrée + clic).
-- **Focus volé à la reprise** : si un `focus()` automatique était ajouté plus tard, le
-  faire seulement depuis une interaction utilisateur (guidance React — pas dans un
-  `useEffect` au montage).
+- **Focus volé à la reprise** : un `focus()` explicite placé **dans `doSend()`** est requis
+  pour le chemin bouton ; le déclencher uniquement depuis cette interaction utilisateur
+  (jamais dans un `useEffect` au montage), et **jamais sur mobile** (`< 768 px`) pour ne pas
+  contrarier le `blur()` volontaire.
 
 ## 12. Mesures et limites de conception
 
@@ -156,5 +188,23 @@ reste un composant unique — la taille S tient sans découpage.
 - `components/ChatPreview.tsx` — `disabled={isLoading}` (~l. 431), `doSend()` blur mobile (~l. 97–103), `handleKeyDown` (~l. 336–341) ; antériorité vérifiée : `git show d491ece^:components/ChatPreview.tsx` (l. 243)
 - MDN — `disabled` : un élément désactivé ne peut pas recevoir le focus — https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/disabled
 - MDN — `readonly` : garde l'élément focusable et interactif — https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/readonly
-- React (repo source, `ReactInputSelection.js`) : React préserve/restaure le focus et la sélection des contrôles entre rendus — via MCP context7, library `/react/react`
-- React (guidance équipe) : la logique de focus répond à une action utilisateur — event handlers, pas `useEffect` — via MCP context7, library `/react/react`
+- `components/ChatPreview.tsx` — `aria-live="polite"` observé sur le **div conteneur de messages** (l. 376), et non sur la `<section>` (correction de la mention §6.1) ; bouton `disabled` pendant `isLoading` (l. 436).
+- React (repo source, `ReactInputSelection.js`) : React préserve/restaure le focus et la sélection des contrôles entre rendus — via MCP context7, library `/react/react` — **citation non re-vérifiée par la revue kimi-analyst du 2026-09-25 (outil web/Context7 hors périmètre) : à ne plus présenter comme établie.**
+- React (guidance équipe) : la logique de focus répond à une action utilisateur — event handlers, pas `useEffect` — via MCP context7, library `/react/react` — **également non re-vérifiée (voir ci-dessus).**
+
+---
+
+## Suggestions de revue reportées (non appliquées)
+
+Les suggestions suivantes de la revue kimi-analyst du 2026-09-25 **ne sont pas** dans le
+périmètre des amendements 1–4 et restent **non appliquées** (à traiter dans un ticket
+ultérieur ou une re-validation) :
+
+- **Suggestion 5** — critère d'acceptation « `npm run test` (71/71) » : le libellé exact du
+  compteur de tests est fragile, à reformuler en « suite verte » sans nombre figé.
+- **Suggestion 6** — interaction du `setTimeout(500)` mobile (blur + scroll) avec le nouvel
+  envoi possible pendant le stream : clarifier le comportement quand `doSend()` est rappelé
+  pendant la génération.
+- **Suggestion 7** — marquage systématique des sources (distinguer les citations vérifiées
+  des citations context7 non re-vérifiées) : seul le nota factuel sur les citations React a
+  été ajouté ici, le marquage complet reste à faire.
