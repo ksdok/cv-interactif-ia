@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-25 — MODEL-004 (bascule OpenAI vers `gpt-6-luna` + `reasoning_effort: none` épinglé + durcissement du garde-fou hors-sujet) livré sur branche `model-004-luna-guardrail` (8 commits, fusionnée sur main le 2026-09-25 après validation opérateur) ; PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec MODEL-003 (migration SDK Gemini) rédigée depuis la revue M4 de PERF-002 ; spec PERF-002 durcie (revue M11-M17) et son ticket de suivi désormais tracé dans MODEL-003 ; spec MODEL-004 créée (bascule vers `gpt-6-luna` + durcissement du garde-fou hors-sujet, gatée par la vérification du refus) avec les mesures du banc A/B local ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
+> Dernière mise à jour : 2026-09-25 — TECH-10 (dédoublonnage de la meta viewport) **clôturé** : critères 1/3 vérifiés en prod (Lighthouse Accessibility 96/100, audit `meta-viewport` PASS, 1 seule meta sans `maximum-scale`/`user-scalable`), critère 2 clos par décision opérateur — code applicatif déjà sur `main` (`6e856cb`, `5fb593a`, `398b88a`) ; MODEL-004 (bascule OpenAI vers `gpt-6-luna` + `reasoning_effort: none` épinglé + durcissement du garde-fou hors-sujet) livré sur branche `model-004-luna-guardrail` (8 commits, fusionnée sur main le 2026-09-25 après validation opérateur) ; PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec MODEL-003 (migration SDK Gemini) rédigée depuis la revue M4 de PERF-002 ; spec PERF-002 durcie (revue M11-M17) et son ticket de suivi désormais tracé dans MODEL-003 ; spec MODEL-004 créée (bascule vers `gpt-6-luna` + durcissement du garde-fou hors-sujet, gatée par la vérification du refus) avec les mesures du banc A/B local ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
 
 ---
 
@@ -55,7 +55,7 @@ Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-
 - monitoring Sentry (OBS-001) — le streaming des réponses IA (PERF-002) est livré et fusionné
 - migration du SDK Gemini (MODEL-003 — PERF-002 désormais livré, dépendance satisfaite)
 - page Projets GitHub (PROJ-001, spec prête depuis le 2026-09-23)
-- finitions du corpus SEO/GEO (GEO-09, TECH-10, INFRA-11 — voir la synthèse ci-dessous)
+- finitions du corpus SEO/GEO (GEO-09, INFRA-11 — voir la synthèse ci-dessous)
 
 ---
 
@@ -369,10 +369,10 @@ le corps du commit.
 > Le statut **par ticket** fait foi dans [`docs/features/seo-geo/INDEX.md`](docs/features/seo-geo/INDEX.md) ;
 > section volontairement non dupliquée ticket par ticket ici.
 
-- ✅ Livrés : SEO-01→SEO-04, GEO-06, GEO-07, GEO-08a→GEO-08h (routing i18n, dictionnaires, metadata/hreflang, sitemap, switcher de langue, header navigable, chat multilingue, CV bilingue)
+- ✅ Livrés : SEO-01→SEO-04, GEO-06, GEO-07, GEO-08a→GEO-08h (routing i18n, dictionnaires, metadata/hreflang, sitemap, switcher de langue, header navigable, chat multilingue, CV bilingue), TECH-10 (meta viewport dédoublonnée, clôturée 2026-09-25)
 - 📄 GEO-08e : ticket de docs corrigé le 2026-09-23 (état final = 4 entrées `<loc>`, la note prévisionnelle « total à 5 » était fausse)
 - ⛔ SEO-05 (FAQ + schema FAQPage) abandonné — rich result déprécié par Google (mai 2026)
-- ⬜ Ouverts : GEO-09 (off-page, continu), TECH-10 (vérifs device iOS + Lighthouse), INFRA-11 (contact@kimsandok.com)
+- ⬜ Ouverts : GEO-09 (off-page, continu), INFRA-11 (contact@kimsandok.com)
 
 ---
 
@@ -420,6 +420,7 @@ le corps du commit.
 ### Accessibilité & SEO
 - [x] **Accessibilité WCAG AA** — `aria-label`, ratios de contraste (`e2f3769`)
 - [x] **SEO** — métadonnées, sitemap, robots.txt, JSON-LD structuré (`3c70e17`)
+- [x] **TECH-10 — Dédoublonner la meta viewport** — clôturé le 2026-09-25. Code applicatif livré directement sur `main` : `6e856cb` (une seule meta viewport via l'export Next.js, `maximum-scale`/`user-scalable` retirés, JobMatcher textarea passé à 16px), `5fb593a` (intégration review — plancher `text-[max(16px,1rem)]` sur les inputs, déployé), `398b88a` (docs — critère 1 vérifié en prod). **Critère 1 ✅ prod** : `curl -sL https://kimsandok.com/fr | grep -o 'name="viewport"' | wc -l` → 1, `maximum-scale` 0 occurrence, `user-scalable` 0 occurrence (la racine renvoie un 307 vers `/fr`, d'où le `-L` requis). **Critère 3 ✅ prod** : Lighthouse 13.5.0 (mobile émulé) — Accessibility **96/100**, audit `meta-viewport` **PASS** (score 1, plus aucun blocage de zoom signalé). **Critère 2 clos par décision opérateur (2026-09-25)** : zoom iOS au focus non testé sur device réel — clôturé par arbitrage produit, le plancher 16px reste le mécanisme garant. Findings Lighthouse `heading-order` et `landmark-one-main` (poids 3 chacun, expliquent 96/100 au lieu de 100) **hors périmètre TECH-10** → cycle séparé. Aucun push ni déploiement nouveau (code déjà déployé depuis `5fb593a`).
 - [x] **Open Graph** — image OG générée (`cb296e2`)
 
 ### UI / UX

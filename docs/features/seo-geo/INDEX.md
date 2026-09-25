@@ -34,7 +34,7 @@
 | GEO-08g | Chat Nicky multilingue + fidélité EN | P2 | S | GEO-08b | ✅ (2026-09-23 — critères 1-5 vérifiés, fidélité EN en revue manuelle) | [GEO-08g-chat-nicky-multilingue.md](GEO-08g-chat-nicky-multilingue.md) |
 | GEO-08h | Migration `/cv` bilingue (`/fr/cv`, `/en/cv`) + 301 | P2 | S | GEO-08a, 08b, 08d | ✅ (2026-09-14, Lot 2 — N3 Lot 1 fermé au passage) | [GEO-08h-migration-cv-bilingue.md](GEO-08h-migration-cv-bilingue.md) |
 | GEO-09 | Présence off-page (Malt, LinkedIn, citations) | P3 | continu | SEO-01 | ⬜ | [GEO-09-presence-off-page.md](GEO-09-presence-off-page.md) |
-| TECH-10 | Dédoublonner la meta viewport | P3 | XS | — | 🟡 critère 1 ✅ en prod ; critères 2/3 (device iOS + Lighthouse) à vérifier (2026-09-12) | [TECH-10-meta-viewport.md](TECH-10-meta-viewport.md) |
+| TECH-10 | Dédoublonner la meta viewport | P3 | XS | — | ✅ (2026-09-25 — critères 1/3 vérifiés en prod : Lighthouse Accessibility 96/100, audit `meta-viewport` PASS, 1 seule meta sans `maximum-scale`/`user-scalable` ; critère 2 clos par décision opérateur) | [TECH-10-meta-viewport.md](TECH-10-meta-viewport.md) |
 | INFRA-11 | Adresse contact@kimsandok.com (transfert vers Gmail) | P3 | S | — | ⬜ | [INFRA-11-contact-email-forwarding.md](INFRA-11-contact-email-forwarding.md) |
 
 Légende effort : XS < 15 min · S < 1 h · M ½ journée · L > 1 journée.

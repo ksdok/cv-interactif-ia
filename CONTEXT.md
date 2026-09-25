@@ -2,7 +2,7 @@
 
 > Fichier d'entrée destiné à un agent/LLM qui s'apprête à travailler sur un ticket de
 > `docs/backlog/`. Lis ce fichier AVANT la spec, puis la spec elle-même.
-> Dernière mise à jour : 2026-09-25 — MODEL-004 (bascule OpenAI vers `gpt-6-luna` + `reasoning_effort: none` épinglé + durcissement du garde-fou hors-sujet) livré sur branche `model-004-luna-guardrail` (8 commits, fusionnée sur main le 2026-09-25 après validation opérateur) ; PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) — **bascule vers `gpt-6-luna` livrée** (gate du refus hors-sujet passé à 18/18)
+> Dernière mise à jour : 2026-09-25 — TECH-10 (dédoublonnage de la meta viewport) clôturé : critères 1/3 vérifiés en prod (Lighthouse Accessibility 96/100, audit `meta-viewport` PASS, 1 seule meta sans `maximum-scale`/`user-scalable`), critère 2 clos par décision opérateur ; MODEL-004 (bascule OpenAI vers `gpt-6-luna` + `reasoning_effort: none` épinglé + durcissement du garde-fou hors-sujet) livré sur branche `model-004-luna-guardrail` (8 commits, fusionnée sur main le 2026-09-25 après validation opérateur) ; PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (fusionnée et poussée sur origin/main (`0ec7c08`)) ; CICD-001 livré ; 3 tickets ouverts créés depuis les signaux du run CI (CICD-002, QUAL-004, TEST-002) ; specs MODEL-003 (migration du SDK Gemini) et MODEL-004 créées ; banc A/B de modèles ajouté (`scripts/bench-models.mjs`) — **bascule vers `gpt-6-luna` livrée** (gate du refus hors-sujet passé à 18/18)
 
 ---
 
@@ -169,7 +169,7 @@ Pour les docs à jour des librairies du projet (Next.js 16, Tailwind 4, Sentry `
 ## 8. État des tickets (résumé — vérifier `project-state.md` pour le détail)
 
 **Corpus seo-geo** (`docs/features/seo-geo/INDEX.md`) : quasi terminé. Restes ouverts :
-GEO-09 (off-page, continu), TECH-10 (vérifs restantes), INFRA-11. Le statut par ticket
+GEO-09 (off-page, continu), INFRA-11. Le statut par ticket
 fait foi dans `INDEX.md` ; `project-state.md` n'en porte qu'une synthèse.
 
 **Backlog ingénierie** — la plupart ont une spec dédiée dans `docs/backlog/`

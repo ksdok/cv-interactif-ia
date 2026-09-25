@@ -1,6 +1,6 @@
 # TECH-10 — Dédoublonner la meta viewport
 
-- **Priorité** : P3 · **Effort** : XS (< 15 min) · **Statut** : 🟡 en cours (2026-09-12 — code livré local, commit 6e856cb : viewport via export Next.js, maximumScale retiré, JobMatcher textarea à 16px plancher garanti ; vérification prod des critères 2/3 à faire après déploiement)
+- **Priorité** : P3 · **Effort** : XS (< 15 min) · **Statut** : ✅ terminé (2026-09-25 — critères 1/3 vérifiés en prod : 1 seule meta viewport sans `maximum-scale`/`user-scalable`, Lighthouse Accessibility 96/100, audit `meta-viewport` PASS ; critère 2 clos par décision opérateur)
 - **Dépendances** : aucune — groupable avec SEO-01 (même fichier)
 
 ## Pourquoi
@@ -42,10 +42,13 @@ iOS involontaire sur focus input (via font-size 16px).
 
 ## Critères d'acceptation
 
-1. `curl -s https://kimsandok.com | grep -o 'name="viewport"' | wc -l` → **1**.
+1. `curl -sL https://kimsandok.com/fr | grep -o 'name="viewport"' | wc -l` → **1**.
    ⚠️ Ne pas utiliser `grep -c` : il compte les **lignes**, pas les occurrences — le HTML
    Next est minifié sur une seule ligne, donc le critère initial passait à 1 même avec
    2 metas (défaut détecté en review).
+   ⚠️ **`-L` obligatoire, cible `/fr`** : `https://kimsandok.com` renvoie un **307 vers
+   `/fr`** ; sans `-L`, curl mesure le corps de redirection vide (0 au lieu de 1). Ce n'est
+   **pas** une régression — constaté lors de la vérification prod du 2026-09-25.
 2. Pas de zoom iOS sur focus de l'input chat (test device réel ou simulateur) — **grâce à la
    `font-size ≥ 16px`** des inputs, non plus via `maximumScale`.
 3. Lighthouse Accessibility ne signale plus `maximum-scale=1, user-scalable=no` comme
@@ -74,3 +77,21 @@ iOS involontaire sur focus input (via font-size 16px).
     sans toucher à la spécificité.
 - Reste à vérifier manuellement : zoom iOS au focus des champs sur device réel
   (critère 2) et score Lighthouse Accessibility (critère 3) — après déploiement.
+
+## Résultat livré — vérifications prod (2026-09-25)
+
+- **Critère 1 ✅** : `curl -sL https://kimsandok.com/fr | grep -o 'name="viewport"' | wc -l`
+  → **1** ; `maximum-scale` → 0 occurrence ; `user-scalable` → 0 occurrence.
+  La racine `https://kimsandok.com` renvoie un **307 vers `/fr`** : d'où le `-L` exigé
+  (sans lui, curl lit le corps de redirection vide — 0 au lieu de 1). Pas une régression.
+- **Critère 3 ✅** : Lighthouse 13.5.0 (mobile émulé, prod) — score Accessibility
+  **96/100** ; audit `meta-viewport` **PASS** (score 1) : `maximum-scale`/`user-scalable=no`
+  absents, plus aucun blocage de zoom signalé.
+- **Critère 2 clos par décision opérateur (2026-09-25)** : le zoom iOS au focus n'a pas été
+  testé sur device réel — clôturé par arbitrage produit ; le plancher 16px
+  `text-[max(16px,1rem)]` sur les inputs reste le mécanisme garant.
+- Findings Lighthouse **hors périmètre TECH-10** (non traités ici) : `heading-order` (un
+  `<h3>` non descendante, poids 3) et `landmark-one-main` (pas de `<main>`, poids 3)
+  expliquent 96/100 au lieu de 100 — correction confiée à un cycle séparé.
+- **Git** : aucun commit applicatif nouveau dans cette session (code déjà sur `main` et
+  déployé depuis `5fb593a`) ; aucun push, aucun déploiement nouveau.
