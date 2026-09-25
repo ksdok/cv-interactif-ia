@@ -2,7 +2,7 @@
 
 > Source de vérité pour le suivi des tâches, des priorités et de la backlog.
 > Fichier renommé depuis `projet-state.md`.
-> Dernière mise à jour : 2026-09-23 — 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec MODEL-003 (migration SDK Gemini) rédigée depuis la revue M4 de PERF-002 ; spec PERF-002 durcie (revue M11-M17) et son ticket de suivi désormais tracé dans MODEL-003 ; spec MODEL-004 créée (bascule vers `gpt-6-luna` + durcissement du garde-fou hors-sujet, gatée par la vérification du refus) avec les mesures du banc A/B local ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
+> Dernière mise à jour : 2026-09-25 — PERF-002 (streaming NDJSON de `/api/chat`) livré sur branche `perf-002-ai-response-streaming` (non fusionnée/poussée au moment de la validation) ; 3 tickets créés à partir des signaux du run CI (CICD-002 durcissement workflow, QUAL-004 gitlink orphelin `.claude/`, TEST-002 `resolve.tsconfigPaths` natif) ; CICD-001 (workflow CI minimal) livré ; TEST-001 (infrastructure Vitest + 37 cas migrés) livré ; GEO-08g (chat Nicky multilingue + job-match localisé) livré et revu ; UX-003 (header navigable) livré ; spec PROJ-001 (projets GitHub) rédigée puis révisée (revue M1-M5) ; spec MODEL-003 (migration SDK Gemini) rédigée depuis la revue M4 de PERF-002 ; spec PERF-002 durcie (revue M11-M17) et son ticket de suivi désormais tracé dans MODEL-003 ; spec MODEL-004 créée (bascule vers `gpt-6-luna` + durcissement du garde-fou hors-sujet, gatée par la vérification du refus) avec les mesures du banc A/B local ; spec PERF-002 (streaming) révisée après revue croisée Context7/web — décisions tranchées : NDJSON, fallback option A (commit au 1er octet écrit), suppression TypingEffect, `stream_options.include_usage` exigé
 
 ---
 
@@ -52,7 +52,7 @@
 
 Le durcissement d’ingénierie est largement livré (CSP + headers SEC-001/SEC-002, fail-fast Supabase SEC-005, health check OBS-002, infrastructure de tests TEST-001, pipeline CI minimal CICD-001, specs de délégation rédigées). Reste, par ordre de priorité :
 
-- monitoring Sentry (OBS-001) et streaming des réponses IA (PERF-002)
+- monitoring Sentry (OBS-001) — le streaming des réponses IA (PERF-002) est livré sur branche `perf-002-ai-response-streaming`, en attente de fusion
 - durcissement du garde-fou hors-sujet du chat (MODEL-004) — suite directe du banc du 2026-09-23 : persona + jeu hors-sujet élargi + détecteur réparé ; décision modèle déjà enregistrée ci-dessus
 - migration du SDK Gemini (MODEL-003, après PERF-002)
 - page Projets GitHub (PROJ-001, spec prête depuis le 2026-09-23)
@@ -262,10 +262,13 @@ _MODEL-001 et MODEL-002 sont traités (voir la section "Terminé" ci-dessous)._
   - `next/dynamic(() => import('@/components/JobMatcher'), { ssr: false })` + rendu conditionnel (`jobMatcherOpen &&`)
   - Spec : `docs/backlog/PERF-001-jobmatcher-dynamic-import-spec.md`
 
-- [ ] **PERF-002 — Streaming des réponses AI** `MEDIUM`
-  - `/api/chat` bloque pendant toute la durée de génération (latence perceptible)
-  - Implémenter SSE (Server-Sent Events) ou `ReadableStream` pour afficher la réponse progressivement
-  - Implique de réécrire `ChatPreview.tsx` pour consommer un stream
+- [x] **PERF-002 — Streaming des réponses AI** `MEDIUM`
+  - Livré sur branche `perf-002-ai-response-streaming` (`d491ece`, `4abbe06`, `d3d8fad`, `0903a9f`) — **non fusionnée, non poussée, non déployée** au moment de la validation (2026-09-25)
+  - Protocole **NDJSON** deux phases (delta/done/error) via `lib/chatStreamProtocol.ts` (isomorphe, sans `server-only` : encodeur serveur + décodeur incrémental client) ; `app/api/chat/route.ts` conserve la forme JSON des erreurs 429/403/400/500 — seul le corps de succès est streamé
+  - Streaming OpenAI (`stream: true` + `stream_options.include_usage`) et Gemini (`sendMessageStream`) dans `lib/modelProviders.ts` ; le chemin non-streaming de `/api/job-match` reste inchangé
+  - `components/ChatPreview.tsx` réécrit (fetch + `body.getReader()` + `TextDecoder`) ; `components/TypingEffect.tsx` et la logique `isTyping` supprimés ; lissage d'affichage client à 50 c/s (rAF, retard borné ≈ 2,5 s)
+  - Tests : **57 passed / 2 fichiers** (37 validation + 20 `chatStreamProtocol`) ; `lint`, `type-check`, `build` (14 pages, `ƒ /api/chat`) OK
+  - Revue glm-reviewer (contexte frais, 3 cycles) : PROPRE sur `d491ece`, `4abbe06` et `0903a9f` ; finding mineur (message réseau brut affiché) corrigé dans `0903a9f`
   - Spec : `docs/backlog/PERF-002-ai-response-streaming-spec.md`
 
 - [ ] **PERF-003 — Cache API pour requêtes fréquentes** `LOW`
@@ -395,6 +398,9 @@ le corps du commit.
 - [x] **FEAT-CAG-004** — outillage de validation CAG/cache + limites de taille (`scripts/*.mjs`, `docs/cag-limits.md`)
 - [x] **FEAT-CAG-005** — documentation README du mode opératoire CAG/RAG, mise à jour CV, prompt caching
 - [x] **GEO-08g** — chat Nicky multilingue (consigne de langue en fin de prompt : le préfixe persona + CV reste partagé fr/en, cache mesuré 6/6 hits) + analyse job-match localisée ; fidélité EN vérifiée en revue manuelle ; fallback `fr` sans 400 (`0d7bf66`, `c010db2`)
+
+### Performance
+- [x] **PERF-002 — Streaming des réponses AI** — `/api/chat` renvoie désormais un flux NDJSON (deux phases delta/done/error) au lieu d'un corps JSON unique : le temps perçu ne dépend plus de la génération complète (OpenAI ≈ 1,4s, Gemini ≈ 8,0s). Module isomorphe `lib/chatStreamProtocol.ts` (encodeur serveur + décodeur incrémental client, testé), streaming OpenAI (`stream_options.include_usage` exigé pour le log de cache) et Gemini dans `lib/modelProviders.ts` (`/api/job-match` intact), `ChatPreview.tsx` réécrit, `TypingEffect.tsx` supprimé, lissage d'affichage à 50 c/s. 57 tests / 2 fichiers, lint + type-check + build OK. Livré sur branche `perf-002-ai-response-streaming` (`d491ece`, `4abbe06`, `d3d8fad`, `0903a9f`) — **non fusionnée, non poussée, non déployée** au moment de la validation (2026-09-25) ; revue glm-reviewer PROPRE sur les 3 cycles
 
 ### Sécurité & qualité
 - [x] **CICD-001 — Pipeline CI minimal** — `.github/workflows/ci.yml` (Node 22, `npm ci` → `type-check` → `lint` → `test` → `build`, `timeout-minutes: 15`, `permissions: contents: read`) ; pour rendre la CI sans secret, `lib/supabase.ts` expose un client paresseux `getSupabase()` (fail-fast SEC-005 conservé au runtime) et `lib/rag.ts` tolère une clé OpenAI absente (`|| ''`)
