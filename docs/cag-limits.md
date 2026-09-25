@@ -105,6 +105,12 @@ else:
 
 ## Operational notes
 
+- Cost figures reported by `bench-models.mjs` and `smoke-job-match.mjs` count input,
+  cached-input, **cache-write** and output tokens (`prompt_tokens_details`).
+  `gpt-6-luna` bills cache writes at $0.125/M (absent from the 5.4-mini sheet), so a
+  cold-prefix call is more expensive than a warm one — e.g. the provider-direct job
+  match smoke on a cold prefix costs ~$0.0008 against ~$0.0004 if writes were ignored.
+  The `$0.0000593/call` figure for the warm 36-question bench is unaffected (no writes).
 - Results are written to `scripts/results/` and are gitignored.
 - OpenAI cache hits are logged as:
   ```text

@@ -59,7 +59,7 @@ loadEnvLocal()
 // Tarifs officiels $/M tokens (fiches docs OpenAI, 2026-09-23).
 const PRICES = {
   'gpt-5.4-mini': { input: 0.75, cached: 0.075, output: 4.5 },
-  'gpt-6-luna': { input: 0.1, cached: 0.01, output: 0.5 },
+  'gpt-6-luna': { input: 0.1, cached: 0.01, cacheWrite: 0.125, output: 0.5 },
 }
 
 // MODÈLE DU PRODUIT : lu dans `lib/modelConfig.ts` (source de vérité, fichier
@@ -156,10 +156,17 @@ RESPONSE LANGUAGE:
 function costOf(model, usage) {
   const price = PRICES[model]
   if (!price || !usage) return null
-  const cached = usage.prompt_tokens_details?.cached_tokens ?? 0
-  const fresh = Math.max(0, (usage.prompt_tokens ?? 0) - cached)
+  const details = usage.prompt_tokens_details ?? {}
+  const cached = details.cached_tokens ?? 0
+  // `gpt-6-luna` facture les écritures de cache ($0,125/M) : les tokens écrits font
+  // partie de `prompt_tokens` et sont retirés du tarif d'entrée plein.
+  const cacheWrite = details.cache_write_tokens ?? 0
+  const fresh = Math.max(0, (usage.prompt_tokens ?? 0) - cached - cacheWrite)
   const out = usage.completion_tokens ?? 0
-  return (fresh * price.input + cached * price.cached + out * price.output) / 1e6
+  return (
+    (fresh * price.input + cached * price.cached + cacheWrite * (price.cacheWrite ?? 0) + out * price.output) /
+    1e6
+  )
 }
 
 // Mêmes contrôles structurels que la route (clés anglaises, types, bornes).
