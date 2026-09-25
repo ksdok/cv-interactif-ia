@@ -113,10 +113,13 @@ else:
   billed, against ~$0.00048 if writes were ignored.
   The `$0.0000593/call` figure for the warm 36-question bench is unaffected (no writes).
 - Results are written to `scripts/results/` and are gitignored.
-- OpenAI cache hits are logged as:
+- OpenAI cache hits are logged as (the `(stream)` suffix distinguishes the streaming path used by
+  `/api/chat` since PERF-002 from the non-streaming path):
   ```text
-  [modelProviders] OpenAI cache hit: <n> cached tokens
+  [modelProviders] OpenAI cache hit: <n> cached tokens            # non-streaming
+  [modelProviders] OpenAI cache hit (stream): <n> cached tokens   # streaming (/api/chat)
   ```
+  `scripts/measure-cache.mjs` parses both forms (optional `(stream)` suffix).
   Latest measurements (2026-09-25, `gpt-6-luna`, hardened persona): 36/36 cache
   hits, ~2,739 cached tokens, TTFT ~773 ms average (bench-models, 36 questions,
   warm cache, `reasoning_effort: none`). The prompt change invalidated the cache

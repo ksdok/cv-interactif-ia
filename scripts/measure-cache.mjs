@@ -35,7 +35,7 @@ const OPENAI_CACHE_RE = /\[modelProviders\] OpenAI cache hit(?: \(stream\))?: (\
 // La distinction stream/non-stream reste à la source (ligne de log inchangée) ;
 // on élargit le parseur, miroir de la convention OpenAI ci-dessus.
 const GEMINI_USAGE_RE = /\[modelProviders\] Gemini usage(?: \(stream\))?: ({.*})/
-const PROVIDER_RE = /\[modelProviders\] Trying provider: (\w+)/
+const PROVIDER_RE = /\[modelProviders\] (?:Trying|Streaming with) provider: (\w+)/
 
 function parseArgs() {
   const args = process.argv.slice(2)
