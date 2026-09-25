@@ -134,15 +134,12 @@ describe('resolveApiErrorMessage — mapping errorCode → message localisé (fr
 })
 
 describe('computeRevealChars — lissage de révélation (PERF-002 post-spec)', () => {
-  // Rythme nominal : 60 caractères/s tant que le tampon reste court.
+  // Rythme nominal : 50 caractères/s tant que le tampon reste court.
   it('révèle au rythme nominal quand le tampon est court', () => {
-    // 0,5 s à 60 c/s → 30 caractères (tampon de 90 insuffisant pour saturer).
-    expect(computeRevealChars(90, 500)).toEqual({ chars: 30, remainder: 0 })
-    // 1 frame ~60 fps → 1 caractère.
-    expect(computeRevealChars(90, 1000 / 60)).toEqual({
-      chars: 1,
-      remainder: expect.any(Number),
-    })
+    // 0,5 s à 50 c/s → 25 caractères (tampon de 90 insuffisant pour saturer).
+    expect(computeRevealChars(90, 500)).toEqual({ chars: 25, remainder: 0 })
+    // 1 s à 50 c/s → 50 caractères.
+    expect(computeRevealChars(90, 1000)).toEqual({ chars: 50, remainder: 0 })
   })
 
   it('ne révèle jamais plus que le tampon disponible', () => {
@@ -163,11 +160,11 @@ describe('computeRevealChars — lissage de révélation (PERF-002 post-spec)', 
     const ramp = computeRevealChars(120, 100).chars // mi-pente vers le plafond
     const capped = computeRevealChars(REVEAL_MAX_LAG_CHARS, 100).chars
 
-    expect(nominal).toBe(6) // 60 c/s × 0,1 s
+    expect(nominal).toBe(5) // 50 c/s × 0,1 s
     expect(ramp).toBeGreaterThan(nominal)
     expect(capped).toBeGreaterThan(ramp)
     // Au plafond : ×4 le nominal.
-    expect(capped).toBe(24)
+    expect(capped).toBe(20)
   })
 
   // Borne de retard : le débit croît avec le retard → drainage toujours < 2,5 s.
@@ -186,17 +183,17 @@ describe('computeRevealChars — lissage de révélation (PERF-002 post-spec)', 
     const normal = computeRevealChars(50, 100).chars
     const forced = computeRevealChars(50, 100, 0, true).chars
     expect(forced).toBeGreaterThan(normal)
-    expect(forced).toBe(24) // 60 × 4 × 0,1 s
+    expect(forced).toBe(20) // 50 × 4 × 0,1 s
   })
 
   // Anti-stutter : la fraction non révélée est reportée à la frame suivante.
   it('reporte la fraction non révélée (pas de blocage à 0 caractère)', () => {
     const first = computeRevealChars(60, 10)
     expect(first.chars).toBe(0)
-    expect(first.remainder).toBeCloseTo(0.6, 5)
+    expect(first.remainder).toBeCloseTo(0.5, 5)
 
     const second = computeRevealChars(60, 10, first.remainder)
     expect(second.chars).toBe(1)
-    expect(second.remainder).toBeCloseTo(0.2, 5)
+    expect(second.remainder).toBeCloseTo(0, 5)
   })
 })

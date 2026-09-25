@@ -105,7 +105,7 @@ function parseChatStreamEvent(line: string): ChatStreamEvent | null {
  * ---------------------------------------------------------------------- */
 
 /** Rythme nominal de révélation, en caractères par seconde (≈ lecture naturelle). */
-export const REVEAL_CHARS_PER_SECOND = 60
+export const REVEAL_CHARS_PER_SECOND = 50
 
 /** Retard tamponné (≈ 1,5 s au rythme nominal) au-delà duquel on accélère. */
 export const REVEAL_CATCHUP_THRESHOLD_CHARS = 90
