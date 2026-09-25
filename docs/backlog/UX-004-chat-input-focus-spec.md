@@ -1,10 +1,8 @@
 # UX-004 — Perte de focus de l'input chat sur envoi (Enter)
 
-> **Statut : PROPOSÉE** — pending validation utilisateur (2026-09-25)
+> **Statut : VALIDÉE** — opérateur 2026-09-25 (livrée et validée ; amendements 1–4 de la revue kimi appliqués)
 >
-> **Revue kimi-analyst 2026-09-25 : À AMENDER** → amendements 1–4 appliqués (re-focus chemin
-> bouton [blocant], garde IME, ciblage `aria-busy`, correction des notes de re-render) ; en
-> attente de re-validation opérateur. La spec **n'est pas passée à VALIDÉE**.
+> **Livraison** : branche `ux-004-chat-input-focus` (1 commit `1b4040b`, fusion + push en attente). Revue glm-reviewer PROPRE ; 71/71 tests, lint/type-check/build verts ; validée par l'opérateur sur son device le 2026-09-25. Trace de livraison dans `project-state.md`.
 > **Ticket proposé** : UX-004 · **Date** : 2026-09-25 · **Backlog** : UI / UX · **Base de code** : `main` @ `a4cafd4`
 > Taille S · Un seul composant touché (`components/ChatPreview.tsx`) + un libellé de dictionnaire au maximum.
 
