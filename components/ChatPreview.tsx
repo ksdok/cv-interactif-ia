@@ -94,6 +94,13 @@ export default function ChatPreview({
     handleExpand()
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
 
+    // UX-004 : desktop — le bouton send prend le focus au clic puis devient
+    // `disabled` pendant la génération (le focus retomberait sur <body>) ; on
+    // ramène donc explicitement le focus dans l'input. Jamais sur mobile
+    // (< 768 px) : le `blur()` volontaire ci-dessous referme le clavier iOS —
+    // pas de rebond focus/blur.
+    if (window.innerWidth >= 768) inputRef.current?.focus()
+
     // After transition completes, blur input (dismiss iOS keyboard) and scroll to top of chat — mobile only
     setTimeout(() => {
       if (window.innerWidth < 768) {
@@ -334,6 +341,9 @@ export default function ChatPreview({
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // UX-004 : ne pas envoyer pendant une composition IME (jp/zh/kr) — Entrée
+    // valide la composition, elle ne doit pas déclencher un envoi.
+    if (e.nativeEvent.isComposing) return
     if (e.key === 'Enter') {
       e.preventDefault()
       doSend()
@@ -373,7 +383,7 @@ export default function ChatPreview({
         <div className={`transition-all duration-500 overflow-hidden ${
           expanded ? 'max-h-[500px] opacity-100 mb-8' : 'max-h-0 opacity-0 mb-0'
         }`}>
-          <div ref={messagesContainerRef} className="max-h-[500px] overflow-y-auto space-y-6" aria-live="polite" aria-atomic="false">
+          <div ref={messagesContainerRef} className="max-h-[500px] overflow-y-auto space-y-6" aria-live="polite" aria-atomic="false" aria-busy={isLoading}>
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -427,7 +437,6 @@ export default function ChatPreview({
             placeholder={dictionary.chat.placeholder}
             aria-label={dictionary.chat.placeholderAria}
             className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-[#5f5e5e] rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-[max(20px,1.25rem)] transition-all duration-200 ease-in-out"
-            disabled={isLoading}
             enterKeyHint="send"
           />
           <button
