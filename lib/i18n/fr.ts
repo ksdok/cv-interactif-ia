@@ -180,16 +180,40 @@ const fr = {
   },
 
   chat: {
+    title: 'Nicky',
     greeting1:
       'Bonjour, je suis Nicky, le jumeau numérique de Kim-san. Je suis là pour vous aider à naviguer à travers des années d’expérience.',
     greeting2: 'Que souhaitez-vous savoir en premier ?',
-    placeholder:
-      'Demandez à Nicky ce que vous voulez savoir sur l’expérience de Kim-san...',
+    statusOnline: 'En ligne',
+    badge: 'IA agentique',
+    placeholder: 'Demandez à Nicky ce que vous voulez savoir...',
     placeholderAria:
       'Demandez à Nicky des informations sur l’expérience de Kim-san',
     sendAria: 'Envoyer le message',
     loadingTitle: 'Chargement...',
     errorMessage: 'Impossible d’obtenir une réponse. Veuillez réessayer.',
+    suggestionsTitle: 'Suggestions',
+    hint: 'Cliquez sur une suggestion ou tapez votre question',
+    // UX-005 : puces d'entrée de l'état replié — envoi direct au clic. Toutes
+    // ancrées dans le CAG (data/cv.md) : aucun refus hors-sujet attendu.
+    suggestions: [
+      {
+        label: 'Missions Repo & Sec Lending',
+        prompt: 'Quelles sont les missions de Kim-san en Repo et Securities Lending ?',
+      },
+      {
+        label: 'Stack & Projets IA',
+        prompt: 'Quelle est la stack technique de Kim-san et ses projets récents en IA ?',
+      },
+      {
+        label: 'Réduction des coûts SI',
+        prompt: 'Comment Kim-san contribue-t-il à la réduction des coûts des SI ?',
+      },
+      {
+        label: 'Pourquoi recruter Kim-san ?',
+        prompt: 'Pourquoi choisir Kim-san comme Business Analyst senior ?',
+      },
+    ],
   },
 
   experience: {

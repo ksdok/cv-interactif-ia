@@ -175,14 +175,38 @@ const en: Dictionary = {
   },
 
   chat: {
+    title: 'Nicky',
     greeting1:
       "Hello, I'm Nicky, Kim-san's digital twin. I'm here to help you navigate through years of experience.",
     greeting2: 'What would you like to know first?',
-    placeholder: "Ask Nicky about Kim-san's experience...",
+    statusOnline: 'Online',
+    badge: 'Agentic AI',
+    placeholder: 'Ask Nicky what you want to know...',
     placeholderAria: "Ask Nicky about Kim-san's experience",
     sendAria: 'Send message',
     loadingTitle: 'Loading...',
     errorMessage: 'Failed to get response. Please try again.',
+    suggestionsTitle: 'Suggestions',
+    hint: 'Click a suggestion or type your question',
+    // UX-005 : quick prompts of the collapsed state — direct send on click.
+    suggestions: [
+      {
+        label: 'Repo & Sec Lending missions',
+        prompt: "What are Kim-san's missions in Repo and Securities Lending?",
+      },
+      {
+        label: 'AI stack & projects',
+        prompt: "Can you detail Kim-san's technical background and recent AI projects?",
+      },
+      {
+        label: 'IT cost reduction',
+        prompt: 'How does Kim-san contribute to IT cost reduction?',
+      },
+      {
+        label: 'Why hire Kim-san?',
+        prompt: 'Why choose Kim-san as a senior Business Analyst?',
+      },
+    ],
   },
 
   experience: {
