@@ -52,6 +52,8 @@ export interface Project {
   hidden?: boolean
   /** Lien démo optionnel (le cas échéant). */
   demoUrl?: string
+  /** Affiche un appel à tester (bêta) + CTA de contact sur la page détail. */
+  contactForBeta?: boolean
   /** Date éditoriale de dernière mise à jour (YYYY-MM-DD) — alimente le sitemap
    *  SANS fetch GitHub (N5 : le sitemap reste statique, build hors réseau). */
   updatedAt: string
@@ -101,9 +103,60 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
+    slug: 'menu-renzu',
+    repo: { owner: 'ksdok', name: 'menu-translator-ia' },
+    order: 2,
+    featured: true,
+    updatedAt: '2026-09-26',
+    contactForBeta: true,
+    tags: ['iOS', 'Swift', 'IA', 'Vision'],
+    titleFr: 'Menu Renzu',
+    titleEn: 'Menu Renzu',
+    summaryFr:
+      'Application iOS qui lit un menu de restaurant dans n’importe quel pays : photo du menu → texte exact, romanisation, traduction, catégories, puis commande finale montrée au serveur.',
+    summaryEn:
+      'iOS app that reads a restaurant menu anywhere: photo of the menu → exact text, romanisation, translation, categories, then a finalised order to show the waiter.',
+    detailFr: [
+      {
+        heading: 'Le problème',
+        body: 'Lire un menu dans un pays dont on ne parle pas la langue ne se résume pas à traduire : il faut retrouver les plats, comprendre les prix et commander sans ambiguïté.',
+      },
+      {
+        heading: 'Approche',
+        body: 'On photographie le menu. L’IA en extrait le texte exact, la romanisation (Hepburn, Pinyin…), une traduction et des catégories, en ne décrivant que ce qui est visible. Plusieurs photos peuvent être fusionnées, les plats sélectionnés avec leur quantité, et la commande finale s’affiche pour être montrée au serveur — avec une lecture à voix haute dans la langue du menu.',
+      },
+      {
+        heading: 'Fonctionnalités',
+        body: 'Phrasebook de restaurant japonais hors-ligne, historique des scans, navigation par catégories, interface en plusieurs langues.',
+      },
+      {
+        heading: 'Stack',
+        body: 'Application iOS native (Swift/SwiftUI, iOS 16+), analyse d’images par un modèle de vision, synthèse vocale et OCR embarqué.',
+      },
+    ],
+    detailEn: [
+      {
+        heading: 'The problem',
+        body: 'Reading a menu in a country whose language you don’t speak is more than translation: you need to find the dishes, understand prices and order unambiguously.',
+      },
+      {
+        heading: 'Approach',
+        body: 'You photograph the menu. The AI extracts the exact text, a romanisation (Hepburn, Pinyin…), a translation and categories, describing only what is visible. Several photos can be merged, dishes selected with quantities, and the finalised order is displayed to show the waiter — with a read-aloud in the menu’s language.',
+      },
+      {
+        heading: 'Features',
+        body: 'Offline Japanese restaurant phrasebook, scan history, category navigation, multi-language interface.',
+      },
+      {
+        heading: 'Stack',
+        body: 'Native iOS app (Swift/SwiftUI, iOS 16+), image analysis through a vision model, speech synthesis and on-device OCR.',
+      },
+    ],
+  },
+  {
     slug: 'youtube-audio-converter',
     repo: { owner: 'ksdok', name: 'youtube-audio-converter' },
-    order: 2,
+    order: 3,
     featured: true,
     updatedAt: '2026-06-19',
     tags: ['Shell', 'CLI', 'Audio'],
@@ -143,9 +196,23 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
+    slug: 'coeurdelinh',
+    repo: { owner: 'ksdok', name: 'coeurdelinh' },
+    order: 4,
+    featured: false,
+    updatedAt: '2026-09-26',
+    tags: ['Astro', 'CMS', 'Cloudflare'],
+    titleFr: 'Site Cœur de Linh',
+    titleEn: 'Cœur de Linh website',
+    summaryFr:
+      'Refonte du site vitrine cœurdelinh.com : sortie de WordPress vers un site statique Astro, éditable par une non-technicienne via un CMS Git, hébergé sur Cloudflare.',
+    summaryEn:
+      'Rebuild of the cœurdelinh.com showcase site: moving off WordPress to a static Astro site, editable by a non-technical owner through a Git CMS, hosted on Cloudflare.',
+  },
+  {
     slug: 'zomboid-pvp',
     repo: { owner: 'ksdok', name: 'zomboidPVP' },
-    order: 3,
+    order: 5,
     featured: false,
     updatedAt: '2026-09-03',
     tags: ['Lua', 'Jeu'],

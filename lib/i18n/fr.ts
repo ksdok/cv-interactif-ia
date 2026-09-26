@@ -159,6 +159,12 @@ const fr = {
       eyebrow: 'Projet',
       back: 'Tous les projets',
       demoLabel: 'Démo en ligne',
+      // PROJ-001 — appel à tester (bêta TestFlight, Menu Renzu). Le CTA pointe
+      // vers le canal de contact DÉJÀ public du site (mail du footer).
+      betaLabel: 'Tester l’application',
+      betaBody:
+        'L’application est en phase de test TestFlight — contactez-moi pour participer aux tests.',
+      betaCta: 'Me contacter',
       otherProjects: 'Autres projets',
       otherLocaleExcerpt: 'Aussi disponible en anglais',
     },

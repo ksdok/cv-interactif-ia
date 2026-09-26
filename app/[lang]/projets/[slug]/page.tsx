@@ -198,6 +198,22 @@ export default async function ProjetDetailPage({
             )}
           </div>
 
+          {/* Appel à tester (bêta) — CTA vers le contact public du site. */}
+          {project.contactForBeta && (
+            <div className="mt-8 bg-surface-container-low rounded-lg p-8">
+              <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">
+                {dictionary.projects.detail.betaLabel}
+              </p>
+              <p className="text-on-surface leading-relaxed">{dictionary.projects.detail.betaBody}</p>
+              <a
+                href="mailto:dokkimsan@gmail.com"
+                className="mt-4 inline-flex items-center gap-2 text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
+              >
+                {dictionary.projects.detail.betaCta}
+              </a>
+            </div>
+          )}
+
           {/* Extrait dans l'autre langue — porté par lang={...} (a11y : voix du lecteur d'écran) */}
           <div className="mt-8 bg-surface-container-lowest border border-surface-variant rounded-lg p-6">
             <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">

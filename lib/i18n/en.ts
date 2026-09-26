@@ -154,6 +154,11 @@ const en: Dictionary = {
       eyebrow: 'Project',
       back: 'All projects',
       demoLabel: 'Live demo',
+      // PROJ-001 — beta call-to-action (TestFlight, Menu Renzu). The CTA points
+      // to the site's ALREADY-public contact channel (footer mail).
+      betaLabel: 'Try the app',
+      betaBody: 'The app is in TestFlight beta — contact me to join the tests.',
+      betaCta: 'Contact me',
       otherProjects: 'Other projects',
       otherLocaleExcerpt: 'Also available in French',
     },
