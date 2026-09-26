@@ -81,6 +81,9 @@ const fr = {
     // l'un des deux libellés change, vérifier l'autre.
     cvLink: 'CV',
     cvLinkAria: 'Voir le CV',
+    // PROJ-001 — lien Projets du header (second après le CV).
+    projectsLink: 'Projets',
+    projectsLinkAria: 'Voir les projets',
     // Logo cliquable → home de la locale courante.
     homeLinkAria: 'Retour à l\u2019accueil',
   },

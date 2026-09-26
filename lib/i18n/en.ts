@@ -78,6 +78,9 @@ const en: Dictionary = {
     // changes, check the other.
     cvLink: 'CV',
     cvLinkAria: 'View CV',
+    // PROJ-001 — header Projects link (second after CV).
+    projectsLink: 'Projects',
+    projectsLinkAria: 'View projects',
     // Clickable logo → home of the current locale.
     homeLinkAria: 'Back to home',
   },
