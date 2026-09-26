@@ -110,8 +110,14 @@ export default async function ProjetsPage({
   const dictionary = getDictionary(lang)
 
   const projects = visibleProjects()
+  // QW1 (kimi-analyst) : ne fetch QUE les repos PUBLICS. Les repos privés
+  // (`repoPublic === false`, ex. coeurdelinh) n'ont pas de topics à récupérer
+  // et le JSON-LD les omet déjà ; les interroger garantissait un 404 qui
+  // déclenchait le mémo négatif GLOBAL (topics éteints pour tout le hub).
   const metas = await fetchRepoMetas(
-    projects.map((p) => ({ slug: p.slug, owner: p.repo.owner, name: p.repo.name })),
+    projects
+      .filter((p) => p.repoPublic !== false)
+      .map((p) => ({ slug: p.slug, owner: p.repo.owner, name: p.repo.name })),
   )
   const nonce = (await headers()).get('x-nonce') || undefined
 
