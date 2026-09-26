@@ -56,8 +56,9 @@ Secrets **server-only** : ne jamais exposer côté client.
 
 **Tests automatisés : Vitest 5 est en place** (`TEST-001`) — `npm run test` (non-watch)
 comme cible CI, `npm run test:watch` en dev ; la suite actuelle est
-`lib/__tests__/validation.test.ts` (37 cas migrés de l'ancien runner mort),
-`lib/__tests__/chatStreamProtocol.test.ts` (20 cas — protocole NDJSON et lissage
+`lib/__tests__/validation.test.ts` (40 cas, dont 37 migrés de l'ancien runner mort
+et 3 cas `assertValidChatMessages`),
+`lib/__tests__/chatStreamProtocol.test.ts` (17 cas — protocole NDJSON et lissage
 d'affichage, PERF-002), `lib/__tests__/guardrail.test.ts` (14 cas — détecteur
 hors-sujet, MODEL-004), `lib/__tests__/sentryOptions.test.ts` (7 cas — garde DSN
 et scrubbers vie privée, OBS-001) et `lib/__tests__/projects.test.ts` (9 cas —
