@@ -108,6 +108,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'menu-renzu',
     repo: { owner: 'ksdok', name: 'menu-translator-ia' },
+    repoPublic: false,
     order: 2,
     featured: true,
     updatedAt: '2026-09-26',
