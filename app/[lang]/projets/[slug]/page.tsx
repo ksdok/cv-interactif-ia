@@ -122,7 +122,6 @@ export default async function ProjetDetailPage({
     '@type': 'SoftwareSourceCode',
     name: title,
     description: summary,
-    codeRepository: repoUrl(project),
     author: { '@id': `${SITE_URL}/#person` },
     inLanguage: lang,
     keywords: project.tags.join(', '),
@@ -130,6 +129,9 @@ export default async function ProjetDetailPage({
     // dérivé de l'API GitHub (métadonnées non affichées, consigne opérateur).
     dateModified: project.updatedAt,
   }
+  // codeRepository : seulement si le dépôt est PUBLIC — pointer des données
+  // structurées SEO vers une URL non publique est contre-productif (arbitrage).
+  if (project.repoPublic !== false) jsonLd.codeRepository = repoUrl(project)
 
   const others = detailProjects().filter((p) => p.slug !== project.slug)
   const excerpt = otherLocale(lang) === 'fr' ? project.summaryFr : project.summaryEn

@@ -35,6 +35,9 @@ export interface Project {
   slug: string
   /** Dépôt GitHub ciblé par l'enrichissement métadonnées. */
   repo: { owner: string; name: string }
+  /** `false` = dépôt privé : on omet `codeRepository` du JSON-LD (pas de lien
+   *  SEO vers une URL non publique). Absent = public. */
+  repoPublic?: boolean
   /** Ordre éditorial (featured d'abord, puis croissant). */
   order: number
   titleFr: string
@@ -198,6 +201,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'coeurdelinh',
     repo: { owner: 'ksdok', name: 'coeurdelinh' },
+    repoPublic: false,
     order: 4,
     featured: true,
     updatedAt: '2026-09-26',

@@ -25,6 +25,13 @@ describe('content/projects — invariant M3', () => {
     expect(offenders.map((p) => p.slug)).toEqual([])
   })
 
+  it('chaque projet de PROJECTS a une page dédiée (detailFr && detailEn)', () => {
+    // Politique opérateur : « chaque projet a une page dédiée ». Tous les
+    // projets doivent donc satisfaire hasDetail (anti-régression).
+    const withoutDetail = PROJECTS.filter((p) => !hasDetail(p)).map((p) => p.slug)
+    expect(withoutDetail).toEqual([])
+  })
+
   it('hasDetail exige les deux locales (un détail mono-langue ne suffit pas)', () => {
     for (const p of PROJECTS) {
       const both = Boolean(p.detailFr?.length && p.detailEn?.length)
