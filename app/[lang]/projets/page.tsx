@@ -26,15 +26,6 @@ import { SITE_URL } from '@/lib/site'
 import { hasDetail, visibleProjects, type Project } from '@/content/projects'
 import { fetchRepoMetas, type RepoMeta } from '@/lib/github'
 
-// Icône lien externe.
-function ExternalIcon() {
-  return (
-    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-    </svg>
-  )
-}
-
 // Flèche interne.
 function ArrowIcon() {
   return (
@@ -42,10 +33,6 @@ function ArrowIcon() {
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   )
-}
-
-function repoUrl(project: Project): string {
-  return `https://github.com/${project.repo.owner}/${project.repo.name}`
 }
 
 function localized(project: Project, lang: Lang) {
@@ -135,7 +122,7 @@ export default async function ProjetsPage({
       '@type': 'ListItem',
       position: i + 1,
       name: localized(p, lang).title,
-      url: hasDetail(p) ? `${SITE_URL}/${lang}/projets/${p.slug}` : repoUrl(p),
+      url: `${SITE_URL}/${lang}/projets/${p.slug}`,
     })),
   }
 
@@ -183,9 +170,7 @@ export default async function ProjetsPage({
                   className="bg-surface-container-low rounded-lg p-10 flex flex-col min-h-[22rem]"
                 >
                   <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">
-                    {project.featured
-                      ? dictionary.projects.featuredLabel
-                      : dictionary.projects.githubLabel}
+                    {dictionary.projects.featuredLabel}
                   </span>
                   <h2 className="text-2xl font-bold tracking-tight mt-6 text-on-surface">
                     {title}
@@ -208,7 +193,7 @@ export default async function ProjetsPage({
                     </ul>
                   )}
 
-                  {hasDetail(project) ? (
+                  {hasDetail(project) && (
                     <Link
                       href={`/${lang}/projets/${project.slug}`}
                       className="mt-auto pt-6 inline-flex items-center gap-2 self-start text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
@@ -216,17 +201,6 @@ export default async function ProjetsPage({
                       {dictionary.projects.viewProject}
                       <ArrowIcon />
                     </Link>
-                  ) : (
-                    <a
-                      href={repoUrl(project)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${dictionary.projects.viewOnGithub} — ${title} (${dictionary.projects.newTab})`}
-                      className="mt-auto pt-6 inline-flex items-center gap-2 self-start text-[0.75rem] tracking-wider uppercase font-semibold text-secondary border-b border-secondary pb-0.5 hover:opacity-60 transition-opacity"
-                    >
-                      {dictionary.projects.viewOnGithub}
-                      <ExternalIcon />
-                    </a>
                   )}
                 </article>
               )

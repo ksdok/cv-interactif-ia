@@ -148,9 +148,7 @@ const fr = {
     aside:
       'Des projets principalement autour de l’IA, du web et de l’automatisation. Chaque projet mis en avant a sa propre page détail.',
     featuredLabel: 'Mis en avant',
-    githubLabel: 'Projet GitHub',
     viewProject: 'Voir le projet',
-    viewOnGithub: 'Voir sur GitHub',
     newTab: 'nouvel onglet',
     // Libellé de GROUPE des pastilles (tags éditoriaux + topics GitHub) —
     // utilisé comme aria-label du bloc de pills sur le hub (finding 5).

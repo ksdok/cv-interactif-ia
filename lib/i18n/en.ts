@@ -143,9 +143,7 @@ const en: Dictionary = {
     aside:
       'Mostly projects around AI, the web and automation. Each featured project has its own detail page.',
     featuredLabel: 'Featured',
-    githubLabel: 'GitHub project',
     viewProject: 'View project',
-    viewOnGithub: 'View on GitHub',
     newTab: 'new tab',
     // Group label for the pills (editorial tags + GitHub topics) — used as the
     // accessible aria-label of the pill block on the hub (finding 5).

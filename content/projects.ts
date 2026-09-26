@@ -169,29 +169,29 @@ export const PROJECTS: Project[] = [
     detailFr: [
       {
         heading: 'Le problème',
-        body: 'Récupérer l’audio d’une vidéo pour l’écouter hors ligne demande normalement plusieurs outils et commandes manuelles.',
+        body: 'Extraire l’audio d’une vidéo YouTube en qualité maximale demande normalement d’enchaîner plusieurs outils et plusieurs commandes.',
       },
       {
         heading: 'Approche',
-        body: 'Un script unique qui enchaîne le téléchargement et la conversion avec un choix de format en paramètre, pensé pour rester simple à lancer depuis le terminal.',
+        body: 'Un script Bash unique qui encapsule yt-dlp et ffmpeg : on lui passe une URL, plusieurs URLs ou un fichier de liens, et il produit des fichiers audio (MP3 par défaut) à la meilleure qualité disponible. Options pour le dossier de sortie, le format, le mode playlist, un système d’archive anti-doublon, un aperçu sans téléchargement (dry-run) et un assistant interactif. Un installateur crée une commande disponible partout.',
       },
       {
         heading: 'Stack',
-        body: 'Shell, outillage en ligne de commande.',
+        body: 'Bash, yt-dlp et ffmpeg (vérification automatique des dépendances).',
       },
     ],
     detailEn: [
       {
         heading: 'The problem',
-        body: 'Grabbing a video’s audio to listen offline normally takes several tools and manual commands.',
+        body: 'Extracting a YouTube video’s audio at maximum quality normally means chaining several tools and commands.',
       },
       {
         heading: 'Approach',
-        body: 'A single script that chains download and conversion with a format parameter, kept simple to run from the terminal.',
+        body: 'A single Bash script wrapping yt-dlp and ffmpeg: pass a URL, several URLs or a file of links and it produces audio files (MP3 by default) at the best available quality. Options for the output folder, format, playlist mode, an anti-duplicate archive, a no-download preview (dry-run) and an interactive assistant. An installer creates a command available anywhere.',
       },
       {
         heading: 'Stack',
-        body: 'Shell, command-line tooling.',
+        body: 'Bash, yt-dlp and ffmpeg (automatic dependency check).',
       },
     ],
   },
@@ -199,29 +199,85 @@ export const PROJECTS: Project[] = [
     slug: 'coeurdelinh',
     repo: { owner: 'ksdok', name: 'coeurdelinh' },
     order: 4,
-    featured: false,
+    featured: true,
     updatedAt: '2026-09-26',
     tags: ['Astro', 'CMS', 'Cloudflare'],
     titleFr: 'Site Cœur de Linh',
     titleEn: 'Cœur de Linh website',
     summaryFr:
-      'Refonte du site vitrine cœurdelinh.com : sortie de WordPress vers un site statique Astro, éditable par une non-technicienne via un CMS Git, hébergé sur Cloudflare.',
+      'Refonte du site vitrine cœurdelinh.com : sortie de WordPress vers un site statique Astro, éditable par la propriétaire via un CMS Git, hébergé sur Cloudflare.',
     summaryEn:
-      'Rebuild of the cœurdelinh.com showcase site: moving off WordPress to a static Astro site, editable by a non-technical owner through a Git CMS, hosted on Cloudflare.',
+      'Rebuild of the cœurdelinh.com showcase site: moving off WordPress to a static Astro site, editable by the owner through a Git CMS, hosted on Cloudflare.',
+    detailFr: [
+      {
+        heading: 'Le problème',
+        body: 'Le site vitrine reposait sur WordPress : lourd à maintenir et difficile à faire évoluer simplement par sa propriétaire, non technicienne.',
+      },
+      {
+        heading: 'Approche',
+        body: 'Migration vers un site statique Astro, éditable par la propriétaire via un CMS Git : chaque édition devient un commit qui déclenche le déploiement automatique. L’hébergement passe sur Cloudflare Workers (fichiers statiques) et le formulaire de réservation est traité par un Worker. Le design reprend le style WordPress existant (polices auto-hébergées). 14 pages de contenu migrées, 42 images vérifiées par empreinte, 106 tests. La bascule DNS finale arrive en dernier, avec un rollback instantané tant que WordPress reste en place.',
+      },
+      {
+        heading: 'Stack',
+        body: 'Astro (site statique), Sveltia CMS, Cloudflare Workers (hébergement et formulaire).',
+      },
+    ],
+    detailEn: [
+      {
+        heading: 'The problem',
+        body: 'The showcase site ran on WordPress: heavy to maintain and hard for its non-technical owner to evolve simply.',
+      },
+      {
+        heading: 'Approach',
+        body: 'Migrated to a static Astro site, editable by the owner through a Git CMS: every edit becomes a commit that triggers the automatic deployment. Hosting moves to Cloudflare Workers (static assets) and the booking form is handled by a Worker. The design keeps the existing WordPress style (self-hosted fonts). 14 content pages migrated, 42 checksum-verified images, 106 tests. The final DNS switch comes last, with an instant rollback as long as WordPress remains in place.',
+      },
+      {
+        heading: 'Stack',
+        body: 'Astro (static site), Sveltia CMS, Cloudflare Workers (hosting and form).',
+      },
+    ],
   },
   {
     slug: 'zomboid-pvp',
     repo: { owner: 'ksdok', name: 'zomboidPVP' },
     order: 5,
-    featured: false,
+    featured: true,
     updatedAt: '2026-09-03',
     tags: ['Lua', 'Jeu'],
-    titleFr: 'Serveur Project Zomboid PVP',
-    titleEn: 'Project Zomboid PVP server',
+    titleFr: 'Mod PVP Project Zomboid',
+    titleEn: 'Project Zomboid PVP mod',
     summaryFr:
-      'Configuration et scripts d’un serveur de jeu Project Zomboid orienté PVP (mods, règles, automatisation).',
+      'Mod multijoueur pour Project Zomboid : du dernier survivant dans une arène bornée, rôles, manches et score persistant.',
     summaryEn:
-      'Configuration and scripts for a PVP-oriented Project Zomboid game server (mods, rules, automation).',
+      'Multiplayer mod for Project Zomboid: last survivor standing in a bounded arena, roles, rounds and persistent scoring.',
+    detailFr: [
+      {
+        heading: 'Le problème',
+        body: 'Un mode joueur contre joueur pour Project Zomboid : un dernier survivant dans une arène bornée, sans dépendance à une carte personnalisée.',
+      },
+      {
+        heading: 'Approche',
+        body: 'Un mod multijoueur en Lua : les joueurs choisissent un rôle (avec équipement complet), apparaissent à des points aléatoires sans collision et s’affrontent jusqu’au dernier survivant. Des zombies sprinters d’ambiance ajoutent la pression ; les joueurs éliminés deviennent spectateurs et peuvent invoquer un zombie. Un cycle de manche (salon → préparation → actif → fin), une zone de confinement avec sanction si l’on en sort, un score persistant par joueur et un tableau de bord de session. L’hôte lance chaque manche et décide de la rejouer. L’arène utilise des coordonnées vanilla — aucune carte à installer.',
+      },
+      {
+        heading: 'Stack',
+        body: 'Mod Project Zomboid (Lua, Build 41), multijoueur hôte/dédié, dépendances tierces d’armes et d’armures déclarées.',
+      },
+    ],
+    detailEn: [
+      {
+        heading: 'The problem',
+        body: 'A player-versus-player mode for Project Zomboid: last survivor standing in a bounded arena, with no custom-map dependency.',
+      },
+      {
+        heading: 'Approach',
+        body: 'A Lua multiplayer mod: players pick a role (with a full loadout), spawn at random collision-free points and fight to the last survivor. Ambient sprinter zombies add pressure; eliminated players become spectators and can summon a zombie. A round flow (lobby → prep → active → end), a confinement zone with a penalty for leaving, persistent per-player scoring and a session leaderboard. The host launches each round and decides whether to replay. The arena uses vanilla coordinates — no map to install.',
+      },
+      {
+        heading: 'Stack',
+        body: 'Project Zomboid mod (Lua, Build 41), host/dedicated multiplayer, declared third-party weapon and armour dependencies.',
+      },
+    ],
   },
 ]
 

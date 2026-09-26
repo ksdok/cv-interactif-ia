@@ -171,32 +171,23 @@ export default async function ProjetDetailPage({
             ))}
           </div>
 
-          {/* Liens — plus de métadonnées GitHub affichées (consigne opérateur) :
-              seuls le dépôt et une éventuelle démo restent. */}
-          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3">
-            <a
-              href={repoUrl(project)}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${dictionary.projects.viewOnGithub} — ${title} (${dictionary.projects.newTab})`}
-              className="inline-flex items-center gap-2 text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
-            >
-              {dictionary.projects.viewOnGithub}
-              <ExternalIcon />
-            </a>
-            {project.demoUrl && (
+          {/* Liens visibles : plus AUCUN lien repo GitHub (consigne opérateur).
+              Seule la démo produit reste, si elle existe. Le repo n'est plus
+              utilisé que comme `codeRepository` dans le JSON-LD (SEO). */}
+          {project.demoUrl && (
+            <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3">
               <a
                 href={project.demoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`${dictionary.projects.detail.demoLabel} — ${title} (${dictionary.projects.newTab})`}
-                className="inline-flex items-center gap-2 text-[0.75rem] tracking-wider uppercase font-semibold text-secondary border-b border-secondary pb-0.5 hover:opacity-60 transition-opacity"
+                className="inline-flex items-center gap-2 text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
               >
                 {dictionary.projects.detail.demoLabel}
                 <ExternalIcon />
               </a>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Appel à tester (bêta) — CTA vers le contact public du site. */}
           {project.contactForBeta && (
