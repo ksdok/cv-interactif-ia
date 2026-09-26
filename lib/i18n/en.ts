@@ -119,6 +119,46 @@ const en: Dictionary = {
     ],
   },
 
+  // PROJ-001 — Projects page (hub + detail), wording via dictionary (GEO-08b).
+  projects: {
+    metaTitle: 'Projects — Kim-san DOK',
+    metaDescription:
+      'Ongoing GitHub projects by Kim-san DOK: the real code behind the résumé — web apps, AI and command-line tools.',
+    ogDescription:
+      'The real code behind the résumé — a few ongoing projects around the web, AI and editorial design.',
+    keywords: [
+      'Kim-san DOK',
+      'projects',
+      'GitHub',
+      'portfolio',
+      'open source',
+      'software development',
+    ],
+    eyebrow: 'Portfolio',
+    title: 'Projects',
+    lead: 'A selection of ongoing projects — the real code behind the résumé, beyond the experience.',
+    aside:
+      'Mostly projects around AI, the web and automation. Each featured project has its own detail page.',
+    featuredLabel: 'Featured',
+    githubLabel: 'GitHub project',
+    viewProject: 'View project',
+    viewOnGithub: 'View on GitHub',
+    newTab: 'new tab',
+    starsAria: 'stars',
+    lastActivityLabel: 'Last activity',
+    languageLabel: 'Language',
+    topicsLabel: 'Topics',
+    detail: {
+      eyebrow: 'Project',
+      back: 'All projects',
+      metaLabel: 'GitHub metadata',
+      repoLabel: 'Repository',
+      demoLabel: 'Live demo',
+      otherProjects: 'Other projects',
+      otherLocaleExcerpt: 'Also available in French',
+    },
+  },
+
   hero: {
     label: 'Portfolio Showcase',
     titleName: 'Kim-san DOK',
@@ -208,6 +248,7 @@ const en: Dictionary = {
 
   footer: {
     copyright: '© 2026 Kim-san DOK. Curated Minimalism.',
+    projectsLink: 'Projects',
     cvLink: 'CV',
     linkedinLink: 'LinkedIn',
     githubLink: 'GitHub',

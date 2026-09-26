@@ -8,12 +8,19 @@
  *
  * Deux niveaux de vérification :
  * 1. GUARDE STATIQUE (sans serveur) : chaque sentinelle doit exister dans le
- *    fichier dictionnaire de sa locale. Si un wording change sans mise à jour
- *    de ce script, il échoue avec un message explicite au lieu de produire des
- *    faux négatifs/positifs silencieux (régression constatée : sentinelles FR
- *    obsolètes depuis 33d8498, script rouge sur main avec sortie « ✓ OK »).
+ *    fichier dictionnaire de sa locale (mustHave) — et, pour les mustNotHave,
+ *    dans le dictionnaire de l'AUTRE locale. Si un wording change sans mise à
+ *    jour de ce script, il échoue avec un message explicite au lieu de produire
+ *    des faux négatifs/positifs silencieux.
  * 2. CHECK RUNTIME : les pages servies ne doivent contenir que les sentinelles
  *    de leur locale.
+ *
+ * PROJ-001 (N6) : les sentinelles sont étendues aux pages Projets — une
+ * sentinelle FR et une EN par page hub (`/fr/projets`) et détail
+ * (`/fr/projets/cv-interactif-ia`, projet `hasDetail`). Note : la page détail
+ * contient VOLONTAIREMENT un court extrait dans l'autre langue (attribut
+ * `lang`) — les sentinelles choisies évitent donc le texte du résumé traduit et
+ * ciblent les libellés d'interface, qui restent mono-locale.
  *
  * Usage : lancer un serveur au préalable (npm run build && npm run start),
  * puis `node scripts/check-locale.mjs [baseURL]` (défaut http://localhost:3000).
@@ -28,9 +35,9 @@ import { dirname, join } from 'node:path'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const BASE = process.argv[2] || 'http://localhost:3000'
 
-// Sentinelles : présentes UNIQUEMENT dans la locale indiquée (page homepage).
-// Sous-chaînes volontairement courtes et stables (préfixes sans ponctuation
-// fragile). Chaque entrée est re-vérifiée statiquement contre le dictionnaire.
+// Sentinelles par locale. `mustHave` = présent uniquement dans cette locale ;
+// `mustNotHave` = doit être absent de cette locale (sentinelle de l'autre).
+// Chaque entrée est re-vérifiée statiquement contre les dictionnaires.
 const SENTINELS = {
   fr: {
     mustHave: [
@@ -42,6 +49,19 @@ const SENTINELS = {
       'Portfolio Showcase', // hero.label EN (en.ts)
       'Featured Role', // experience.featuredLabel EN (en.ts)
       'What would you like to know', // chat.greeting2 EN (en.ts)
+    ],
+    // PROJ-001 (N6) — pages supplémentaires à vérifier (hors home).
+    pages: [
+      {
+        path: '/fr/projets',
+        mustHave: ['Une sélection de projets en cours'], // projects.lead (fr.ts)
+        mustNotHave: ['A selection of ongoing projects'], // projects.lead EN (en.ts)
+      },
+      {
+        path: '/fr/projets/cv-interactif-ia',
+        mustHave: ['Aussi disponible en anglais'], // projects.detail.otherLocaleExcerpt (fr.ts)
+        mustNotHave: ['Also available in French'], // projects.detail.otherLocaleExcerpt EN (en.ts)
+      },
     ],
   },
   en: {
@@ -55,6 +75,18 @@ const SENTINELS = {
       'Que souhaitez-vous savoir',
       'design par kim-san',
     ],
+    pages: [
+      {
+        path: '/en/projets',
+        mustHave: ['A selection of ongoing projects'],
+        mustNotHave: ['Une sélection de projets en cours'],
+      },
+      {
+        path: '/en/projets/cv-interactif-ia',
+        mustHave: ['Also available in French'],
+        mustNotHave: ['Aussi disponible en anglais'],
+      },
+    ],
   },
 }
 
@@ -64,19 +96,30 @@ const dictFiles = {
   en: readFileSync(join(ROOT, 'lib/i18n/en.ts'), 'utf8'),
 }
 
+// Toutes les entrées de sentinelles, home incluse, aplaties pour la garde statique.
+function allEntries(locale, spec) {
+  const entries = [
+    { path: `/${locale}`, mustHave: spec.mustHave, mustNotHave: spec.mustNotHave },
+  ]
+  for (const page of spec.pages || []) entries.push(page)
+  return entries
+}
+
 let staticFailures = 0
 for (const [locale, spec] of Object.entries(SENTINELS)) {
-  for (const s of spec.mustHave) {
-    if (!dictFiles[locale].includes(s)) {
-      staticFailures++
-      console.error(`✗ sentinelle obsolète : "${s}" absente de lib/i18n/${locale}.ts — le wording a changé, mettre à jour SENTINELS dans ce script.`)
+  const other = locale === 'fr' ? 'en' : 'fr'
+  for (const entry of allEntries(locale, spec)) {
+    for (const s of entry.mustHave) {
+      if (!dictFiles[locale].includes(s)) {
+        staticFailures++
+        console.error(`✗ sentinelle obsolète : "${s}" absente de lib/i18n/${locale}.ts — le wording a changé, mettre à jour SENTINELS dans ce script.`)
+      }
     }
-  }
-  for (const s of spec.mustNotHave) {
-    const other = locale === 'fr' ? 'en' : 'fr'
-    if (!dictFiles[other].includes(s)) {
-      staticFailures++
-      console.error(`✗ sentinelle obsolète : "${s}" (doit exister dans lib/i18n/${other}.ts) — mettre à jour SENTINELS dans ce script.`)
+    for (const s of entry.mustNotHave) {
+      if (!dictFiles[other].includes(s)) {
+        staticFailures++
+        console.error(`✗ sentinelle obsolète : "${s}" (doit exister dans lib/i18n/${other}.ts) — mettre à jour SENTINELS dans ce script.`)
+      }
     }
   }
 }
@@ -91,29 +134,31 @@ let failures = 0
 const localeStats = []
 
 for (const [locale, spec] of Object.entries(SENTINELS)) {
-  const html = await fetch(`${BASE}/${locale}`).then((r) => {
-    if (!r.ok) throw new Error(`${BASE}/${locale} → HTTP ${r.status}`)
-    return r.text()
-  })
+  for (const entry of allEntries(locale, spec)) {
+    const html = await fetch(`${BASE}${entry.path}`).then((r) => {
+      if (!r.ok) throw new Error(`${BASE}${entry.path} → HTTP ${r.status}`)
+      return r.text()
+    })
 
-  let localeFailures = 0
-  for (const s of spec.mustHave) {
-    if (!html.includes(s)) {
-      failures++; localeFailures++
-      console.error(`✗ /${locale} : sentinelle attendue absente : "${s}"`)
+    let pageFailures = 0
+    for (const s of entry.mustHave) {
+      if (!html.includes(s)) {
+        failures++; pageFailures++
+        console.error(`✗ ${entry.path} : sentinelle attendue absente : "${s}"`)
+      }
     }
-  }
-  for (const s of spec.mustNotHave) {
-    if (html.includes(s)) {
-      failures++; localeFailures++
-      console.error(`✗ /${locale} : résidu de l'autre locale : "${s}"`)
+    for (const s of entry.mustNotHave) {
+      if (html.includes(s)) {
+        failures++; pageFailures++
+        console.error(`✗ ${entry.path} : résidu de l'autre locale : "${s}"`)
+      }
     }
-  }
-  localeStats.push({ locale, localeFailures, total: spec.mustHave.length })
-  if (localeFailures === 0) {
-    console.log(`✓ /${locale} : ${spec.mustHave.length} sentinelles OK, 0 résidu`)
-  } else {
-    console.error(`✗ /${locale} : ${localeFailures} échec(s) runtime — voir ci-dessus`)
+    localeStats.push({ path: entry.path, pageFailures, total: entry.mustHave.length })
+    if (pageFailures === 0) {
+      console.log(`✓ ${entry.path} : ${entry.mustHave.length} sentinelles OK, 0 résidu`)
+    } else {
+      console.error(`✗ ${entry.path} : ${pageFailures} échec(s) runtime — voir ci-dessus`)
+    }
   }
 }
 
@@ -121,4 +166,4 @@ if (failures > 0) {
   console.error(`\n${failures} échec(s) — résidu(s) de locale détecté(s).`)
   process.exit(1)
 }
-console.log('\nOK — aucun résidu de locale sur /fr et /en.')
+console.log(`\nOK — aucun résidu de locale sur ${localeStats.length} page(s).`)

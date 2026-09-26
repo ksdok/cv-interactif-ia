@@ -122,9 +122,50 @@ const fr = {
     ],
   },
 
+  // PROJ-001 — page Projets (hub + détail), wording via dictionnaire (GEO-08b).
+  // Les libellés de boutons portent l'icône en SVG côté composant (pas de
+  // glyphe en JSX) ; `newTab` alimente l'aria-label des liens externes.
+  projects: {
+    metaTitle: 'Projets — Kim-san DOK',
+    metaDescription:
+      'Projets GitHub en cours de Kim-san DOK : le code réel au-delà du CV — applications web, IA et outils en ligne de commande.',
+    ogDescription:
+      'Le code réel derrière le CV — quelques projets en cours autour du web, de l’IA et du design éditorial.',
+    keywords: [
+      'Kim-san DOK',
+      'projets',
+      'GitHub',
+      'portfolio',
+      'open source',
+      'développement',
+    ],
+    eyebrow: 'Portfolio',
+    title: 'Projets',
+    lead: 'Une sélection de projets en cours — le code réel derrière le CV, au-delà des expériences.',
+    aside:
+      'Des projets principalement autour de l’IA, du web et de l’automatisation. Chaque projet mis en avant a sa propre page détail.',
+    featuredLabel: 'Mis en avant',
+    githubLabel: 'Projet GitHub',
+    viewProject: 'Voir le projet',
+    viewOnGithub: 'Voir sur GitHub',
+    newTab: 'nouvel onglet',
+    starsAria: 'étoiles',
+    lastActivityLabel: 'Dernière activité',
+    languageLabel: 'Langage',
+    topicsLabel: 'Topics',
+    detail: {
+      eyebrow: 'Projet',
+      back: 'Tous les projets',
+      metaLabel: 'Métadonnées GitHub',
+      repoLabel: 'Dépôt',
+      demoLabel: 'Démo en ligne',
+      otherProjects: 'Autres projets',
+      otherLocaleExcerpt: 'Aussi disponible en anglais',
+    },
+  },
+
   hero: {
-    label: 'Portfolio',
-    titleName: 'Kim-san DOK',
+    label: 'Portfolio',    titleName: 'Kim-san DOK',
     titleRole: 'Business Analyst Freelance',
     introLead:
       'Explorez mon parcours professionnel à travers une interface conversationnelle — Business Analyst senior en ',
@@ -213,6 +254,7 @@ const fr = {
 
   footer: {
     copyright: '© 2026 Kim-san DOK. Minimalisme éditorial.',
+    projectsLink: 'Projets',
     cvLink: 'CV',
     linkedinLink: 'LinkedIn',
     githubLink: 'GitHub',
