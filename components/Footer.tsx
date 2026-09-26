@@ -15,7 +15,19 @@ export default function Footer({ dictionary, lang }: FooterProps) {
         <p className="text-[0.75rem] tracking-wider uppercase text-secondary">
           {dictionary.footer.copyright}
         </p>
-        <div className="flex space-x-12">
+        {/* PROJ-001 : 5 liens désormais (Projets + CV + LinkedIn + GitHub + E-mail).
+            `flex-wrap` + gap (au lieu de `space-x-12` non wrappable) : sans lui, la
+            rangée débordait horizontalement sous ~375px (le footer à 4 liens
+            débordait déjà à 320px) — correction nécessaire au critère responsive. */}
+        <div className="flex flex-wrap justify-center gap-x-12 gap-y-3">
+          {/* PROJ-001 (M5) : lien « Projets » en première position, cohérent avec
+              le lien CV. Header et home inchangés (décision spec). */}
+          <Link
+            href={`/${lang}/projets`}
+            className="text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors"
+          >
+            {dictionary.footer.projectsLink}
+          </Link>
           <Link
             href={`/${lang}/cv`}
             className="text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors"

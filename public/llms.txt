@@ -27,8 +27,10 @@ Kim-san DOK est Business Analyst Senior freelance (AMOA), spécialisé en financ
 
 - [Accueil (FR)](https://kimsandok.com/fr) : vitrine interactive du parcours avec le chatbot IA Nicky.
 - [CV complet (FR)](https://kimsandok.com/fr/cv) : CV intégral en HTML — expériences, expertises, chiffres clés, formation.
+- [Projets (FR)](https://kimsandok.com/fr/projets) : le code réel derrière le CV — projets GitHub en cours (web, IA, outils), avec une page détail par projet mis en avant.
 - [Home (EN)](https://kimsandok.com/en) : English interactive resume with the Nicky AI chat.
 - [Full CV (EN)](https://kimsandok.com/en/cv) : complete CV in English.
+- [Projects (EN)](https://kimsandok.com/en/projets) : the real code behind the résumé — ongoing GitHub projects (web, AI, tooling).
 - [LinkedIn](https://www.linkedin.com/in/kim-san-dok) : profil professionnel.
 - [GitHub](https://github.com/ksdok) : projets open source (cv-interactif-ia, menu-translator-ia…).
 - [CV intégral pour LLM (FR)](https://kimsandok.com/llms-full.txt) : CV intégral en Markdown, généré depuis la source du chatbot.
@@ -37,4 +39,4 @@ Kim-san DOK est Business Analyst Senior freelance (AMOA), spécialisé en financ
 
 Kim-san DOK is a senior freelance Business Analyst (AMOA) specialized in market finance: Securities Lending, Repo, Forex, Hedging, Triparty, Collateral. 10 years of experience on high-volume mission-critical systems (14M transactions/yr) at Société Générale (Paris, La Défense), bridging business and IT: requirements, process mapping, functional specifications, UAT. Key achievements: replacing Kondor+/K+TP with in-house solutions (~€500K/yr savings on licenses and support, and as much on operations via the Solaris → Red Hat migration), migrating 4Sight Financial to SFCM (unlocking Repo & Triparty), scoping ×4 scalability of the X-One Secloan platform. PSM I certified. The site includes an AI chatbot (Nicky), the candidate's digital twin, answering questions grounded in the real CV.
 
-Pages: [Home (EN)](https://kimsandok.com/en) · [Full CV (EN)](https://kimsandok.com/en/cv) · [Full CV for LLMs](https://kimsandok.com/llms-full.txt) · [LinkedIn](https://www.linkedin.com/in/kim-san-dok) · [GitHub](https://github.com/ksdok).
+Pages: [Home (EN)](https://kimsandok.com/en) · [Full CV (EN)](https://kimsandok.com/en/cv) · [Projects (EN)](https://kimsandok.com/en/projets) · [Full CV for LLMs](https://kimsandok.com/llms-full.txt) · [LinkedIn](https://www.linkedin.com/in/kim-san-dok) · [GitHub](https://github.com/ksdok).

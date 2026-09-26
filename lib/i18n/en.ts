@@ -78,6 +78,9 @@ const en: Dictionary = {
     // changes, check the other.
     cvLink: 'CV',
     cvLinkAria: 'View CV',
+    // PROJ-001 — header Projects link (second after CV).
+    projectsLink: 'Projects',
+    projectsLinkAria: 'View projects',
     // Clickable logo → home of the current locale.
     homeLinkAria: 'Back to home',
   },
@@ -117,6 +120,45 @@ const en: Dictionary = {
       'Migration',
       'Paris',
     ],
+  },
+
+  // PROJ-001 — Projects page (hub + detail), wording via dictionary (GEO-08b).
+  projects: {
+    metaTitle: 'Projects — Kim-san DOK',
+    metaDescription:
+      'Ongoing GitHub projects by Kim-san DOK: the real code behind the résumé — web apps, AI and command-line tools.',
+    ogDescription:
+      'The real code behind the résumé — a few ongoing projects around the web, AI and editorial design.',
+    keywords: [
+      'Kim-san DOK',
+      'projects',
+      'GitHub',
+      'portfolio',
+      'open source',
+      'software development',
+    ],
+    eyebrow: 'Portfolio',
+    title: 'Projects',
+    lead: 'A selection of ongoing projects — the real code behind the résumé, beyond the experience.',
+    aside:
+      'Mostly projects around AI, the web and automation. Each featured project has its own detail page.',
+    viewProject: 'View project',
+    newTab: 'new tab',
+    // Group label for the pills (editorial tags + GitHub topics) — used as the
+    // accessible aria-label of the pill block on the hub (finding 5).
+    topicsLabel: 'Technologies and topics',
+    detail: {
+      eyebrow: 'Project',
+      back: 'All projects',
+      demoLabel: 'Live demo',
+      // PROJ-001 — beta call-to-action (TestFlight, Menu Renzu). The CTA points
+      // to the site's ALREADY-public contact channel (footer mail).
+      betaLabel: 'Try the app',
+      betaBody: 'The app is in TestFlight beta — contact me to join the tests.',
+      betaCta: 'Contact me',
+      otherProjects: 'Other projects',
+      otherLocaleExcerpt: 'Also available in French',
+    },
   },
 
   hero: {
@@ -208,6 +250,7 @@ const en: Dictionary = {
 
   footer: {
     copyright: '© 2026 Kim-san DOK. Curated Minimalism.',
+    projectsLink: 'Projects',
     cvLink: 'CV',
     linkedinLink: 'LinkedIn',
     githubLink: 'GitHub',

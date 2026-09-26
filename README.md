@@ -16,6 +16,7 @@ Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.ve
 - **Configurable CV Context** — Switch `/api/chat` between local CV file CAG and Supabase RAG via `CV_CONTEXT_SOURCE` in `lib/modelConfig.ts`.
 - **Multi-Provider AI** — Supports OpenAI and Gemini with automatic fallback. Switch providers by editing one line in `lib/modelConfig.ts`.
 - **Job Matcher** — Paste any job description to get an AI-powered CV match analysis (overall %, skills %, experience %, strengths, improvements).
+- **Projects page (PROJ-001)** — Bilingual `/fr/projets` + `/en/projets` hub with a detail page per featured project (`/[lang]/projets/[slug]`); editorial source in `content/projects.ts`, enriched with live GitHub metadata (stars, language, topics, last activity) via `lib/github.ts` (Data Cache + in-process negative memo). No images (CSP-safe), JSON-LD `ItemList`/`SoftwareSourceCode` with nonce.
 - **Bilingual FR/EN** — Locale routing under `/fr` and `/en` (`app/[lang]/`), in-house dictionaries (`lib/i18n/`), locale negotiation in `proxy.ts` (307 redirect of `/`), hreflang + per-locale canonical + bilingual JSON-LD entity.
 - **Editorial Design** — Monochromatic palette, Bento-style experience grid, generous whitespace.
 - **Security** — CSRF protection, rate limiting (200 req/day/IP), input validation, server-only secrets.
@@ -65,6 +66,12 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 # Security (optional)
 # Set to true to deploy CSP in report-only mode before enforcing.
 CSP_REPORT_ONLY=false
+
+# GitHub (optional — PROJ-001)
+# Server-only. Present: raises the unauthenticated repo-metadata limit from
+# 60 req/h/IP to 5,000. Absent: the Data Cache (revalidate 3600) + the
+# in-process negative memo (5 min) keep the Projects pages within budget.
+# GITHUB_TOKEN=ghp_...
 
 # Observability (optional — OBS-001)
 # Without NEXT_PUBLIC_SENTRY_DSN the Sentry SDK stays completely inert.
@@ -146,7 +153,10 @@ cv-interactif-ia/
 │   │   ├── layout.tsx             # Per-locale metadata, hreflang, JSON-LD (GEO-08d)
 │   │   ├── page.tsx               # Server wrapper (locale validation, dictionary)
 │   │   ├── Home.tsx               # Homepage client content (dictionary via props)
-│   │   └── cv/page.tsx            # Bilingual indexable CV (SEO-03 + GEO-08h)
+│   │   ├── cv/page.tsx            # Bilingual indexable CV (SEO-03 + GEO-08h)
+│   │   └── projets/
+│   │       ├── page.tsx           # Bilingual Projects hub (PROJ-001)
+│   │       └── [slug]/page.tsx    # Project detail (featured + full FR/EN detail, M3)
 │   ├── layout.tsx                 # Root layout: CSRF token, fallback FR metadata
 │   ├── not-found.tsx              # 404 boundary (root — also covers invalid [lang] params, GEO-08a/B1)
 │   ├── globals.css                # Design tokens + animations
@@ -169,7 +179,8 @@ cv-interactif-ia/
 │   └── LinkifiedText.tsx          # URL → clickable link renderer
 ├── content/
 │   ├── cv-en.tsx                  # EN editorial CV content served at /en/cv
-│   └── cv-fr.tsx                  # FR editorial CV content served at /fr/cv (from data/cv.md)
+│   ├── cv-fr.tsx                  # FR editorial CV content served at /fr/cv (from data/cv.md)
+│   └── projects.ts                # PROJ-001 editorial project source (M3 invariant)
 ├── lib/
 │   ├── i18n/                      # config.ts (locales), dictionaries.ts, fr.ts, en.ts, types.ts
 │   ├── modelConfig.ts             # ← Edit here to switch AI provider/context
@@ -179,6 +190,7 @@ cv-interactif-ia/
 │   ├── rag.ts                     # Embedding + Supabase vector search
 │   ├── supabase.ts                # Server-only Supabase client
 │   ├── jsonLd.ts                  # Shared JSON-LD builder (Person + ProfessionalService)
+│   ├── github.ts                  # Server-only GitHub REST metadata (PROJ-001, negative memo)
 │   ├── site.ts                    # SITE_URL + fallback FR metadata (derived from dictionary)
 │   ├── csrf.ts                    # CSRF token generation + verification
 │   ├── rateLimit.ts               # IP-based rate limiting
@@ -208,6 +220,7 @@ cv-interactif-ia/
 │   ├── measure-cv-tokens.mjs      # CV token estimate report
 │   ├── compare-results.mjs        # CAG vs RAG comparison helper
 │   ├── generate-llms-full.mjs     # Generates public/llms-full.txt from data/cv.md at build (GEO-06)
+│   ├── measure-viewports.mjs      # Repro CDP responsive check (PROJ-001, N7)
 │   └── check-locale.mjs           # i18n dictionaries coverage check
 └── public/
     ├── llms.txt                   # Bilingual llms.txt for AI agents (GEO-06)
