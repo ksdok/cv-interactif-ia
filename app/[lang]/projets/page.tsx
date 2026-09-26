@@ -74,7 +74,11 @@ export async function generateMetadata({
   const pageUrl = `${SITE_URL}/${locale}/projets`
 
   return {
-    title: dictionary.projects.metaTitle,
+    // `absolute` : metaTitle est déjà suffixée « — Kim-san DOK » ; sans cela le
+    // template `%s | Kim-san DOK` du layout [lang] produirait un doublon
+    // (« Projets — Kim-san DOK | Kim-san DOK »). OG/Twitter ci-dessous gardent
+    // la chaîne rédigée (pas de template appliqué à openGraph/twitter).
+    title: { absolute: dictionary.projects.metaTitle },
     description: dictionary.projects.metaDescription,
     keywords: dictionary.projects.keywords,
     alternates: {
