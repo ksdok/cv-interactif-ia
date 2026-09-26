@@ -1,6 +1,8 @@
 # UX-005 — Refonte visuelle du chat Nicky : header, bulle d'accueil et suggestions d'entrée
 
-> **Statut : VALIDÉE** — opérateur 2026-09-26 (revue kimi-amendée ; arbitrages §13 tranchés le 2026-09-26)
+> **Statut : VALIDÉE** — opérateur 2026-09-26 (livrée : fusionnée sur main et poussée)
+>
+> **Livraison** : branche `ux-005-chat-nicky-redesign` (implémentation `9f890fd`, amendée depuis `c0b39b3`, docs `ee2eaaa`), **fusionnée sur `main` et poussée sur `origin/main`** (merge commit `388cdf2`, 2026-09-26, déploiement Vercel automatique). 4 fichiers (+146/−24) : `components/ChatPreview.tsx`, `lib/i18n/fr.ts`, `lib/i18n/en.ts`, `app/globals.css` (token `--color-success`). Revue glm-reviewer 2 cycles → PROPRE (cycle 1 : 1 majeur corrigé) ; 87/87 tests (5 fichiers), lint/type-check/build (16 pages) verts, check-locale + measure-viewports + CDP headless 375/1280 OK ; validée par l'opérateur le 2026-09-26. Trace de livraison dans `project-state.md`.
 >
 > **Ticket proposé** : UX-005 · **Date** : 2026-09-26 · **Backlog** : UI / UX · **Base de code** : `main` @ `8542d8a`
 > Taille S · Un composant touché (`components/ChatPreview.tsx`) + dictionnaires FR/EN + 1 ligne CSS (token `--color-success`, tranché §13 n° 2).
