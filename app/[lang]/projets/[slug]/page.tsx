@@ -160,9 +160,11 @@ export default async function ProjetDetailPage({
           <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-on-surface leading-[1.05] mt-4">
             {title}
           </h1>
-          <p className="text-secondary mt-4 font-mono text-sm">
-            {`${project.repo.owner} / ${project.repo.name}`}
-          </p>
+          {project.repoPublic !== false && (
+            <p className="text-secondary mt-4 font-mono text-sm">
+              {`${project.repo.owner} / ${project.repo.name}`}
+            </p>
+          )}
 
           <div className="mt-10 space-y-6">
             {sections?.map((section) => (
