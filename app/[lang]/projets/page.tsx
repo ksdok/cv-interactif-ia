@@ -26,15 +26,6 @@ import { SITE_URL } from '@/lib/site'
 import { hasDetail, visibleProjects, type Project } from '@/content/projects'
 import { fetchRepoMetas, type RepoMeta } from '@/lib/github'
 
-// Icône étoile (inline — pas de glyphe littéral en JSX, et rien à charger).
-function StarIcon() {
-  return (
-    <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 7.1-1.01L12 2z" />
-    </svg>
-  )
-}
-
 // Icône lien externe.
 function ExternalIcon() {
   return (
@@ -136,11 +127,6 @@ export default async function ProjetsPage({
     projects.map((p) => ({ slug: p.slug, owner: p.repo.owner, name: p.repo.name })),
   )
   const nonce = (await headers()).get('x-nonce') || undefined
-  const dateFmt = new Intl.DateTimeFormat(lang, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -185,10 +171,12 @@ export default async function ProjetsPage({
         <section className="w-full px-8 pb-16">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => {
+              // Seule métadonnée GitHub encore AFFICHÉE : les topics (pills).
+              // Étoiles / langage / dernière activité ne sont plus rendus à
+              // l'écran (consigne opérateur) — le fetch reste câblé pour les topics.
               const meta: RepoMeta | undefined = metas.get(project.slug)
               const { title, summary } = localized(project, lang)
               const pills = [...project.tags, ...(meta?.topics ?? [])]
-              const activity = meta?.pushedAt ?? project.updatedAt
               return (
                 <article
                   key={project.slug}
@@ -205,36 +193,25 @@ export default async function ProjetsPage({
                   <p className="text-secondary mt-3">{summary}</p>
 
                   {pills.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-5">
+                    <ul
+                      className="flex flex-wrap gap-2 mt-5 list-none p-0"
+                      aria-label={dictionary.projects.topicsLabel}
+                    >
                       {pills.map((pill) => (
-                        <span
+                        <li
                           key={pill}
                           className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface"
                         >
                           {pill}
-                        </span>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
-
-                  <div className="mt-auto pt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-surface-variant text-[0.8rem] text-secondary">
-                    {typeof meta?.stars === 'number' && (
-                      <span
-                        className="inline-flex items-center gap-1.5"
-                        aria-label={`${meta.stars} ${dictionary.projects.starsAria}`}
-                      >
-                        <StarIcon />
-                        {meta.stars}
-                      </span>
-                    )}
-                    {meta?.language && <span>{meta.language}</span>}
-                    <span>{`${dictionary.projects.lastActivityLabel} ${dateFmt.format(new Date(activity))}`}</span>
-                  </div>
 
                   {hasDetail(project) ? (
                     <Link
                       href={`/${lang}/projets/${project.slug}`}
-                      className="mt-6 inline-flex items-center gap-2 self-start text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
+                      className="mt-auto pt-6 inline-flex items-center gap-2 self-start text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
                     >
                       {dictionary.projects.viewProject}
                       <ArrowIcon />
@@ -245,7 +222,7 @@ export default async function ProjetsPage({
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={`${dictionary.projects.viewOnGithub} — ${title} (${dictionary.projects.newTab})`}
-                      className="mt-6 inline-flex items-center gap-2 self-start text-[0.75rem] tracking-wider uppercase font-semibold text-secondary border-b border-secondary pb-0.5 hover:opacity-60 transition-opacity"
+                      className="mt-auto pt-6 inline-flex items-center gap-2 self-start text-[0.75rem] tracking-wider uppercase font-semibold text-secondary border-b border-secondary pb-0.5 hover:opacity-60 transition-opacity"
                     >
                       {dictionary.projects.viewOnGithub}
                       <ExternalIcon />

@@ -20,7 +20,15 @@ import { isLocale, type Lang } from '@/lib/i18n/config'
 import { getDictionary } from '@/lib/i18n/dictionaries'
 import { SITE_URL } from '@/lib/site'
 import { detailProjects, hasDetail, projectBySlug, type Project } from '@/content/projects'
-import { fetchRepoMeta, type RepoMeta } from '@/lib/github'
+
+// Icône lien externe.
+function ExternalIcon() {
+  return (
+    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
+  )
+}
 
 function repoUrl(project: Project): string {
   return `https://github.com/${project.repo.owner}/${project.repo.name}`
@@ -107,14 +115,7 @@ export default async function ProjetDetailPage({
   if (!project || !hasDetail(project)) notFound()
 
   const { title, summary, sections } = localized(project, lang)
-  const meta: RepoMeta | null = await fetchRepoMeta(project.repo.owner, project.repo.name)
   const nonce = (await headers()).get('x-nonce') || undefined
-  const dateFmt = new Intl.DateTimeFormat(lang, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-  const activity = meta?.pushedAt ?? project.updatedAt
 
   const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -125,9 +126,10 @@ export default async function ProjetDetailPage({
     author: { '@id': `${SITE_URL}/#person` },
     inLanguage: lang,
     keywords: project.tags.join(', '),
-    dateModified: activity,
+    // dateModified : source ÉDITORIALE (content/projects.ts) — plus aucun champ
+    // dérivé de l'API GitHub (métadonnées non affichées, consigne opérateur).
+    dateModified: project.updatedAt,
   }
-  if (meta?.language) jsonLd.programmingLanguage = meta.language
 
   const others = detailProjects().filter((p) => p.slug !== project.slug)
   const excerpt = otherLocale(lang) === 'fr' ? project.summaryFr : project.summaryEn
@@ -169,58 +171,30 @@ export default async function ProjetDetailPage({
             ))}
           </div>
 
-          {/* Métadonnées GitHub (absentes si API indisponible — dégradation assumée) */}
-          <div className="mt-12 bg-surface-container-low rounded-lg p-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <p className="sm:col-span-2 text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">
-              {dictionary.projects.detail.metaLabel}
-            </p>
-            <div>
-              <dt className="text-[0.7rem] uppercase tracking-widest text-secondary">
-                {dictionary.projects.detail.repoLabel}
-              </dt>
-              <dd className="mt-1">
-                <a
-                  href={repoUrl(project)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${dictionary.projects.viewOnGithub} — ${title} (${dictionary.projects.newTab})`}
-                  className="underline underline-offset-4 hover:opacity-60 transition-opacity"
-                >
-                  {`${project.repo.owner} / ${project.repo.name}`}
-                </a>
-              </dd>
-            </div>
-            {meta?.language && (
-              <div>
-                <dt className="text-[0.7rem] uppercase tracking-widest text-secondary">
-                  {dictionary.projects.languageLabel}
-                </dt>
-                <dd className="mt-1">{meta.language}</dd>
-              </div>
-            )}
-            <div>
-              <dt className="text-[0.7rem] uppercase tracking-widest text-secondary">
-                {dictionary.projects.lastActivityLabel}
-              </dt>
-              <dd className="mt-1">{dateFmt.format(new Date(activity))}</dd>
-            </div>
+          {/* Liens — plus de métadonnées GitHub affichées (consigne opérateur) :
+              seuls le dépôt et une éventuelle démo restent. */}
+          <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3">
+            <a
+              href={repoUrl(project)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${dictionary.projects.viewOnGithub} — ${title} (${dictionary.projects.newTab})`}
+              className="inline-flex items-center gap-2 text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
+            >
+              {dictionary.projects.viewOnGithub}
+              <ExternalIcon />
+            </a>
             {project.demoUrl && (
-              <div>
-                <dt className="text-[0.7rem] uppercase tracking-widest text-secondary">
-                  {dictionary.projects.detail.demoLabel}
-                </dt>
-                <dd className="mt-1">
-                  <a
-                    href={project.demoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`${dictionary.projects.detail.demoLabel} — ${title} (${dictionary.projects.newTab})`}
-                    className="underline underline-offset-4 hover:opacity-60 transition-opacity"
-                  >
-                    {project.demoUrl}
-                  </a>
-                </dd>
-              </div>
+              <a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`${dictionary.projects.detail.demoLabel} — ${title} (${dictionary.projects.newTab})`}
+                className="inline-flex items-center gap-2 text-[0.75rem] tracking-wider uppercase font-semibold text-secondary border-b border-secondary pb-0.5 hover:opacity-60 transition-opacity"
+              >
+                {dictionary.projects.detail.demoLabel}
+                <ExternalIcon />
+              </a>
             )}
           </div>
 

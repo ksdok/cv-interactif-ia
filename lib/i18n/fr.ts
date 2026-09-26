@@ -152,15 +152,12 @@ const fr = {
     viewProject: 'Voir le projet',
     viewOnGithub: 'Voir sur GitHub',
     newTab: 'nouvel onglet',
-    starsAria: 'étoiles',
-    lastActivityLabel: 'Dernière activité',
-    languageLabel: 'Langage',
-    topicsLabel: 'Topics',
+    // Libellé de GROUPE des pastilles (tags éditoriaux + topics GitHub) —
+    // utilisé comme aria-label du bloc de pills sur le hub (finding 5).
+    topicsLabel: 'Technologies et sujets',
     detail: {
       eyebrow: 'Projet',
       back: 'Tous les projets',
-      metaLabel: 'Métadonnées GitHub',
-      repoLabel: 'Dépôt',
       demoLabel: 'Démo en ligne',
       otherProjects: 'Autres projets',
       otherLocaleExcerpt: 'Aussi disponible en anglais',

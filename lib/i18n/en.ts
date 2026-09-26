@@ -147,15 +147,12 @@ const en: Dictionary = {
     viewProject: 'View project',
     viewOnGithub: 'View on GitHub',
     newTab: 'new tab',
-    starsAria: 'stars',
-    lastActivityLabel: 'Last activity',
-    languageLabel: 'Language',
-    topicsLabel: 'Topics',
+    // Group label for the pills (editorial tags + GitHub topics) — used as the
+    // accessible aria-label of the pill block on the hub (finding 5).
+    topicsLabel: 'Technologies and topics',
     detail: {
       eyebrow: 'Project',
       back: 'All projects',
-      metaLabel: 'GitHub metadata',
-      repoLabel: 'Repository',
       demoLabel: 'Live demo',
       otherProjects: 'Other projects',
       otherLocaleExcerpt: 'Also available in French',
