@@ -363,6 +363,13 @@ le corps du commit.
   - Définir les variables CSS dark dans `globals.css`
   - Tester les contrastes WCAG AA en mode sombre
 
+- [ ] **UX-005 — Refonte visuelle du chat Nicky (maquette Stitch)** `LOW` · statut **VALIDÉE** (opérateur, 2026-09-26)
+  - État replié de `ChatPreview.tsx` : header d'identité (avatar, nom, pastille de statut, badge), bulle d'accueil en carte, 4 puces de suggestions (quick-prompts, envoi direct, zéro emoji) + micro-copie ; expand/collapse conservé, état déplié et `/api/chat` intouchés
+  - Cadré avec l'opérateur (2026-09-26) : périmètre chat seul, envoi direct au clic, puce « TJM & Disponibilité » remplacée par « Réduction des coûts SI » (TJM absent de `data/cv.md`), paradigme expand/collapse conservé
+  - Revue `kimi-analyst` (2026-09-26) : 1 bloquant + 6 majeurs + mineurs, tous appliqués (critère 4 réécrit — puces à usage unique par session, budget `max-h`, classes réelles vs `label-caps`, garde CSRF `isTokenReady` sur les puces, seam `sendPrompt` précisé, hauteur tactile ≥ 40 px, `check-locale` via `node`, prompts EN écrits)
+  - Arbitrages §13 tranchés opérateur (2026-09-26) : avatar = icône actuelle, pastille verte via nouveau token `--color-success` (1 ligne `globals.css`), libellés §6.3 validés (sans « Agentic » dans les puces), placeholder court du mock
+  - Spec : `docs/backlog/UX-005-chat-nicky-redesign-spec.md` — VALIDÉE, prête pour implémentation (démarrage sur signal opérateur)
+
 ### 🔍 SEO
 
 - [ ] **SEO-001 — Contenu statique indexable enrichi** `LOW`
