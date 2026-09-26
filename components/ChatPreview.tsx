@@ -86,11 +86,26 @@ export default function ChatPreview({
     onExpand?.()
   }
 
+  // UX-005 (§6.2) : deux initiateurs d'envoi partagent le même seam.
+  // `doSend()` (Entrée / clic bouton) vide le brouillon ; `sendPrompt()` ne le
+  // touche pas — un envoi par puce conserve la frappe en cours (décision 7).
+  // Revue n°1 : la garde `isLoading` doit rester ICI, avant `setInput('')` —
+  // sinon une Entrée pendant le streaming viderait le brouillon sans envoyer
+  // (sendPrompt rejetterait silencieusement l'envoi).
   const doSend = async () => {
-    if (!input.trim() || isLoading) return
-
-    const userMessage = input.trim()
+    const text = input.trim()
+    if (!text || isLoading) return
     setInput('')
+    await sendPrompt(text)
+  }
+
+  const sendPrompt = async (text: string) => {
+    // La garde porte sur le paramètre (revue M4) : un clic puce avec un input
+    // vide ne doit pas être un `return` silencieux. `isLoading` conserve la
+    // garde anti-double-envoi (UX-004/PERF-002).
+    if (!text.trim() || isLoading) return
+
+    const userMessage = text.trim()
     handleExpand()
     setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
 
@@ -355,26 +370,73 @@ export default function ChatPreview({
       <div className={`max-w-3xl mx-auto transition-all duration-500 ${
         expanded
           ? 'bg-surface p-0'
-          : 'bg-surface-container-low rounded-lg p-12 hover:shadow-sm'
+          : 'bg-surface-container-low rounded-2xl border border-outline-variant/60 p-12 hover:shadow-sm'
       }`}>
 
-        {/* Greeting — fades out when expanded */}
-        <div className={`transition-all duration-500 overflow-hidden ${
-          expanded ? 'max-h-0 opacity-0 mb-0' : 'max-h-96 opacity-100 mb-12'
-        }`}>
-          <div className="flex items-start gap-4">
-            <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-              <svg className="w-4 h-4 text-on-primary-container" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-              </svg>
+        {/* État replié (UX-005 §6.1) — identité, bulle d'accueil, suggestions.
+            Se replie à l'expansion comme avant ; `inert` retire les puces du
+            flux de tabulation quand le bloc est masqué (§6.4 : aucun contrôle
+            focusable ne doit rester invisible). */}
+        <div
+          className={`transition-all duration-500 overflow-hidden ${
+            expanded ? 'max-h-0 opacity-0 mb-0' : 'max-h-[640px] opacity-100 mb-12'
+          }`}
+          inert={expanded}
+        >
+          {/* Header d'identité — avatar conservé (§13 n°1), pastille de statut,
+              badge. Palette 100 % tokens (§7.1 : neutral-* est inerte ici). */}
+          <div className="flex items-center justify-between gap-4 pb-4 border-b border-outline-variant/50 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
+                <svg className="w-4 h-4 text-on-primary-container" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-on-surface leading-tight">
+                  {dictionary.chat.title}
+                </div>
+                <div className="flex items-center text-xs text-secondary mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success motion-safe:animate-pulse mr-1.5" />
+                  {dictionary.chat.statusOnline}
+                </div>
+              </div>
             </div>
-            <div className="space-y-4">
-              <p className="text-on-surface text-lg leading-relaxed opacity-70">
-                {dictionary.chat.greeting1}
-              </p>
-              <p className="text-on-surface text-lg leading-relaxed opacity-70">
-                {dictionary.chat.greeting2}
-              </p>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-secondary bg-surface-container-high px-2 py-1 rounded">
+              {dictionary.chat.badge}
+            </span>
+          </div>
+
+          {/* Bulle d'accueil — clés greeting1/greeting2 réutilisées (le 1er
+              message de la conversation en dérive aussi, review F5). */}
+          <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/60 mb-5">
+            <p className="text-sm text-on-surface leading-relaxed">
+              {dictionary.chat.greeting1}
+            </p>
+            <p className="text-sm font-medium text-on-surface mt-2">
+              {dictionary.chat.greeting2}
+            </p>
+          </div>
+
+          {/* Suggestions — envoi direct (décision 2), puces inertes tant que le
+              CSRF n'est pas prêt ou pendant le streaming (revue M3). */}
+          <div className="mb-5">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-secondary mb-2.5">
+              {dictionary.chat.suggestionsTitle}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {dictionary.chat.suggestions.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => sendPrompt(item.prompt)}
+                  disabled={!isTokenReady || isLoading}
+                  aria-label={item.prompt}
+                  className="text-xs font-medium text-on-surface bg-surface-container-lowest border border-outline-variant rounded-lg px-3 py-2.5 min-h-10 cursor-pointer text-left transition-colors hover:border-primary hover:text-primary disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -436,7 +498,7 @@ export default function ChatPreview({
             onKeyDown={handleKeyDown}
             placeholder={dictionary.chat.placeholder}
             aria-label={dictionary.chat.placeholderAria}
-            className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-[#5f5e5e] rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-[max(20px,1.25rem)] transition-all duration-200 ease-in-out"
+            className="w-full h-20 pl-8 pr-24 bg-surface-container-lowest text-on-surface placeholder:text-secondary rounded-full border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-[max(20px,1.25rem)] transition-all duration-200 ease-in-out"
             enterKeyHint="send"
           />
           <button
@@ -459,6 +521,15 @@ export default function ChatPreview({
             )}
           </button>
         </div>
+
+        {/* Micro-copie — état replié uniquement, sous l'input (UX-005 §6.1). */}
+        <p
+          className={`transition-all duration-500 overflow-hidden text-center text-[11px] text-secondary ${
+            expanded ? 'max-h-0 opacity-0 mt-0' : 'max-h-10 opacity-100 mt-2.5'
+          }`}
+        >
+          {dictionary.chat.hint}
+        </p>
 
       </div>
     </section>

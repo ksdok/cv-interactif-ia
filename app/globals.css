@@ -59,6 +59,9 @@
   --color-on-error: #ffffff;
   --color-on-error-container: #410002;
 
+  /* Status (UX-005 — pastille « En ligne » du chat) */
+  --color-success: #15803d;
+
   /* Inverse */
   --color-inverse-surface: #2f3131;
   --color-inverse-on-surface: #f0f1f1;
