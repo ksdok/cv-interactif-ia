@@ -142,7 +142,6 @@ const en: Dictionary = {
     lead: 'A selection of ongoing projects — the real code behind the résumé, beyond the experience.',
     aside:
       'Mostly projects around AI, the web and automation. Each featured project has its own detail page.',
-    featuredLabel: 'Featured',
     viewProject: 'View project',
     newTab: 'new tab',
     // Group label for the pills (editorial tags + GitHub topics) — used as the

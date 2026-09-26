@@ -159,7 +159,7 @@ export const PROJECTS: Project[] = [
   {
     slug: 'youtube-audio-converter',
     repo: { owner: 'ksdok', name: 'youtube-audio-converter' },
-    order: 3,
+    order: 4,
     featured: true,
     updatedAt: '2026-06-19',
     tags: ['Shell', 'CLI', 'Audio'],
@@ -202,7 +202,7 @@ export const PROJECTS: Project[] = [
     slug: 'coeurdelinh',
     repo: { owner: 'ksdok', name: 'coeurdelinh' },
     repoPublic: false,
-    order: 4,
+    order: 3,
     featured: true,
     updatedAt: '2026-09-26',
     tags: ['Astro', 'CMS', 'Cloudflare'],
@@ -238,48 +238,6 @@ export const PROJECTS: Project[] = [
       {
         heading: 'Stack',
         body: 'Astro (static site), Sveltia CMS, Cloudflare Workers (hosting and form).',
-      },
-    ],
-  },
-  {
-    slug: 'zomboid-pvp',
-    repo: { owner: 'ksdok', name: 'zomboidPVP' },
-    order: 5,
-    featured: true,
-    updatedAt: '2026-09-03',
-    tags: ['Lua', 'Jeu'],
-    titleFr: 'Mod PVP Project Zomboid',
-    titleEn: 'Project Zomboid PVP mod',
-    summaryFr:
-      'Mod multijoueur pour Project Zomboid : du dernier survivant dans une arène bornée, rôles, manches et score persistant.',
-    summaryEn:
-      'Multiplayer mod for Project Zomboid: last survivor standing in a bounded arena, roles, rounds and persistent scoring.',
-    detailFr: [
-      {
-        heading: 'Le problème',
-        body: 'Un mode joueur contre joueur pour Project Zomboid : un dernier survivant dans une arène bornée, sans dépendance à une carte personnalisée.',
-      },
-      {
-        heading: 'Approche',
-        body: 'Un mod multijoueur en Lua : les joueurs choisissent un rôle (avec équipement complet), apparaissent à des points aléatoires sans collision et s’affrontent jusqu’au dernier survivant. Des zombies sprinters d’ambiance ajoutent la pression ; les joueurs éliminés deviennent spectateurs et peuvent invoquer un zombie. Un cycle de manche (salon → préparation → actif → fin), une zone de confinement avec sanction si l’on en sort, un score persistant par joueur et un tableau de bord de session. L’hôte lance chaque manche et décide de la rejouer. L’arène utilise des coordonnées vanilla — aucune carte à installer.',
-      },
-      {
-        heading: 'Stack',
-        body: 'Mod Project Zomboid (Lua, Build 41), multijoueur hôte/dédié, dépendances tierces d’armes et d’armures déclarées.',
-      },
-    ],
-    detailEn: [
-      {
-        heading: 'The problem',
-        body: 'A player-versus-player mode for Project Zomboid: last survivor standing in a bounded arena, with no custom-map dependency.',
-      },
-      {
-        heading: 'Approach',
-        body: 'A Lua multiplayer mod: players pick a role (with a full loadout), spawn at random collision-free points and fight to the last survivor. Ambient sprinter zombies add pressure; eliminated players become spectators and can summon a zombie. A round flow (lobby → prep → active → end), a confinement zone with a penalty for leaving, persistent per-player scoring and a session leaderboard. The host launches each round and decides whether to replay. The arena uses vanilla coordinates — no map to install.',
-      },
-      {
-        heading: 'Stack',
-        body: 'Project Zomboid mod (Lua, Build 41), host/dedicated multiplayer, declared third-party weapon and armour dependencies.',
       },
     ],
   },

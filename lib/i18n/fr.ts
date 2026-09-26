@@ -147,7 +147,6 @@ const fr = {
     lead: 'Une sélection de projets en cours — le code réel derrière le CV, au-delà des expériences.',
     aside:
       'Des projets principalement autour de l’IA, du web et de l’automatisation. Chaque projet mis en avant a sa propre page détail.',
-    featuredLabel: 'Mis en avant',
     viewProject: 'Voir le projet',
     newTab: 'nouvel onglet',
     // Libellé de GROUPE des pastilles (tags éditoriaux + topics GitHub) —

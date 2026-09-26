@@ -169,10 +169,7 @@ export default async function ProjetsPage({
                   key={project.slug}
                   className="bg-surface-container-low rounded-lg p-10 flex flex-col min-h-[22rem]"
                 >
-                  <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">
-                    {dictionary.projects.featuredLabel}
-                  </span>
-                  <h2 className="text-2xl font-bold tracking-tight mt-6 text-on-surface">
+                  <h2 className="text-2xl font-bold tracking-tight text-on-surface">
                     {title}
                   </h2>
                   <p className="text-secondary mt-3">{summary}</p>
