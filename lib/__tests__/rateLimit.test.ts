@@ -18,6 +18,7 @@ import {
   getClientIP,
   checkRateLimit,
   getRateLimitHeaders,
+  getRetryAfterSeconds,
   RATE_LIMIT_CONFIG,
 } from '@/lib/rateLimit'
 
@@ -54,6 +55,17 @@ describe('getClientIP — sélection du maillon XFF (SEC-007)', () => {
 
   it('retombe sur cf-connecting-ip quand x-forwarded-for est absent', () => {
     const req = reqWith({ 'cf-connecting-ip': '198.51.100.9' })
+    expect(getClientIP(req)).toBe('198.51.100.9')
+  })
+
+  it('retombe sur cf-connecting-ip pour une XFF truthy mais vide après filtrage', () => {
+    // Chemin neuf du correctif : la chaîne XFF est non vide côté header, mais ne
+    // contient aucun maillon exploitable une fois découpée/trimée — on doit
+    // relayer sur les headers suivants, pas retourner une IP vide.
+    const req = reqWith({
+      'x-forwarded-for': ' , , ',
+      'cf-connecting-ip': '198.51.100.9',
+    })
     expect(getClientIP(req)).toBe('198.51.100.9')
   })
 
@@ -98,5 +110,14 @@ describe('contrat de rate limit inchangé (SEC-007 critère 2)', () => {
     expect(Number.isInteger(Number(headers['X-RateLimit-Remaining']))).toBe(true)
     // ISO 8601 UTC (reset à minuit UTC)
     expect(headers['X-RateLimit-Reset']).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
+  })
+
+  it("conserve la forme de Retry-After (entier positif, secondes jusqu'à minuit UTC)", () => {
+    const seconds = getRetryAfterSeconds()
+
+    expect(Number.isInteger(seconds)).toBe(true)
+    expect(seconds).toBeGreaterThan(0)
+    // Au plus 24 h : la fenêtre se referme à minuit UTC.
+    expect(seconds).toBeLessThanOrEqual(24 * 3600)
   })
 })
