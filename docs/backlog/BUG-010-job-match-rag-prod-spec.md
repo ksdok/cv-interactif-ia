@@ -1,6 +1,6 @@
 # BUG-010 — `/api/job-match` 500 « No CV data found » en production (RAG muet)
 
-> **Statut : VALIDÉE** — 2026-09-28 (opérateur ; arbitrages §10 tranchés, cf. §10 ; implémentation : project-state.md)
+> **Statut : VALIDÉE** — livrée le 2026-09-28 (trace : project-state.md)
 >
 > **Ticket proposé** : BUG-010 · **Date** : 2026-09-28 · **Backlog** : Bugs / observabilité · **Base de code** : `main` @ `29f91c8`
 > Taille S · Source : smoke prod SEC-006 (2026-09-28) · Priorité : 🟠 Haute (fonctionnalité publique cassée en prod)
