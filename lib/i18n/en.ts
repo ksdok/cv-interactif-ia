@@ -266,7 +266,8 @@ const en: Dictionary = {
   // API error messages — mapped client-side from the errorCode returned by
   // /api/chat and /api/job-match (review M4): the API stays language-agnostic.
   apiErrors: {
-    RATE_LIMIT: 'Rate limit exceeded: 200 requests per day maximum.',
+    // RATE-001: message intentionally number-free — see lib/i18n/fr.ts.
+    RATE_LIMIT: 'Rate limit exceeded. Please try again tomorrow.',
     VALIDATION: 'Invalid request. Please try again.',
     CSRF: 'Security error: invalid CSRF token. Please refresh the page.',
     // BUG-010 : RAG empty/unavailable (503) — recoverable degraded state.
