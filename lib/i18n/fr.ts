@@ -273,7 +273,10 @@ const fr = {
   // Messages d'erreur API — mappés côté client depuis l'errorCode renvoyé par
   // /api/chat et /api/job-match (review M4) : l'API reste agnostique de la langue.
   apiErrors: {
-    RATE_LIMIT: 'Limite de requêtes atteinte : 200 requêtes par jour maximum.',
+    // RATE-001 : message volontairement sans chiffre — le plafond peut changer
+    // (200 → 50 le 2026-09-28) et le dictionnaire est du code client, incapable
+    // de dériver de RATE_LIMIT_CONFIG (server-only).
+    RATE_LIMIT: 'Limite de requêtes atteinte. Réessayez demain.',
     VALIDATION: 'Requête invalide. Veuillez réessayer.',
     CSRF: 'Erreur de sécurité : jeton CSRF invalide. Rechargez la page.',
     // BUG-010 : le RAG est vide/indisponible (503) — état dégradé récupérable,

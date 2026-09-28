@@ -19,7 +19,7 @@ Live: [kimsandok.com](https://kimsandok.com) (canonical) · [cv-interactif-ia.ve
 - **Projects page (PROJ-001)** — Bilingual `/fr/projets` + `/en/projets` hub with a detail page per featured project (`/[lang]/projets/[slug]`); editorial source in `content/projects.ts`, enriched with live GitHub metadata (stars, language, topics, last activity) via `lib/github.ts` (Data Cache + in-process negative memo). No images (CSP-safe), JSON-LD `ItemList`/`SoftwareSourceCode` with nonce.
 - **Bilingual FR/EN** — Locale routing under `/fr` and `/en` (`app/[lang]/`), in-house dictionaries (`lib/i18n/`), locale negotiation in `proxy.ts` (307 redirect of `/`), hreflang + per-locale canonical + bilingual JSON-LD entity.
 - **Editorial Design** — Monochromatic palette, Bento-style experience grid, generous whitespace.
-- **Security** — CSRF protection, rate limiting (200 req/day/IP), input validation, server-only secrets.
+- **Security** — CSRF protection, rate limiting (50 req/day/IP), input validation, server-only secrets.
 - **Mobile-First** — Fully responsive, no iOS Safari input zoom.
 
 ---
@@ -234,7 +234,7 @@ cv-interactif-ia/
 ```
 User sends message
     ↓
-Rate limit check (200 req/day/IP)
+Rate limit check (50 req/day/IP)
     ↓
 CSRF token verification
     ↓
@@ -358,7 +358,7 @@ Current rule of thumb: stay in CAG below ~10K CV tokens, benchmark above 10K, an
 {"type":"error","errorCode":"SERVER"}
 
 // Response 429 — pre-stream failures keep the JSON error shape (PERF-002)
-{ "error": "Rate limit exceeded: 200 requests per day maximum", "errorCode": "RATE_LIMIT", "retryAfter": 28800 }
+{ "error": "Rate limit exceeded: 50 requests per day maximum", "errorCode": "RATE_LIMIT", "retryAfter": 28800 }
 ```
 
 Headers required: `X-CSRF-Token`, `Content-Type: application/json`
@@ -395,7 +395,7 @@ JSON keys stay in English. Response 200:
 }
 ```
 
-Input: 100–5,000 characters. Rate limit: 200/day/IP.
+Input: 100–5,000 characters. Rate limit: 50/day/IP.
 
 ---
 
@@ -405,7 +405,7 @@ Input: 100–5,000 characters. Rate limit: 200/day/IP.
 |---|---|
 | CSRF | 64-char crypto token, httpOnly cookie, verified on every API request |
 | CSP | Nonce-based Content Security Policy in `proxy.ts`; `CSP_REPORT_ONLY=true` enables report-only mode |
-| Rate Limiting | In-memory, 200 req/day/IP, daily reset |
+| Rate Limiting | In-memory, 50 req/day/IP, daily reset |
 | Input Validation | Message structure, length, count limits (`lib/validation.ts`) |
 | Injection Protection | HTML/XML/SQL pattern detection on job descriptions |
 | Server Secrets | `server-only` marker on Supabase client |
