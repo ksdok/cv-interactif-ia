@@ -34,7 +34,7 @@ import { validateChatMessages, resolveResponseLanguage } from '@/lib/validation'
 import { getCSRFTokenFromRequest, verifyCSRFToken } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
-import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds } from '@/lib/rateLimit'
+import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds, RATE_LIMIT_MESSAGE } from '@/lib/rateLimit'
 import { streamResponse } from '@/lib/modelProviders'
 import { encodeChatStreamEvent } from '@/lib/chatStreamProtocol'
 import { CV_CONTEXT_SOURCE } from '@/lib/modelConfig'
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
   console.log('POST /api/chat - handler start')
   try {
     // SECURITY: Check rate limit to prevent API abuse
-    // Limits: 200 requests per day per IP address
+    // Limits: 50 requests per day per IP address
     // Protects against: spam, DoS attacks, quota exhaustion
     console.log('Checking rate limit...')
     const clientIP = getClientIP(req)
@@ -84,7 +84,7 @@ export async function POST(req: Request) {
       const retryAfterSeconds = getRetryAfterSeconds()
       return NextResponse.json(
         {
-          error: 'Rate limit exceeded: 200 requests per day maximum',
+          error: RATE_LIMIT_MESSAGE,
           // GEO-08b (review M4) : code agnostique de la langue, mappé côté client.
           errorCode: 'RATE_LIMIT',
           retryAfter: retryAfterSeconds,

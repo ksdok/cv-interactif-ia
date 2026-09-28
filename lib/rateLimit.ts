@@ -2,12 +2,17 @@
  * Rate Limiting System
  *
  * This module implements rate limiting to prevent API abuse.
- * Limits: 200 requests per day per IP address
+ * Limits: 50 requests per day per IP address
  *
  * How it works:
  * 1. Track request count for each IP address
  * 2. Reset counter at midnight (UTC)
- * 3. Reject requests that exceed 200/day with 429 status
+ * 3. Reject requests that exceed 50/day with 429 status
+ *
+ * RATE-001 : plafond abaissé de 200 à 50 req/jour/IP (pool partagé chat +
+ * job-match) — motivations : coût API (GPT-6 Luna), anti-abus, usage légitime
+ * d'un recruteur très inférieur à 50 messages. La forme du contrat 429
+ * (`errorCode`, `Retry-After`, `X-RateLimit-*`) est inchangée (CONTEXT.md §6.5).
  *
  * Security Purpose:
  * - Prevent API quota exhaustion from spam/attacks
@@ -39,9 +44,20 @@ const CLEANUP_INTERVAL_MS = 60 * 60 * 1000 // 1 hour
  * Rate limit configuration
  */
 export const RATE_LIMIT_CONFIG = {
-  maxRequestsPerDay: 200,
+  maxRequestsPerDay: 50,
   dailyResetTime: '00:00:00 UTC', // Reset at midnight UTC
 } as const
+
+/**
+ * Message de refus 429, dérivé de la configuration.
+ *
+ * RATE-001 (décision 2) : le plafond était auparavant dupliqué en dur dans le
+ * message de `checkRateLimit()` **et** dans les corps 429 des deux routes — un
+ * changement de plafond pouvait donc laisser un message qui mentait. Les trois
+ * sites consomment désormais cette constante unique (le texte serveur n'est
+ * jamais affiché au client, qui mappe `errorCode` vers le dictionnaire).
+ */
+export const RATE_LIMIT_MESSAGE = `Rate limit exceeded: ${RATE_LIMIT_CONFIG.maxRequestsPerDay} requests per day maximum`
 
 /**
  * Get current UTC date in YYYY-MM-DD format
@@ -163,7 +179,7 @@ export function checkRateLimit(ip: string): {
     allowed: false,
     remaining: 0,
     resetTime: getNextResetTime().toISOString(),
-    message: `Rate limit exceeded: 200 requests per day maximum.`,
+    message: RATE_LIMIT_MESSAGE,
   }
 }
 

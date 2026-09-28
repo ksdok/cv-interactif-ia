@@ -8,7 +8,7 @@
 
   High-level flow:
   1. Validate input (job description length, format, `language` — GEO-08g)
-  2. Check rate limit (200 analyses per day per IP)
+  2. Check rate limit (50 requests per day per IP — pool partagé chat + job-match)
   3. Retrieve user's CV from vector database (RAG search)
   4. Call AI provider API to analyze match between CV and job
   5. Parse response and return structured results
@@ -22,7 +22,7 @@
 
 import { NextResponse } from 'next/server'
 import { searchDocuments } from '@/lib/rag'
-import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds } from '@/lib/rateLimit'
+import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds, RATE_LIMIT_MESSAGE } from '@/lib/rateLimit'
 import { verifyCSRFToken, getCSRFTokenFromRequest, CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { generateJobMatchResponse } from '@/lib/modelProviders'
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
   console.log('POST /api/job-match - handler start')
   try {
     // SECURITY: Check rate limit to prevent API abuse
-    // Limits: 200 analyses per day per IP address
+    // Limits: 50 requests per day per IP address (pool partagé avec /api/chat)
     console.log('Checking rate limit...')
     const clientIP = getClientIP(req)
     const rateLimit = checkRateLimit(clientIP)
@@ -90,7 +90,7 @@ export async function POST(req: Request) {
       const retryAfterSeconds = getRetryAfterSeconds()
       return NextResponse.json(
         {
-          error: 'Rate limit exceeded: 200 analyses per day maximum',
+          error: RATE_LIMIT_MESSAGE,
           // GEO-08b (review M4) : code agnostique de la langue, mappé côté client.
           errorCode: 'RATE_LIMIT',
           retryAfter: retryAfterSeconds,
@@ -105,7 +105,7 @@ export async function POST(req: Request) {
         }
       )
     }
-    console.log(`Rate limit OK: ${rateLimit.remaining} analyses remaining today`)
+    console.log(`Rate limit OK: ${rateLimit.remaining} requests remaining today`)
 
     // SECURITY: Verify CSRF token
     console.log('Verifying CSRF token...')

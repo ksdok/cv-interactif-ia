@@ -1,13 +1,15 @@
 /**
  * SEC-007 — contrat de `getClientIP()` (identification du client dans le rate limit).
+ * RATE-001 — plafond du rate limit : 50 requêtes/jour/IP (pool partagé).
  *
- * Le rate limit plafonne `/api/chat` et `/api/job-match` à 200 requêtes/jour/IP.
- * Si l'IP choisie peut être fournie par le client, un attaquant fait tourner l'IP
- * à chaque requête et contourne le plafond. La sonde prod du 2026-09-28 a établi
- * que Vercel écrase `x-forwarded-for` (la valeur injectée n'atteint jamais la
- * fonction — scénario B de la spec) : le correctif retient donc le **dernier**
- * maillon non vide de la chaîne (le plus proche de la plateforme), durcissement
- * de défense en profondeur qui ne change rien sur un XFF mono-IP.
+ * Le rate limit plafonne `/api/chat` et `/api/job-match` à 50 requêtes/jour/IP
+ * (RATE-001, ex-200). Si l'IP choisie peut être fournie par le client, un
+ * attaquant fait tourner l'IP à chaque requête et contourne le plafond. La
+ * sonde prod du 2026-09-28 a établi que Vercel écrase `x-forwarded-for` (la
+ * valeur injectée n'atteint jamais la fonction — scénario B de la spec
+ * SEC-007) : le correctif retient donc le **dernier** maillon non vide de la
+ * chaîne (le plus proche de la plateforme), durcissement de défense en
+ * profondeur qui ne change rien sur un XFF mono-IP.
  *
  * Ces cas verrouillent aussi la forme du contrat d'API (plafond + headers) que
  * le correctif ne doit pas altérer (CONTEXT.md §6.5).
@@ -20,6 +22,7 @@ import {
   getRateLimitHeaders,
   getRetryAfterSeconds,
   RATE_LIMIT_CONFIG,
+  RATE_LIMIT_MESSAGE,
 } from '@/lib/rateLimit'
 
 function reqWith(headers: Record<string, string> = {}): Request {
@@ -93,8 +96,8 @@ describe('getClientIP — sélection du maillon XFF (SEC-007)', () => {
 })
 
 describe('contrat de rate limit inchangé (SEC-007 critère 2)', () => {
-  it('conserve le plafond 200 req/jour/IP', () => {
-    expect(RATE_LIMIT_CONFIG.maxRequestsPerDay).toBe(200)
+  it('conserve le plafond fixé par la décision RATE-001 (50 req/jour/IP)', () => {
+    expect(RATE_LIMIT_CONFIG.maxRequestsPerDay).toBe(50)
   })
 
   it('conserve la forme des headers X-RateLimit-*', () => {
@@ -106,7 +109,7 @@ describe('contrat de rate limit inchangé (SEC-007 critère 2)', () => {
       'X-RateLimit-Remaining',
       'X-RateLimit-Reset',
     ])
-    expect(headers['X-RateLimit-Limit']).toBe('200')
+    expect(headers['X-RateLimit-Limit']).toBe(String(RATE_LIMIT_CONFIG.maxRequestsPerDay))
     expect(Number.isInteger(Number(headers['X-RateLimit-Remaining']))).toBe(true)
     // ISO 8601 UTC (reset à minuit UTC)
     expect(headers['X-RateLimit-Reset']).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/)
@@ -119,5 +122,43 @@ describe('contrat de rate limit inchangé (SEC-007 critère 2)', () => {
     expect(seconds).toBeGreaterThan(0)
     // Au plus 24 h : la fenêtre se referme à minuit UTC.
     expect(seconds).toBeLessThanOrEqual(24 * 3600)
+  })
+})
+
+describe('RATE-001 — plafond à 50 requêtes/jour/IP (pool partagé chat + job-match)', () => {
+  it('refuse le 51ᵉ appel d’une même IP dans la même journée', () => {
+    // Clé unique : le store est en mémoire au niveau module — en watch mode, une
+    // IP fixe accumulerait les compteurs d'un run à l'autre.
+    const ip = `rate-001-ceiling-probe-${Date.now()}`
+    const max = RATE_LIMIT_CONFIG.maxRequestsPerDay
+
+    for (let i = 1; i <= max; i++) {
+      const result = checkRateLimit(ip)
+      expect(result.allowed).toBe(true)
+      expect(result.remaining).toBe(max - i)
+    }
+
+    const refused = checkRateLimit(ip)
+    expect(refused.allowed).toBe(false)
+    expect(refused.remaining).toBe(0)
+    expect(refused.resetTime).toMatch(/^\d{4}-\d{2}-\d{2}T/)
+    // Garde anti-dérive : le refus cite le plafond réellement appliqué.
+    expect(refused.message).toContain(String(max))
+  })
+
+  it('dérive le message 429 de la config (source unique — décision 2)', () => {
+    expect(RATE_LIMIT_MESSAGE).toBe(
+      `Rate limit exceeded: ${RATE_LIMIT_CONFIG.maxRequestsPerDay} requests per day maximum`,
+    )
+    // Wording unifié « requests » (arbitrage opérateur) : plus de « analyses ».
+    expect(RATE_LIMIT_MESSAGE).not.toMatch(/analyses/)
+  })
+
+  it('expose le plafond dans X-RateLimit-Limit', () => {
+    const result = checkRateLimit(`rate-001-header-probe-${Date.now()}`)
+    const headers = getRateLimitHeaders(result)
+
+    expect(headers['X-RateLimit-Limit']).toBe('50')
+    expect(Number(headers['X-RateLimit-Remaining'])).toBe(49)
   })
 })
