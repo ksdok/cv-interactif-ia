@@ -69,6 +69,13 @@ function getNextResetTime(): Date {
  * 2. cf-connecting-ip (Cloudflare)
  * 3. x-real-ip (nginx, other reverse proxies)
  *
+ * SEC-007: dans une chaîne `x-forwarded-for`, c'est le **dernier** maillon qui
+ * est le plus proche de la plateforme — le premier peut être fourni par le
+ * client (spoof). La sonde prod du 2026-09-28 a montré que Vercel écrase le XFF
+ * (scénario B : la valeur injectée par le client n'arrive jamais à la fonction) ;
+ * on durcit quand même en retenant le dernier élément (defense-in-depth gratuit,
+ * identique au comportement actuel sur un XFF mono-IP).
+ *
  * @param req - Next.js Request object
  * @returns Client IP address or 'unknown'
  */
@@ -76,9 +83,15 @@ export function getClientIP(req: Request): string {
   // Check x-forwarded-for first (can contain multiple IPs)
   const xForwardedFor = req.headers.get('x-forwarded-for')
   if (xForwardedFor) {
-    // x-forwarded-for format: "IP1, IP2, IP3"
-    // We want the first one (original client IP)
-    return xForwardedFor.split(',')[0].trim()
+    // x-forwarded-for format: "IP client, …, IP plateforme"
+    // On retient le dernier IP non vide (le plus proche de la plateforme).
+    const chain = xForwardedFor
+      .split(',')
+      .map((ip) => ip.trim())
+      .filter((ip) => ip.length > 0)
+    if (chain.length > 0) {
+      return chain[chain.length - 1]
+    }
   }
 
   // Check Cloudflare header
