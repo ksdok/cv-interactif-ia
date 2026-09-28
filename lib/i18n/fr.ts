@@ -276,6 +276,9 @@ const fr = {
     RATE_LIMIT: 'Limite de requêtes atteinte : 200 requêtes par jour maximum.',
     VALIDATION: 'Requête invalide. Veuillez réessayer.',
     CSRF: 'Erreur de sécurité : jeton CSRF invalide. Rechargez la page.',
+    // BUG-010 : le RAG est vide/indisponible (503) — état dégradé récupérable,
+    // pas une erreur serveur générique.
+    RAG_UNAVAILABLE: 'Le service d’analyse est momentanément indisponible. Réessaie dans quelques instants.',
     SERVER: 'Échec de la génération de la réponse. Veuillez réessayer.',
   },
 

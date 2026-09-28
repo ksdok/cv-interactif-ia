@@ -1,5 +1,6 @@
 import { getSupabase } from './supabase'
 import OpenAI from 'openai'
+import { captureException, captureMessage } from '@sentry/nextjs'
 
 // `|| ''` : même garde que `lib/modelProviders.ts` (BUG-008). Le SDK OpenAI
 // lève à la construction si `apiKey` est `undefined`, ce qui faisait échouer
@@ -60,11 +61,29 @@ export async function searchDocuments(
       throw error
     }
 
+    // BUG-010 — cas silencieux : aucun document sans erreur (table vide,
+    // filtre trop strict). Jusqu'ici invisible en prod (aucun log d'erreur),
+    // d'où le 500 « No CV data found » sans cause traçable. Une fois par appel,
+    // pas de spam.
+    if (!data || data.length === 0) {
+      captureMessage('RAG search returned no documents', {
+        level: 'info',
+        tags: { phase: 'rag-search', reason: 'empty-result' },
+      })
+    }
+
     // Return the matched documents or an empty array if none found.
     return data || []
   } catch (error) {
     // Surface and log errors originating from embedding creation or the RPC call.
+    // console.error conservé : d'autres outils (scripts, logs Vercel) greppent
+    // cette ligne ; Sentry est ajouté par-dessus, pas à sa place.
     console.error('Error in searchDocuments:', error)
+    // BUG-010 — le catch-tout (dégradation BUG-001) rendait la cause racine
+    // invisible : toute erreur (clé Supabase absente, RPC/RLS, embedding) se
+    // réduisait à `[]`, indistinguable d'une table vide côté route. On remonte
+    // désormais l'erreur réelle à Sentry (garde DSN OBS-001 : no-op sans DSN).
+    captureException(error, { tags: { phase: 'rag-search', reason: 'search-failed' } })
     return []
   }
 }
