@@ -2,7 +2,9 @@
 
 **Priorité** : `LOW`
 **Effort estimé** : S (< 20 min)
-**Révision** : 2026-09-23 — créé à partir d'un warning du premier run CI réel
+**Révision** : 2026-09-23 — créé à partir d'un warning du premier run CI réel ;
+**prolongée 2026-09-27** — audit sécurité (`docs/security/SECURITY_AUDIT_2026-09-27.md`,
+constat #10) : ajout du désuivage de `.mcp.json` et des actions locales (§ Prolongement)
 
 ## Goal
 Supprimer une dette d'hygiène du dépôt qui fait échouer toute opération `git submodule`
@@ -136,3 +138,26 @@ Remote :
   un futur lecteur ne doit pas avoir à la deviner.
 - Si un état `.claude/` local est nécessaire à l'outillage d'agent, c'est précisément
   l'argument pour l'option 1 : le garder local, le garder non suivi.
+
+## Prolongement — audit sécurité 2026-09-27 (constat #10)
+
+L'audit de sécurité du 2026-09-27 élargit le périmètre de ce ticket à trois actions
+d'hygiène supplémentaires (mêmes nature : index/disk local, zéro code) :
+
+1. **Désuivre `.mcp.json`** (tracké alors que `.gitignore:46` le déclare) :
+   `git rm --cached .mcp.json` — le fichier reste sur le disque (config MCP locale).
+   L'audit note que le `project_ref` Supabase qu'il expose n'est **pas** un secret,
+   mais le `.gitignore` dit déjà l'intention : aligner.
+2. **Supprimer le fichier local `` `.env 2.local` ``** (copie de conflit de synchro
+   iCloud/Drive, contient des clés live) : `rm ".env 2.local"` — action locale,
+   non committable, **à faire sur la machine de l'opérateur**.
+3. **`chmod 600 .env.local`** (actuellement 644, lisible par tout utilisateur de la
+   machine) — action locale, non committable, à faire sur la machine de l'opérateur.
+
+Critères additionnels :
+- `git ls-files | grep mcp` ne retourne rien ; `.mcp.json` existe toujours sur disque.
+- `` `.env 2.local` `` n'existe plus (vérification `ls`) ; `.env.local` en `-rw-------`.
+
+Note : les points 2 et 3 sont des actions machine locale — l'agent peut les exécuter,
+mais elles ne laissent aucune trace dans le dépôt ; les documenter dans le corps du
+commit et dans `project-state.md`.
