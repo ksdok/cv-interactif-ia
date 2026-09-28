@@ -174,10 +174,13 @@ export async function POST(req: Request) {
     const cvSnippets = await searchDocuments(trimmedJob, 10) // Retrieve top relevant CV snippets for this job description
 
     if (!cvSnippets || cvSnippets.length === 0) {
-      console.warn('No CV data found in database')
+      // BUG-010 — un RAG vide/indisponible n'est pas un « bug serveur » (500) :
+      // c'est un état dégradé récupérable. 503 + errorCode dédié, mappé côté
+      // client par `dictionary.apiErrors` (contrat §6.5 : même forme {error, errorCode}).
+      console.warn('No CV data found in database — RAG unavailable')
       return NextResponse.json(
-        { error: 'No CV data found. Please try again later.' },
-        { status: 500 }
+        { error: 'RAG temporarily unavailable', errorCode: 'RAG_UNAVAILABLE' },
+        { status: 503 }
       )
     }
 

@@ -269,6 +269,8 @@ const en: Dictionary = {
     RATE_LIMIT: 'Rate limit exceeded: 200 requests per day maximum.',
     VALIDATION: 'Invalid request. Please try again.',
     CSRF: 'Security error: invalid CSRF token. Please refresh the page.',
+    // BUG-010 : RAG empty/unavailable (503) — recoverable degraded state.
+    RAG_UNAVAILABLE: 'The analysis service is temporarily unavailable. Please try again in a moment.',
     SERVER: 'Failed to generate response. Please try again.',
   },
 
