@@ -1,6 +1,6 @@
 # SEC-006 — Montée Next.js 16.3.6 + correction des vulnérabilités npm audit
 
-> **Statut : PROPOSÉE** — pending validation utilisateur (2026-09-27)
+> **Statut : VALIDÉE** — livrée le 2026-09-28 (trace : project-state.md)
 >
 > **Ticket proposé** : SEC-006 · **Date** : 2026-09-27 · **Backlog** : Sécurité · **Base de code** : `main` @ `fbfa4ca`
 > Taille S · Source : `docs/security/SECURITY_AUDIT_2026-09-27.md` (constats #1 et #3) · Priorité : 🔴 Critique
@@ -83,11 +83,13 @@ CICD-002 (épinglage SHA des actions — ticket séparé).
 Rien de mesurable côté perf/coût — la preuve attendue est l'état de `npm audit`
 (avant/après dans le corps du commit, sans inventer de chiffre).
 
-## 10. Questions ouvertes à trancher
+## 10. Questions ouvertes — tranchées le 2026-09-28 (validation opérateur)
 
-1. Le pin exact `16.3.6` vs `^16.3.6` : le repo épine exact aujourd'hui — conserver ?
-2. Si des vulnérabilités modérées subsistent après `npm audit fix` (fix nécessitant
-   un bump majeur), les accepter avec documentation ou ouvrir un ticket de suivi ?
+1. **Pin exact `16.3.6` vs `^16.3.6`** → **pin exact conservé** : le repo épine
+   exactement, convention de pin maintenue (décision n° 1 respectée).
+2. **Vulnérabilités modérées/basses résiduelles après `npm audit fix`** → **aucun
+   résidu** : 71 bumps transitifs dont **0 majeur**, `npm audit` ne remonte plus
+   aucune vulnérabilité (0/0/0/0 toutes sévérités) — rien à documenter au critère 2.
 
 ## Sources
 
