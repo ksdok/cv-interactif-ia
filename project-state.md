@@ -396,6 +396,11 @@ le corps du commit.
   - Carte non bloquante insérée une fois en fin de fil après le 4e envoi de la session (compteur client dans `sendPrompt`, puces UX-005 comptées, reset au rechargement) avec lien `mailto:dokkimsan@gmail.com` ; jamais injectée dans l'historique `/api/chat` (`buildApiMessages` intact)
   - Spéc : `docs/backlog/UX-006-chat-contact-nudge-spec.md` — statut **PROPOSÉE** (2026-09-26, pending validation utilisateur)
 
+- [ ] **UX-007 — Tableau « Impact sélectionné » de la page CV : scroll horizontal sur petit écran** `LOW`
+  - À < ~480 px, la 2ᵉ colonne (valeurs) est **coupée et irrécupérable** : wrapper `overflow-hidden` (`content/cv-fr.tsx:62`, miroir `content/cv-en.tsx:62`) + cellule valeur `whitespace-nowrap w-[40%]` ⇒ débordement silencieusement clippé ; `measure-viewports` ne le détecte pas (le clip ne crée pas de `scrollWidth` body)
+  - Fix taille S arbitré au cadrage (opérateur, 2026-09-28) : wrapper `overflow-x-auto` **unconditionnel** (scrollbar uniquement si débordement, Tailwind 4), sémantique `<table>` intacte, **pas d’indicateur visuel** ; prescription a11y `tabIndex={0}` **inconditionnel** (décision 4 ; axe-core `scrollable-region-focusable`, WCAG 2.1.1)
+  - Spéc : `docs/backlog/UX-007-cv-table-horizontal-scroll-spec.md` — statut **PROPOSÉE** (2026-09-28, pending validation utilisateur)
+
 - [ ] **UX-002 — Dark mode natif** `LOW`
   - Configurer Tailwind pour `prefers-color-scheme: dark`
   - Définir les variables CSS dark dans `globals.css`
