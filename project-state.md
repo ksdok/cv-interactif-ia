@@ -92,6 +92,7 @@ Les tickets suivants disposent désormais d’une spec dédiée dans `docs/backl
 - `SEC-010` → `docs/backlog/SEC-010-body-bound-mailto-encode-spec.md`
 - `RATE-001` → `docs/backlog/RATE-001-rate-limit-ceiling-spec.md` — **VALIDÉE** (livrée 2026-09-28)
 - `BUG-010` → `docs/backlog/BUG-010-job-match-rag-prod-spec.md` — **VALIDÉE** (livrée 2026-09-28)
+- `PRIV-001` → `docs/backlog/PRIV-001-remove-phone-from-cv-spec.md` — **PROPOSÉE** (2026-09-30)
 
 Ces fichiers sont prêts à être donnés à un autre LLM comme brief d’implémentation. Tout ticket ouvert de la backlog dispose désormais d’une spec dédiée.
 
@@ -286,6 +287,10 @@ _MODEL-001 et MODEL-002 sont traités (voir la section "Terminé" ci-dessous)._
 - [ ] **SEC-010 — Borne `Content-Length` (chat/job-match) + encodage `mailto:`** `LOW` — borne 600 Ko pré-parse (400 VALIDATION, contrat préservé), `encodeURIComponent` par item dans `JobMatcher.tsx:273`. Spec : `docs/backlog/SEC-010-body-bound-mailto-encode-spec.md` — **PROPOSÉE** (2026-09-27)
 - ℹ️ **Veille** (constat #6 — injection de prompt) : risque borné (CV public, clés server-only, persona MODEL-004) ; surveiller les logs Sentry avant d'envisager un filtre runtime — aucun ticket.
 - ℹ️ **SEC-003** (constat #5 — rate limit in-memory multi-instance) : le constat de l'audit **renforce le déclencheur** mais ne l'active pas ; implémentation toujours conditionnée à un déclencheur (abus constaté, coûts API, multi-région).
+
+### 🆕 Vie privée
+
+- [ ] **PRIV-001 — Retrait du numéro de téléphone mobile du CV** `HIGH` — numéro exposé en `data/cv.md:4` (source unique CAG) et `public/llms-full.txt:10` (généré au prebuild, GEO-06) ; pages `/cv` déjà sans numéro. Cadrage : garder email + site ; purge corpus Supabase in-scope (**action opérateur** SQL + critère de vérification) ; historique git non réécrit (accepté). Titre volontairement sans numéro — décision 5 de la spec bannit le numéro des artefacts d'ingénierie (sauf self-référence de la spec, décision 3). Revue spec-reviewer (glm/deepseek, contexte frais) 2 cycles (2026-09-30) : cycle 1 « AMENDEMENTS PROPOSÉS » (2 majeurs, 2 mineurs, 1 suggestion — tous appliqués) ; cycle 2 « VALIDÉE » (0 bloquant / 0 majeur ; 1 mineur appliqué) — aucun finding reporté/refusé. Spec : `docs/backlog/PRIV-001-remove-phone-from-cv-spec.md` — **PROPOSÉE — pending validation utilisateur (2026-09-30)**
 
 ### ⚡ Performance
 
