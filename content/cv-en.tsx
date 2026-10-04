@@ -59,7 +59,7 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
 
       {/* ---------------------------------------------------------------- Key figures */}
       <Section id="key-figures" kicker="By the numbers" title="Selected impact">
-        <div className="overflow-hidden border border-surface-variant rounded-lg">
+        <div className="overflow-x-auto border border-surface-variant rounded-lg" tabIndex={0}>
           <table className="w-full text-left text-sm">
             <tbody className="divide-y divide-surface-variant">
               <Figure figure="10 years" context="Market finance Business Analyst" />
