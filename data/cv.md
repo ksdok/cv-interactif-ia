@@ -1,7 +1,7 @@
 # DOK KIM-SAN
 
 Consultant Indépendant · Business Analyst Senior / AMOA · Transformation SI & Réduction des coûts · Finance de marché
-Contact: 06 02 18 87 40 | dokkimsan@gmail.com | kimsandok.com
+Contact: dokkimsan@gmail.com | kimsandok.com
 
 ## Profil
 
