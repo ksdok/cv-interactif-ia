@@ -1,6 +1,6 @@
 # UX-008 — Chat IA « Nicky » : pleine largeur de la fenêtre
 
-> **Statut : PROPOSÉE** — pending validation utilisateur (2026-10-04)
+> **Statut : ABANDONNÉE** — décision opérateur du 2026-10-04 : le style « chat pleine largeur » **n'est pas retenu** au verdict de livraison ; **aucune implémentation fusionnée** (branche `ux-008-chat-full-width` — revue `PROPRE`, mesures CDP conformes — supprimée **avant** merge/push, rollback propre, `ChatPreview.tsx` inchangé vs UX-005). Spec conservée pour ses arbitrages et mesures, **réouvrable** : les décisions restent valides telles quelles, seul le style produit est rejeté.
 >
 > **Ticket proposé** : UX-008 · **Date** : 2026-10-04 · **Backlog** : UI / UX · **Base de code** : `main` @ `80f913e`
 > Taille S · Un seul composant (`components/ChatPreview.tsx`), 3 sites de classes CSS, aucun wording i18n, aucune API, aucune restructure. Décisions arbitrées avec l'opérateur au cadrage du 2026-10-04.
