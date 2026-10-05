@@ -29,7 +29,15 @@ import { fetchRepoMetas, type RepoMeta } from '@/lib/github'
 // Flèche interne.
 function ArrowIcon() {
   return (
-    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+    <svg
+      aria-hidden="true"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
     </svg>
   )
@@ -100,11 +108,7 @@ export async function generateMetadata({
   }
 }
 
-export default async function ProjetsPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+export default async function ProjetsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   if (!isLocale(lang)) notFound()
   const dictionary = getDictionary(lang)
@@ -175,9 +179,7 @@ export default async function ProjetsPage({
                   key={project.slug}
                   className="bg-surface-container-low rounded-lg p-10 flex flex-col min-h-[22rem]"
                 >
-                  <h2 className="text-2xl font-bold tracking-tight text-on-surface">
-                    {title}
-                  </h2>
+                  <h2 className="text-2xl font-bold tracking-tight text-on-surface">{title}</h2>
                   <p className="text-secondary mt-3">{summary}</p>
 
                   {pills.length > 0 && (

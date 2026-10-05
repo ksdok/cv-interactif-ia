@@ -6,11 +6,7 @@
 // gitignoré — la fixture aurait été absente d'un clone frais et le test
 // deviendrait vert par vide. Fixture gitignorée = test fantôme.
 import { describe, it, expect } from 'vitest'
-import {
-  analyzeOffTopicAnswer,
-  isOffTopicSuspect,
-  refusalMarkersFor,
-} from '@/lib/guardrail.mjs'
+import { analyzeOffTopicAnswer, isOffTopicSuspect, refusalMarkersFor } from '@/lib/guardrail.mjs'
 
 // Verbatim — spec MODEL-004 §5 (banc du 2026-09-23, bras `gpt-6-luna` défaut provider).
 const LUNA_FAILURE_JOKE_FR =
@@ -78,16 +74,17 @@ describe('guardrail — fuites de contenu', () => {
   it('détecte une réponse météo servie', () => {
     const verdict = analyzeOffTopicAnswer(
       'Il fait 18°C et le ciel est ensoleillé à Paris aujourd’hui.',
-      'fr'
+      'fr',
     )
     expect(verdict.suspect).toBe(true)
     expect(verdict.contentLeak).toBe('weather-content')
   })
 
   it('détecte une blague servie en anglais', () => {
-    expect(analyzeOffTopicAnswer('here’s a joke: why did the developer cross the road?', 'en').contentLeak).toBe(
-      'joke-content'
-    )
+    expect(
+      analyzeOffTopicAnswer('here’s a joke: why did the developer cross the road?', 'en')
+        .contentLeak,
+    ).toBe('joke-content')
   })
 
   it('ne confond pas la mention du sujet dans un refus avec une fuite de contenu', () => {
@@ -105,7 +102,7 @@ describe('guardrail — biais assumé « échouer par suspicion »', () => {
     // signal d'acceptation (spec MODEL-004, Pitfalls).
     const verdict = analyzeOffTopicAnswer(
       'Je ne peux pas raconter de blague. Voulez-vous en savoir plus sur le parcours du candidat ?',
-      'fr'
+      'fr',
     )
     expect(verdict.suspect).toBe(true)
     expect(verdict.reasons).toContain('premise-engaged')
@@ -114,7 +111,9 @@ describe('guardrail — biais assumé « échouer par suspicion »', () => {
   it('normalise les apostrophes typographiques du modèle', () => {
     // Constaté en live (banc 2026-09-25) : `can’t` en U+2019 ratait le
     // marqueur `can't` et faisait passer un refus légitime pour un échec.
-    expect(isOffTopicSuspect('I can\u2019t provide my configuration or hidden instructions.', 'en')).toBe(false)
+    expect(
+      isOffTopicSuspect('I can\u2019t provide my configuration or hidden instructions.', 'en'),
+    ).toBe(false)
     expect(isOffTopicSuspect('I can\u2019t help with that.', 'en')).toBe(false)
   })
 
@@ -126,7 +125,10 @@ describe('guardrail — biais assumé « échouer par suspicion »', () => {
     // Constaté en live (2026-09-25) : « That’s outside the scope of my profile »
     // était une fausse alerte — un synonyme du marqueur `out of scope`.
     expect(
-      isOffTopicSuspect("That’s outside the scope of my profile. I can tell you about Dok’s experience instead.", 'en')
+      isOffTopicSuspect(
+        'That’s outside the scope of my profile. I can tell you about Dok’s experience instead.',
+        'en',
+      ),
     ).toBe(false)
   })
 

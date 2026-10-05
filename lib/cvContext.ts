@@ -42,6 +42,8 @@ export function getCVContext(): string {
     if (error instanceof Error && error.message === 'CV file is empty') {
       throw error
     }
-    throw new Error(`Failed to load CV file at ${cvPath}: ${error instanceof Error ? error.message : 'unknown error'}`)
+    throw new Error(
+      `Failed to load CV file at ${cvPath}: ${error instanceof Error ? error.message : 'unknown error'}`,
+    )
   }
 }

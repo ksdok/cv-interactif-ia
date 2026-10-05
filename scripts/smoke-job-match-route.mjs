@@ -108,7 +108,8 @@ function validateAnalysis(parsed, language) {
     problems.push('analysis vide ou non textuelle')
   }
   for (const key of ['strengths', 'improvements']) {
-    if (!Array.isArray(parsed[key]) || parsed[key].length === 0) problems.push(`${key} non renseigné`)
+    if (!Array.isArray(parsed[key]) || parsed[key].length === 0)
+      problems.push(`${key} non renseigné`)
   }
 
   const readable = [parsed.analysis, ...(parsed.strengths ?? []), ...(parsed.improvements ?? [])]
@@ -116,8 +117,10 @@ function validateAnalysis(parsed, language) {
     .join(' ')
   const looksEnglish = /\b(the|and|with|for|is|are|of|to)\b/i.test(readable)
   const looksFrench = /\b(le|la|les|des|est|avec|pour|une|et)\b/i.test(readable)
-  if (language === 'fr' && looksEnglish && !looksFrench) problems.push('valeurs lisibles probablement en anglais')
-  if (language === 'en' && looksFrench && !looksEnglish) problems.push('valeurs lisibles probablement en français')
+  if (language === 'fr' && looksEnglish && !looksFrench)
+    problems.push('valeurs lisibles probablement en anglais')
+  if (language === 'en' && looksFrench && !looksEnglish)
+    problems.push('valeurs lisibles probablement en français')
 
   return problems
 }
@@ -125,7 +128,9 @@ function validateAnalysis(parsed, language) {
 async function main() {
   const config = parseArgs()
   const { token, cookieHeader } = await fetchCsrfToken(config.base)
-  console.log(`[smoke-route] base=${config.base} · token CSRF ${token.slice(0, 8)}… · langues=${config.langs.join(', ')}`)
+  console.log(
+    `[smoke-route] base=${config.base} · token CSRF ${token.slice(0, 8)}… · langues=${config.langs.join(', ')}`,
+  )
 
   const reports = []
   let failed = 0
@@ -160,7 +165,10 @@ async function main() {
     const problems = error
       ? [`requête en échec : ${error}`]
       : body.status !== 200
-        ? [`HTTP ${body.status}`, body.payload?.errorCode ? `errorCode=${body.payload.errorCode}` : null].filter(Boolean)
+        ? [
+            `HTTP ${body.status}`,
+            body.payload?.errorCode ? `errorCode=${body.payload.errorCode}` : null,
+          ].filter(Boolean)
         : validateAnalysis(body.payload, lang)
     if (problems.length) failed += 1
 
@@ -175,7 +183,9 @@ async function main() {
 
     const label = problems.length ? `ÉCHEC — ${problems.join(' | ')}` : 'OK'
     const score = body?.payload?.overallMatch
-    console.log(`  [${lang}] ${label} · HTTP ${body?.status ?? '—'} · ${Date.now() - started}ms${score !== undefined ? ` · overall ${score}%` : ''}`)
+    console.log(
+      `  [${lang}] ${label} · HTTP ${body?.status ?? '—'} · ${Date.now() - started}ms${score !== undefined ? ` · overall ${score}%` : ''}`,
+    )
   }
 
   mkdirSync(RESULTS_DIR, { recursive: true })
@@ -186,14 +196,14 @@ async function main() {
         generatedAt: new Date().toISOString(),
         base: config.base,
         note:
-          "POST réel sur /api/job-match (pipeline route complet : rate limit → CSRF → validation → RAG → provider). " +
+          'POST réel sur /api/job-match (pipeline route complet : rate limit → CSRF → validation → RAG → provider). ' +
           'Complète scripts/smoke-job-match.mjs, qui est provider-direct (prompt miré).',
         jobDescription: JOB_DESCRIPTION,
         reports,
       },
       null,
-      2
-    )
+      2,
+    ),
   )
 
   console.log(`\n[smoke-route] ${reports.length - failed}/${reports.length} langues conformes`)

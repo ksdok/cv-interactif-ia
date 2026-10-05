@@ -13,7 +13,17 @@ const KICKER = 'text-[0.7rem] uppercase tracking-[0.3em] text-secondary font-sem
 const SECTION_TITLE = 'text-3xl md:text-4xl font-bold tracking-tighter text-on-surface mt-2 mb-10'
 const BODY = 'text-on-surface-variant leading-relaxed'
 
-function Section({ id, kicker, title, children }: { id: string; kicker: string; title: string; children: ReactNode }) {
+function Section({
+  id,
+  kicker,
+  title,
+  children,
+}: {
+  id: string
+  kicker: string
+  title: string
+  children: ReactNode
+}) {
   return (
     <section id={id} className="mb-24">
       <span className={KICKER}>{kicker}</span>
@@ -33,8 +43,8 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
           Kim-san DOK
         </h1>
         <p className="text-xl md:text-2xl text-on-surface font-light leading-relaxed max-w-3xl">
-          Senior Business Analyst Freelancer · AMOA · Market Finance — 10 years bridging
-          business and IT on mission-critical trading &amp; post-trade systems.
+          Senior Business Analyst Freelancer · AMOA · Market Finance — 10 years bridging business
+          and IT on mission-critical trading &amp; post-trade systems.
         </p>
         <p className="text-secondary text-sm mt-6">
           Paris, France · dokkimsan@gmail.com · kimsandok.com
@@ -50,10 +60,7 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
           Générale. Specialized in simplifying complex IT landscapes, reducing costs, and securing
           front-to-back processes — bridging business and IT teams to deliver robust, scalable,
           production-ready solutions across{' '}
-          <strong className="text-on-surface">
-            Securities Lending, Repo, Forex, and Hedging
-          </strong>
-          .
+          <strong className="text-on-surface">Securities Lending, Repo, Forex, and Hedging</strong>.
         </p>
       </Section>
 
@@ -63,8 +70,14 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
           <table className="w-full text-left text-sm">
             <tbody className="divide-y divide-surface-variant">
               <Figure figure="10 years" context="Market finance Business Analyst" />
-              <Figure figure="IS simplified & 500 000€/yr saved" context="Replacing Kondor+ and K+TP (Front + Back Office) with in-house solutions" />
-              <Figure figure="Opening new business lines" context="Migrating 4Sight Financial to SFCM" />
+              <Figure
+                figure="IS simplified & 500 000€/yr saved"
+                context="Replacing Kondor+ and K+TP (Front + Back Office) with in-house solutions"
+              />
+              <Figure
+                figure="Opening new business lines"
+                context="Migrating 4Sight Financial to SFCM"
+              />
             </tbody>
           </table>
         </div>
@@ -75,15 +88,44 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-surface-variant border border-surface-variant rounded-lg overflow-hidden">
           <ExpertiseCol
             label="Market Finance"
-            items={['Securities Lending', 'Repo', 'Forex', 'Hedging', 'Triparty', 'Collateral', 'Corporate Actions (OST)', 'Settlement', 'Billing', 'Referential data']}
+            items={[
+              'Securities Lending',
+              'Repo',
+              'Forex',
+              'Hedging',
+              'Triparty',
+              'Collateral',
+              'Corporate Actions (OST)',
+              'Settlement',
+              'Billing',
+              'Referential data',
+            ]}
           />
           <ExpertiseCol
             label="Business Analysis / AMOA"
-            items={['Requirements elicitation', 'Process mapping', 'Functional specifications', 'UAT / Recette', 'KPIs & Monitoring', 'Critical incident management']}
+            items={[
+              'Requirements elicitation',
+              'Process mapping',
+              'Functional specifications',
+              'UAT / Recette',
+              'KPIs & Monitoring',
+              'Critical incident management',
+            ]}
           />
           <ExpertiseCol
             label="Tools & Tech"
-            items={['SFCM Broadridge', 'Kondor+', 'TIBCO BusinessWorks', 'SQL', 'Unix Shell', 'Java', 'Agile / Scrum', 'PSM I', 'BDD', 'Generative AI for specs & UAT']}
+            items={[
+              'SFCM Broadridge',
+              'Kondor+',
+              'TIBCO BusinessWorks',
+              'SQL',
+              'Unix Shell',
+              'Java',
+              'Agile / Scrum',
+              'PSM I',
+              'BDD',
+              'Generative AI for specs & UAT',
+            ]}
           />
         </div>
       </Section>
@@ -161,7 +203,15 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
       <Section id="skills" kicker="Skills & Certifications" title="Toolkit">
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           <SkillRow term="Certifications" items={['Professional Scrum Master I (PSM I)']} />
-          <SkillRow term="Spoken languages" items={['English — fluent (TOEIC 895)', 'Khmer — fluent', 'French — fluent', 'Japanese — beginner']} />
+          <SkillRow
+            term="Spoken languages"
+            items={[
+              'English — fluent (TOEIC 895)',
+              'Khmer — fluent',
+              'French — fluent',
+              'Japanese — beginner',
+            ]}
+          />
           <SkillRow term="Programming" items={['SQL', 'Unix shell', 'Java', 'HTML', 'CSS']} />
           <SkillRow term="Software" items={['SFCM Broadridge', 'Kondor+', 'TIBCO BusinessWorks']} />
         </dl>
@@ -170,9 +220,21 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
       {/* ---------------------------------------------------------------- Education */}
       <Section id="education" kicker="Education" title="Academic background">
         <ul className="space-y-6">
-          <EduRow degree="Master — Management of Information Systems" school="ESIEE Paris, Champs-sur-Marne" years="2012 – 2014" />
-          <EduRow degree="Licence — Mathematics & Computer Science" school="Université de Marne-la-Vallée, Champs-sur-Marne" years="2011 – 2012" />
-          <EduRow degree="DUT — Computer Science" school="IUT de Villetaneuse, Paris 13" years="2011" />
+          <EduRow
+            degree="Master — Management of Information Systems"
+            school="ESIEE Paris, Champs-sur-Marne"
+            years="2012 – 2014"
+          />
+          <EduRow
+            degree="Licence — Mathematics & Computer Science"
+            school="Université de Marne-la-Vallée, Champs-sur-Marne"
+            years="2011 – 2012"
+          />
+          <EduRow
+            degree="DUT — Computer Science"
+            school="IUT de Villetaneuse, Paris 13"
+            years="2011"
+          />
         </ul>
       </Section>
 
@@ -209,20 +271,42 @@ export default function CvContentEn({ lang }: { lang: Lang }) {
       {/* ---------------------------------------------------------------- Interests */}
       <Section id="interests" kicker="Beyond work" title="Interests">
         <ul className="space-y-3 text-on-surface-variant">
-          <li><span className="text-on-surface font-medium">Cycling</span> — mountain cols with friends.</li>
-          <li><span className="text-on-surface font-medium">Running</span> — Paris Marathon, Paris semi-marathon, Oxy’Trail, Paris 10KM.</li>
+          <li>
+            <span className="text-on-surface font-medium">Cycling</span> — mountain cols with
+            friends.
+          </li>
+          <li>
+            <span className="text-on-surface font-medium">Running</span> — Paris Marathon, Paris
+            semi-marathon, Oxy’Trail, Paris 10KM.
+          </li>
         </ul>
       </Section>
 
       {/* ---------------------------------------------------------------- Contact */}
       <Section id="contact" kicker="Contact" title="Let’s talk together">
         <p className={BODY}>
-          Available for Business Analyst / AMOA freelance missions in market finance. Reach out
-          to discuss your needs:
+          Available for Business Analyst / AMOA freelance missions in market finance. Reach out to
+          discuss your needs:
         </p>
         <ul className="mt-6 space-y-2 text-on-surface">
-          <li>Email: <a className="underline decoration-surface-variant underline-offset-4 hover:text-secondary" href="mailto:dokkimsan@gmail.com">dokkimsan@gmail.com</a></li>
-          <li>Site: <a className="underline decoration-surface-variant underline-offset-4 hover:text-secondary" href="https://kimsandok.com">kimsandok.com</a></li>
+          <li>
+            Email:{' '}
+            <a
+              className="underline decoration-surface-variant underline-offset-4 hover:text-secondary"
+              href="mailto:dokkimsan@gmail.com"
+            >
+              dokkimsan@gmail.com
+            </a>
+          </li>
+          <li>
+            Site:{' '}
+            <a
+              className="underline decoration-surface-variant underline-offset-4 hover:text-secondary"
+              href="https://kimsandok.com"
+            >
+              kimsandok.com
+            </a>
+          </li>
         </ul>
         <p className="mt-10 text-secondary text-sm">
           Prefer a conversation?{' '}
@@ -243,7 +327,9 @@ function Figure({ figure, context }: { figure: string; context: string }) {
       <th scope="row" className="font-semibold text-on-surface px-5 py-4 align-top text-left">
         {context}
       </th>
-      <td className="text-on-surface-variant px-5 py-4 text-right whitespace-nowrap w-[40%]">{figure}</td>
+      <td className="text-on-surface-variant px-5 py-4 text-right whitespace-nowrap w-[40%]">
+        {figure}
+      </td>
     </tr>
   )
 }
@@ -261,7 +347,19 @@ function ExpertiseCol({ label, items }: { label: string; items: string[] }) {
   )
 }
 
-function Article({ role, org, dates, context, points }: { role: string; org: string; dates: string; context: string; points: string[] }) {
+function Article({
+  role,
+  org,
+  dates,
+  context,
+  points,
+}: {
+  role: string
+  org: string
+  dates: string
+  context: string
+  points: string[]
+}) {
   return (
     <article>
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-1">
@@ -272,7 +370,10 @@ function Article({ role, org, dates, context, points }: { role: string; org: str
       <p className={`${BODY} mb-5`}>{context}</p>
       <ul className="space-y-3 text-on-surface-variant">
         {points.map((p, i) => (
-          <li key={i} className="pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[0.6em] before:w-2 before:h-px before:bg-secondary">
+          <li
+            key={i}
+            className="pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[0.6em] before:w-2 before:h-px before:bg-secondary"
+          >
             {p}
           </li>
         ))}
@@ -302,7 +403,17 @@ function EduRow({ degree, school, years }: { degree: string; school: string; yea
   )
 }
 
-function Project({ name, what, stack, url }: { name: string; what: string; stack: string; url: string }) {
+function Project({
+  name,
+  what,
+  stack,
+  url,
+}: {
+  name: string
+  what: string
+  stack: string
+  url: string
+}) {
   return (
     <article>
       <h3 className="text-lg font-semibold text-on-surface tracking-tight mb-2">{name}</h3>

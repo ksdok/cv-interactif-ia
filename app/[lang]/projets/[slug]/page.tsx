@@ -24,8 +24,20 @@ import { detailProjects, hasDetail, projectBySlug, type Project } from '@/conten
 // Icône lien externe.
 function ExternalIcon() {
   return (
-    <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    <svg
+      aria-hidden="true"
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+      />
     </svg>
   )
 }
@@ -199,7 +211,9 @@ export default async function ProjetDetailPage({
               <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-2">
                 {dictionary.projects.detail.betaLabel}
               </p>
-              <p className="text-on-surface leading-relaxed">{dictionary.projects.detail.betaBody}</p>
+              <p className="text-on-surface leading-relaxed">
+                {dictionary.projects.detail.betaBody}
+              </p>
               <a
                 href="mailto:dokkimsan@gmail.com"
                 className="mt-4 inline-flex items-center gap-2 text-[0.75rem] tracking-wider uppercase font-semibold text-on-surface border-b border-on-surface pb-0.5 hover:opacity-60 transition-opacity"
@@ -220,7 +234,10 @@ export default async function ProjetDetailPage({
           </div>
 
           {others.length > 0 && (
-            <nav className="mt-16 pt-8 border-t border-surface-variant" aria-label={dictionary.projects.detail.otherProjects}>
+            <nav
+              className="mt-16 pt-8 border-t border-surface-variant"
+              aria-label={dictionary.projects.detail.otherProjects}
+            >
               <p className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-4">
                 {dictionary.projects.detail.otherProjects}
               </p>

@@ -30,7 +30,10 @@ export default function Header({ dictionary, lang }: HeaderProps) {
   // PROJ-001 : actif sur le hub Projets ET ses pages détail (/projets/<slug>),
   // même convention que le switcher qui dérive `rest` du pathname.
   const isProjectsActive = rest === '/projets' || rest.startsWith('/projets/')
-  const switcherAria = { fr: dictionary.header.switcherAriaFr, en: dictionary.header.switcherAriaEn }
+  const switcherAria = {
+    fr: dictionary.header.switcherAriaFr,
+    en: dictionary.header.switcherAriaEn,
+  }
   // M1 (review c150986, WCAG 2.5.3 Label in Name) : le nom accessible du lien
   // logo DOIT contenir le libellé visible (« Kim-san DOK ») — on compose donc
   // name + homeLinkAria au lieu de remplacer le texte visible par l'aria-label.
@@ -45,15 +48,15 @@ export default function Header({ dictionary, lang }: HeaderProps) {
         {/* Logo — lien vers la home de la locale courante (l'ensemble
             name + tagline est cliquable ; nom accessible composé ci-dessus,
             conforme WCAG 2.5.3) */}
-        <a
-          href={`/${lang}`}
-          aria-label={homeAria}
-          className="flex flex-col"
-        >
-          <span className="text-xl xs:text-2xl font-semibold tracking-[-0.02em] text-on-surface">{dictionary.header.name}</span>
+        <a href={`/${lang}`} aria-label={homeAria} className="flex flex-col">
+          <span className="text-xl xs:text-2xl font-semibold tracking-[-0.02em] text-on-surface">
+            {dictionary.header.name}
+          </span>
           {/* B1 : tagline masquée sous sm — non essentielle, rétablissait un
               header de 114 px (2 lignes) sur les mobiles ≤ 414 px. */}
-          <span className="hidden sm:block text-[10px] uppercase tracking-widest text-secondary mt-1">{dictionary.header.tagline}</span>
+          <span className="hidden sm:block text-[10px] uppercase tracking-widest text-secondary mt-1">
+            {dictionary.header.tagline}
+          </span>
         </a>
         <div className="flex items-center gap-2 xs:gap-3 sm:gap-6 text-[0.75rem] tracking-wider uppercase">
           {/* Lien CV — page locale courante (GEO-08h). N5 (review c150986) :
@@ -98,7 +101,11 @@ export default function Header({ dictionary, lang }: HeaderProps) {
           <div className="flex items-center gap-2">
             {LANGUAGES.map((l, i) => (
               <Fragment key={l}>
-                {i > 0 && <span aria-hidden="true" className="text-surface-variant">{'/'}</span>}
+                {i > 0 && (
+                  <span aria-hidden="true" className="text-surface-variant">
+                    {'/'}
+                  </span>
+                )}
                 <a
                   href={`/${l}${rest}`}
                   hrefLang={l}

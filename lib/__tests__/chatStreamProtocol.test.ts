@@ -25,14 +25,14 @@ import en from '@/lib/i18n/en'
 describe('encodeChatStreamEvent — encodage serveur', () => {
   it('sérialise un delta en une seule ligne NDJSON terminée par \\n', () => {
     expect(encodeChatStreamEvent({ type: 'delta', text: 'Bonjour' })).toBe(
-      '{"type":"delta","text":"Bonjour"}\n'
+      '{"type":"delta","text":"Bonjour"}\n',
     )
   })
 
   it('sérialise done et error', () => {
     expect(encodeChatStreamEvent({ type: 'done' })).toBe('{"type":"done"}\n')
     expect(encodeChatStreamEvent({ type: 'error', errorCode: 'SERVER' })).toBe(
-      '{"type":"error","errorCode":"SERVER"}\n'
+      '{"type":"error","errorCode":"SERVER"}\n',
     )
   })
 })
@@ -84,7 +84,7 @@ describe('ChatStreamDecoder — décodage incrémental', () => {
     const decoder = new ChatStreamDecoder()
     const events = decoder.push(
       encodeChatStreamEvent({ type: 'delta', text: 'partiel' }) +
-        encodeChatStreamEvent({ type: 'error', errorCode: 'SERVER' })
+        encodeChatStreamEvent({ type: 'error', errorCode: 'SERVER' }),
     )
 
     expect(events).toEqual<ChatStreamEvent[]>([
@@ -106,7 +106,7 @@ describe('ChatStreamDecoder — décodage incrémental', () => {
         '{"type":"delta"}\n' +
         '{"type":"error"}\n' +
         '\n' +
-        encodeChatStreamEvent({ type: 'delta', text: 'ok' })
+        encodeChatStreamEvent({ type: 'delta', text: 'ok' }),
     )
     expect(events).toEqual<ChatStreamEvent[]>([{ type: 'delta', text: 'ok' }])
   })

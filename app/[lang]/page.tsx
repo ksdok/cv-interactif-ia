@@ -16,11 +16,7 @@ import Home from './Home'
  * passé en props — les composants client n'importent jamais le dictionnaire
  * directement (pattern minimal du plan GEO-08, pas de next-intl).
  */
-export default async function LangPage({
-  params,
-}: {
-  params: Promise<{ lang: string }>
-}) {
+export default async function LangPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params
   // Type-guard sound : isLocale est strict depuis la review F1 (GEO-08b) ;
   // le notFound() du layout a déjà filtré les params invalides.

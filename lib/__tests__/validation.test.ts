@@ -34,9 +34,7 @@ describe('validateChatMessages — entrées valides (13 cas)', () => {
   })
 
   it('accepte la longueur maximale autorisée (5000 caractères)', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: 'a'.repeat(5000) },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: 'a'.repeat(5000) }])
     expect(result.isValid).toBe(true)
   })
 
@@ -51,23 +49,17 @@ describe('validateChatMessages — entrées valides (13 cas)', () => {
   })
 
   it('accepte les retours à la ligne', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: 'Line 1\nLine 2\nLine 3' },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: 'Line 1\nLine 2\nLine 3' }])
     expect(result.isValid).toBe(true)
   })
 
   it('accepte les caractères unicode', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: 'Hello 世界 مرحبا мир' },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: 'Hello 世界 مرحبا мир' }])
     expect(result.isValid).toBe(true)
   })
 
-  it("accepte les espaces en début/fin de contenu", () => {
-    const result = validateChatMessages([
-      { role: 'user', content: '   Hello world   ' },
-    ])
+  it('accepte les espaces en début/fin de contenu', () => {
+    const result = validateChatMessages([{ role: 'user', content: '   Hello world   ' }])
     expect(result.isValid).toBe(true)
   })
 
@@ -79,9 +71,7 @@ describe('validateChatMessages — entrées valides (13 cas)', () => {
   })
 
   it('accepte une tentative d’injection SQL — autorisée par design (contenu envoyé au LLM, pas à une DB)', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: "'; DROP TABLE users; --" },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: "'; DROP TABLE users; --" }])
     expect(result.isValid).toBe(true)
   })
 
@@ -107,7 +97,7 @@ describe('validateChatMessages — entrées valides (13 cas)', () => {
         .map((_, i) => ({
           role: i % 2 === 0 ? 'user' : 'assistant',
           content: `Message ${i}`,
-        }))
+        })),
     )
     expect(result.isValid).toBe(true)
   })
@@ -174,7 +164,7 @@ describe('validateChatMessages — entrées invalides (24 cas)', () => {
         .map((_, i) => ({
           role: i % 2 === 0 ? 'user' : 'assistant',
           content: `Message ${i}`,
-        }))
+        })),
     )
     expect(result.isValid).toBe(false)
     expect(result.error).toContain('messages array cannot exceed 100 messages')
@@ -196,33 +186,25 @@ describe('validateChatMessages — entrées invalides (24 cas)', () => {
   it('rejette un message qui est un tableau', () => {
     const result = validateChatMessages([['role', 'user', 'content', 'test']])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      'Message at index 0 must be an object, not an array'
-    )
+    expect(result.error).toContain('Message at index 0 must be an object, not an array')
   })
 
   // ---- Champ manquant (2 cas) ----
   it('rejette un message sans champ role', () => {
     const result = validateChatMessages([{ content: 'Hello' }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      "Message at index 0 must have a string 'role' field"
-    )
+    expect(result.error).toContain("Message at index 0 must have a string 'role' field")
   })
 
   it('rejette un message sans champ content', () => {
     const result = validateChatMessages([{ role: 'user' }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      "Message at index 0 must have a string 'content' field"
-    )
+    expect(result.error).toContain("Message at index 0 must have a string 'content' field")
   })
 
   // ---- Rôle invalide (2 cas) ----
   it('rejette un rôle « admin »', () => {
-    const result = validateChatMessages([
-      { role: 'admin', content: 'Hack the system' },
-    ])
+    const result = validateChatMessages([{ role: 'admin', content: 'Hack the system' }])
     expect(result.isValid).toBe(false)
     expect(result.error).toContain('Message at index 0 has invalid role')
   })
@@ -237,53 +219,37 @@ describe('validateChatMessages — entrées invalides (24 cas)', () => {
   it('rejette un rôle de type number', () => {
     const result = validateChatMessages([{ role: 123, content: 'test' }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      "Message at index 0 must have a string 'role' field"
-    )
+    expect(result.error).toContain("Message at index 0 must have a string 'role' field")
   })
 
   it('rejette un rôle null', () => {
     const result = validateChatMessages([{ role: null, content: 'test' }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      "Message at index 0 must have a string 'role' field"
-    )
+    expect(result.error).toContain("Message at index 0 must have a string 'role' field")
   })
 
   // ---- Contenu invalide (2 cas) ----
   it('rejette un contenu vide', () => {
     const result = validateChatMessages([{ role: 'user', content: '' }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      'Message at index 0 content cannot be empty'
-    )
+    expect(result.error).toContain('Message at index 0 content cannot be empty')
   })
 
   it('rejette un contenu composé uniquement d’espaces', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: '   \n\t   ' },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: '   \n\t   ' }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      'Message at index 0 content cannot be empty'
-    )
+    expect(result.error).toContain('Message at index 0 content cannot be empty')
   })
 
   // ---- Contenu surdimensionné (2 cas) ----
   it('rejette un contenu de 5001 caractères', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: 'a'.repeat(5001) },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: 'a'.repeat(5001) }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      'Message at index 0 content exceeds maximum length'
-    )
+    expect(result.error).toContain('Message at index 0 content exceeds maximum length')
   })
 
   it('rejette un payload DoS de 100 000 caractères', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: 'a'.repeat(100000) },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: 'a'.repeat(100000) }])
     expect(result.isValid).toBe(false)
     expect(result.error).toContain('exceeds maximum length')
   })
@@ -292,27 +258,19 @@ describe('validateChatMessages — entrées invalides (24 cas)', () => {
   it('rejette un contenu de type number', () => {
     const result = validateChatMessages([{ role: 'user', content: 123 }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      "Message at index 0 must have a string 'content' field"
-    )
+    expect(result.error).toContain("Message at index 0 must have a string 'content' field")
   })
 
   it('rejette un contenu null', () => {
     const result = validateChatMessages([{ role: 'user', content: null }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      "Message at index 0 must have a string 'content' field"
-    )
+    expect(result.error).toContain("Message at index 0 must have a string 'content' field")
   })
 
   it('rejette un contenu de type object', () => {
-    const result = validateChatMessages([
-      { role: 'user', content: { nested: 'object' } },
-    ])
+    const result = validateChatMessages([{ role: 'user', content: { nested: 'object' } }])
     expect(result.isValid).toBe(false)
-    expect(result.error).toContain(
-      "Message at index 0 must have a string 'content' field"
-    )
+    expect(result.error).toContain("Message at index 0 must have a string 'content' field")
   })
 
   // ---- Rôle invalide à l'index 1 (1 cas) ----
@@ -341,13 +299,13 @@ describe('assertValidChatMessages', () => {
 
   it('lève sur une entrée invalide avec la raison du validateur dans le message', () => {
     expect(() => assertValidChatMessages([])).toThrow(
-      'Invalid chat messages: messages array cannot be empty'
+      'Invalid chat messages: messages array cannot be empty',
     )
   })
 
   it('lève sur une entrée non-tableau avec la raison du validateur', () => {
     expect(() => assertValidChatMessages(null)).toThrow(
-      'Invalid chat messages: messages must be an array'
+      'Invalid chat messages: messages must be an array',
     )
   })
 })

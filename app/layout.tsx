@@ -13,13 +13,7 @@ import './globals.css'
 import { cookies, headers } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { localeFromHeaders } from '@/lib/i18n/config'
-import {
-  SITE_DESCRIPTION,
-  SITE_KEYWORDS,
-  SITE_NAME,
-  SITE_TITLE,
-  SITE_URL,
-} from '@/lib/site'
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_TITLE, SITE_URL } from '@/lib/site'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -92,11 +86,7 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // SECURITY: Extract CSRF token from secure httpOnly cookie
   // This runs on the server, so it's safe to access the cookie
   const cookieStore = await cookies()
@@ -126,9 +116,7 @@ export default async function RootLayout({
             it in the X-CSRF-Token header on API requests. */}
         <meta name="csrf-token" content={csrfToken} />
       </head>
-      <body className={inter.className}>
-        {children}
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

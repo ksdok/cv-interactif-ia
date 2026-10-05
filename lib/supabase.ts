@@ -42,9 +42,7 @@ export function getSupabase(): SupabaseClient {
     if (process.env.NODE_ENV === 'production') {
       throw new Error('SUPABASE_SERVICE_ROLE_KEY is required in production')
     }
-    console.warn(
-      'SUPABASE_SERVICE_ROLE_KEY missing — falling back to anon key (dev only)'
-    )
+    console.warn('SUPABASE_SERVICE_ROLE_KEY missing — falling back to anon key (dev only)')
   }
 
   const resolvedKey = serviceRoleKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -53,7 +51,7 @@ export function getSupabase(): SupabaseClient {
     throw new Error(
       'Supabase configuration is incomplete: NEXT_PUBLIC_SUPABASE_URL, and either ' +
         'SUPABASE_SERVICE_ROLE_KEY (required in production) or ' +
-        'NEXT_PUBLIC_SUPABASE_ANON_KEY (dev fallback), must be set'
+        'NEXT_PUBLIC_SUPABASE_ANON_KEY (dev fallback), must be set',
     )
   }
 

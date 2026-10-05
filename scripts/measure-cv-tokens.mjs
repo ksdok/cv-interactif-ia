@@ -33,7 +33,9 @@ function parseArgs() {
     if (arg === '--output') config.outputFile = resolve(args[++i])
     else if (arg === '--cv') config.cvPath = resolve(args[++i])
     else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: node scripts/measure-cv-tokens.mjs [--cv data/cv.md] [--output scripts/results/cv-token-report.json]')
+      console.log(
+        'Usage: node scripts/measure-cv-tokens.mjs [--cv data/cv.md] [--output scripts/results/cv-token-report.json]',
+      )
       process.exit(0)
     }
   }

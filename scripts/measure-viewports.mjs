@@ -36,9 +36,15 @@ if (!URL_ARG) {
   console.error('Usage: node scripts/measure-viewports.mjs <url> [width …]')
   process.exit(2)
 }
-const WIDTHS = (process.argv.slice(3).map(Number).filter((n) => n > 0).length
-  ? process.argv.slice(3).map(Number).filter((n) => n > 0)
-  : [320, 375, 768, 1280])
+const WIDTHS = process.argv
+  .slice(3)
+  .map(Number)
+  .filter((n) => n > 0).length
+  ? process.argv
+      .slice(3)
+      .map(Number)
+      .filter((n) => n > 0)
+  : [320, 375, 768, 1280]
 
 const PORT = Number(process.env.CDP_PORT || 9222)
 
@@ -121,7 +127,11 @@ let exited = false
 const cleanup = async () => {
   if (exited) return
   exited = true
-  try { child.kill('SIGKILL') } catch { /* déjà mort */ }
+  try {
+    child.kill('SIGKILL')
+  } catch {
+    /* déjà mort */
+  }
   await rm(profile, { recursive: true, force: true }).catch(() => {})
 }
 

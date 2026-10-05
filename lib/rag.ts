@@ -33,11 +33,7 @@ export async function createEmbedding(text: string) {
 // - query: the user query to embed and match against stored document embeddings.
 // - matchCount: number of nearest neighbors to return (default 5).
 // - filter: optional additional filter passed to the RPC (structure depends on your DB schema).
-export async function searchDocuments(
-  query: string,
-  matchCount: number = 5,
-  filter: object = {}
-) {
+export async function searchDocuments(query: string, matchCount: number = 5, filter: object = {}) {
   try {
     console.log('Searching for:', query)
 
@@ -54,7 +50,7 @@ export async function searchDocuments(
     })
     console.log('Supabase results:', {
       found: data?.length || 0,
-      error: error?.message
+      error: error?.message,
     })
     if (error) {
       console.error('Search error:', error)

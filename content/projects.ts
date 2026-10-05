@@ -250,9 +250,7 @@ export const PROJECTS: Project[] = [
  * `hasDetail` est vrai, quel que soit le flag `featured`.
  */
 export function hasDetail(project: Project): boolean {
-  return Boolean(
-    project.detailFr?.length && project.detailEn?.length,
-  )
+  return Boolean(project.detailFr?.length && project.detailEn?.length)
 }
 
 /** Liste affichée : non masqués, ordre éditorial (featured d'abord, puis `order`). */

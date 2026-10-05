@@ -9,33 +9,47 @@ interface ExperienceGridProps {
   onOpenJobMatcher: () => void
 }
 
-export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: ExperienceGridProps) {
+export default function ExperienceGrid({
+  dictionary,
+  lang,
+  onOpenJobMatcher,
+}: ExperienceGridProps) {
   const { experience } = dictionary
   return (
     <section className="w-full px-8">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-32">
-
         {/* Featured Role — 2 cols */}
         <div className="md:col-span-2 bg-surface-container-low rounded-lg p-10 flex flex-col justify-between group overflow-hidden relative min-h-[400px]">
           <div className="z-10">
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.featuredLabel}</span>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">
+              {experience.featuredLabel}
+            </span>
             {/* A11Y-01 : h2 (était h3) — pas de saut h1→h3 (audit Lighthouse
                 heading-order) ; classes inchangées, rendu visuel identique. */}
-            <h2 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.featuredTitle}</h2>
+            <h2 className="text-3xl font-bold mt-4 mb-2 text-on-surface">
+              {experience.featuredTitle}
+            </h2>
             <p className="text-secondary">{experience.featuredCompany}</p>
           </div>
           <div className="mt-8 z-10">
-            <p className="max-w-md text-on-surface leading-relaxed">
-              {experience.featuredBody}
-            </p>
-            <Link href={`/${lang}/cv`} className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors">
+            <p className="max-w-md text-on-surface leading-relaxed">{experience.featuredBody}</p>
+            <Link
+              href={`/${lang}/cv`}
+              className="inline-block mt-6 text-[0.75rem] tracking-wider uppercase text-secondary hover:text-on-surface transition-colors"
+            >
               {experience.featuredCta}
             </Link>
           </div>
           {/* Decorative background icon */}
           <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none select-none">
-            <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface">
-              <path d="M3 3h7v7H3zm0 11h7v7H3zm11-11h7v7h-7zm0 11h7v7h-7z"/>
+            <svg
+              width="200"
+              height="200"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="text-on-surface"
+            >
+              <path d="M3 3h7v7H3zm0 11h7v7H3zm11-11h7v7h-7zm0 11h7v7h-7z" />
             </svg>
           </div>
         </div>
@@ -43,20 +57,30 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
         {/* Technical Stack — 1 col */}
         <div className="bg-surface-container-highest rounded-lg p-10 flex flex-col justify-between">
           <div>
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.humanStackLabel}</span>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">
+              {experience.humanStackLabel}
+            </span>
             <div className="mt-6 flex flex-wrap gap-2">
               {experience.humanStack.map((item) => (
-                <span key={item} className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface">
+                <span
+                  key={item}
+                  className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface"
+                >
                   {item}
                 </span>
               ))}
             </div>
           </div>
           <div className="mt-8">
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.techStackLabel}</span>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">
+              {experience.techStackLabel}
+            </span>
             <div className="mt-6 flex flex-wrap gap-2">
               {experience.techStack.map((skill) => (
-                <span key={skill} className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface">
+                <span
+                  key={skill}
+                  className="bg-surface-container-lowest px-3 py-1 rounded text-xs font-medium text-on-surface"
+                >
                   {skill}
                 </span>
               ))}
@@ -71,7 +95,12 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
             >
               {experience.githubCta}
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
               </svg>
             </a>
           </div>
@@ -79,15 +108,23 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
 
         {/* Burning passions — 1 col */}
         <div className="bg-surface-container-lowest rounded-lg p-10 md:col-span-1 shadow-sm flex flex-col group overflow-hidden relative">
-          <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-6">{experience.passionsLabel}</span>
+          <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold mb-6">
+            {experience.passionsLabel}
+          </span>
           <p className="text-lg font-bold text-on-surface">{experience.passion1Title}</p>
           <p className="text-secondary text-sm">{experience.passion1Body}</p>
           <p className="text-lg font-bold text-on-surface">{experience.passion2Title}</p>
           <p className="text-secondary text-sm">{experience.passion2Body}</p>
           {/* Decorative background flame */}
           <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none select-none">
-            <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface">
-              <path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5 0.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
+            <svg
+              width="200"
+              height="200"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="text-on-surface"
+            >
+              <path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5 0.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z" />
             </svg>
           </div>
         </div>
@@ -95,8 +132,12 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
         {/* Job Matcher — 2 cols */}
         <div className="md:col-span-2 bg-surface-container-low rounded-lg p-10 flex flex-col justify-between group overflow-hidden relative">
           <div className="z-10">
-            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">{experience.matcherLabel}</span>
-            <h2 className="text-3xl font-bold mt-4 mb-2 text-on-surface">{experience.matcherTitle}</h2>
+            <span className="text-[0.7rem] uppercase tracking-widest text-secondary font-semibold">
+              {experience.matcherLabel}
+            </span>
+            <h2 className="text-3xl font-bold mt-4 mb-2 text-on-surface">
+              {experience.matcherTitle}
+            </h2>
             <p className="text-secondary text-sm">{experience.matcherSubtitle}</p>
           </div>
           <div className="mt-8 z-10">
@@ -112,8 +153,14 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
           </div>
           {/* Decorative background icon */}
           <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none select-none">
-            <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor" className="text-on-surface">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-12c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+            <svg
+              width="200"
+              height="200"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="text-on-surface"
+            >
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-12c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z" />
             </svg>
           </div>
         </div>
@@ -122,9 +169,7 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
         <div className="md:col-span-3 bg-on-background rounded-lg p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
           <div className="max-w-md">
             <h2 className="text-2xl font-bold mb-4 text-on-primary">{experience.ctaTitle}</h2>
-            <p className="text-secondary-fixed-dim text-sm leading-relaxed">
-              {experience.ctaBody}
-            </p>
+            <p className="text-secondary-fixed-dim text-sm leading-relaxed">{experience.ctaBody}</p>
           </div>
           <a
             href="mailto:dokkimsan@gmail.com"
@@ -133,7 +178,6 @@ export default function ExperienceGrid({ dictionary, lang, onOpenJobMatcher }: E
             {experience.ctaButton}
           </a>
         </div>
-
       </div>
     </section>
   )

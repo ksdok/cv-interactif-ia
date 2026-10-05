@@ -43,7 +43,10 @@ function loadEnvLocal() {
     if (!line || line.startsWith('#')) continue
     const eq = line.indexOf('=')
     if (eq < 0) continue
-    const key = line.slice(0, eq).replace(/^export\s+/, '').trim()
+    const key = line
+      .slice(0, eq)
+      .replace(/^export\s+/, '')
+      .trim()
     let value = line.slice(eq + 1).trim()
     if (
       (value.startsWith('"') && value.endsWith('"')) ||
@@ -164,7 +167,10 @@ function costOf(model, usage) {
   const fresh = Math.max(0, (usage.prompt_tokens ?? 0) - cached - cacheWrite)
   const out = usage.completion_tokens ?? 0
   return (
-    (fresh * price.input + cached * price.cached + cacheWrite * (price.cacheWrite ?? 0) + out * price.output) /
+    (fresh * price.input +
+      cached * price.cached +
+      cacheWrite * (price.cacheWrite ?? 0) +
+      out * price.output) /
     1e6
   )
 }
@@ -197,7 +203,8 @@ function validateAnalysis(raw, language) {
     problems.push('analysis vide ou non textuelle')
   }
   for (const key of ['strengths', 'improvements']) {
-    if (!Array.isArray(parsed[key]) || parsed[key].length === 0) problems.push(`${key} non renseigné`)
+    if (!Array.isArray(parsed[key]) || parsed[key].length === 0)
+      problems.push(`${key} non renseigné`)
   }
   // Contrôle léger de la langue demandée : les valeurs lisibles ne doivent pas
   // être en anglais quand la réponse est demandée en français (et inversement).
@@ -207,8 +214,10 @@ function validateAnalysis(raw, language) {
     .join(' ')
   const looksEnglish = /\b(the|and|with|for|is|are|of|to)\b/i.test(readable)
   const looksFrench = /\b(le|la|les|des|est|avec|pour|une|et)\b/i.test(readable)
-  if (language === 'fr' && looksEnglish && !looksFrench) problems.push('valeurs lisibles probablement en anglais')
-  if (language === 'en' && looksFrench && !looksEnglish) problems.push('valeurs lisibles probablement en français')
+  if (language === 'fr' && looksEnglish && !looksFrench)
+    problems.push('valeurs lisibles probablement en anglais')
+  if (language === 'en' && looksFrench && !looksEnglish)
+    problems.push('valeurs lisibles probablement en français')
 
   return { problems, parsed }
 }
@@ -217,7 +226,9 @@ async function main() {
   const config = parseArgs()
 
   if (!config.model) {
-    console.error('[smoke-job-match] Modèle introuvable (lib/modelConfig.ts illisible) — passez --model.')
+    console.error(
+      '[smoke-job-match] Modèle introuvable (lib/modelConfig.ts illisible) — passez --model.',
+    )
     process.exit(1)
   }
   if (!process.env.OPENAI_API_KEY) {
@@ -228,7 +239,7 @@ async function main() {
   const productModel = productModelFromConfig()
   if (productModel && productModel !== config.model) {
     console.log(
-      `[smoke-job-match] AVERTISSEMENT : --model ${config.model} ≠ modèle du produit (${productModel}).`
+      `[smoke-job-match] AVERTISSEMENT : --model ${config.model} ≠ modèle du produit (${productModel}).`,
     )
   }
 
@@ -286,7 +297,7 @@ async function main() {
     const status = problems.length ? `ÉCHEC — ${problems.join(' | ')}` : 'OK'
     console.log(
       `  [${lang}] ${status} · ${Date.now() - started}ms · reasoning ${reasoningTokens} tokens` +
-        ` · ${parsed ? `overall ${parsed.overallMatch}%` : '—'}`
+        ` · ${parsed ? `overall ${parsed.overallMatch}%` : '—'}`,
     )
   }
 
@@ -298,12 +309,12 @@ async function main() {
         generatedAt: new Date().toISOString(),
         productModel,
         jobDescription: JOB_DESCRIPTION,
-        note: "Prompt miré depuis app/api/job-match/route.ts ; contexte CV = data/cv.md (CAG) et non les extraits RAG. La qualité rédactionnelle reste relue manuellement.",
+        note: 'Prompt miré depuis app/api/job-match/route.ts ; contexte CV = data/cv.md (CAG) et non les extraits RAG. La qualité rédactionnelle reste relue manuellement.',
         reports,
       },
       null,
-      2
-    )
+      2,
+    ),
   )
 
   console.log(`\n[smoke-job-match] ${reports.length - failed}/${reports.length} langues conformes`)
@@ -314,4 +325,4 @@ async function main() {
 main().catch((error) => {
   console.error('[smoke-job-match] Erreur fatale:', error)
   process.exit(1)
-}) 
+})

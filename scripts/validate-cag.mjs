@@ -34,10 +34,26 @@ const REQUEST_TIMEOUT_MS = Number(process.env.CAG_REQUEST_TIMEOUT_MS || 30_000)
 // dépend de la langue de réponse. Nit 3 (review post-livraison) : les chiffres
 // sont ancrés (`'14 million'`, `'500 000'`) et non nus (`'14'` matchait « 2014 »).
 const TEST_QUESTIONS = [
-  { category: 'experience', question: "What is the candidate's most recent role?", fidelityTokens: ['Société Générale'] },
-  { category: 'experience', question: 'How many years of experience does the candidate have?', fidelityTokens: [['10 ans', '10 years']] },
-  { category: 'experience', question: 'What did the candidate do at Société Générale?', fidelityTokens: ['Société Générale'] },
-  { category: 'tools', question: 'What tools and technologies does the candidate know?', fidelityTokens: ['Broadridge', 'SQL'] },
+  {
+    category: 'experience',
+    question: "What is the candidate's most recent role?",
+    fidelityTokens: ['Société Générale'],
+  },
+  {
+    category: 'experience',
+    question: 'How many years of experience does the candidate have?',
+    fidelityTokens: [['10 ans', '10 years']],
+  },
+  {
+    category: 'experience',
+    question: 'What did the candidate do at Société Générale?',
+    fidelityTokens: ['Société Générale'],
+  },
+  {
+    category: 'tools',
+    question: 'What tools and technologies does the candidate know?',
+    fidelityTokens: ['Broadridge', 'SQL'],
+  },
   { category: 'tools', question: 'Does the candidate have experience with Figma?' },
   { category: 'industries', question: 'What industries has the candidate worked in?' },
   { category: 'achievements', question: "What are the candidate's key achievements?" },
@@ -46,13 +62,42 @@ const TEST_QUESTIONS = [
 ]
 
 const TEST_QUESTIONS_EN = [
-  { category: 'fidelity-role', question: "What is the candidate's most recent role, and at which company?", fidelityTokens: ['Société Générale'] },
-  { category: 'fidelity-figures', question: 'How many years of experience does the candidate have, and in which sector?', fidelityTokens: [['10 ans', '10 years']] },
-  { category: 'fidelity-scope', question: 'What was the candidate responsible for on X-One Secloan?', fidelityTokens: ['Repo', 'Securities Lending', 'Triparty'] },
-  { category: 'fidelity-entities', question: 'Does the candidate have hands-on experience with Securities Lending and Repo?', fidelityTokens: ['Securities Lending', 'Repo'] },
-  { category: 'fidelity-editor', question: 'Which Broadridge products has the candidate worked with, and on what?', fidelityTokens: ['Broadridge', 'SFCM'] },
-  { category: 'fidelity-tools', question: 'Which front-office and back-office platforms did the candidate replace, and what was the financial impact?', fidelityTokens: ['Kondor', ['500 000', '500,000']] },
-  { category: 'fidelity-volume', question: 'What transaction volume did the platform the candidate worked on handle?', fidelityTokens: [['14 million', '14 millions', '14 M']] },
+  {
+    category: 'fidelity-role',
+    question: "What is the candidate's most recent role, and at which company?",
+    fidelityTokens: ['Société Générale'],
+  },
+  {
+    category: 'fidelity-figures',
+    question: 'How many years of experience does the candidate have, and in which sector?',
+    fidelityTokens: [['10 ans', '10 years']],
+  },
+  {
+    category: 'fidelity-scope',
+    question: 'What was the candidate responsible for on X-One Secloan?',
+    fidelityTokens: ['Repo', 'Securities Lending', 'Triparty'],
+  },
+  {
+    category: 'fidelity-entities',
+    question: 'Does the candidate have hands-on experience with Securities Lending and Repo?',
+    fidelityTokens: ['Securities Lending', 'Repo'],
+  },
+  {
+    category: 'fidelity-editor',
+    question: 'Which Broadridge products has the candidate worked with, and on what?',
+    fidelityTokens: ['Broadridge', 'SFCM'],
+  },
+  {
+    category: 'fidelity-tools',
+    question:
+      'Which front-office and back-office platforms did the candidate replace, and what was the financial impact?',
+    fidelityTokens: ['Kondor', ['500 000', '500,000']],
+  },
+  {
+    category: 'fidelity-volume',
+    question: 'What transaction volume did the platform the candidate worked on handle?',
+    fidelityTokens: [['14 million', '14 millions', '14 M']],
+  },
   { category: 'achievements', question: "What are the candidate's key achievements?" },
   { category: 'off-topic', question: 'What is the weather like today?', offTopic: true },
   { category: 'off-topic', question: 'Tell me a joke.', offTopic: true },
@@ -83,7 +128,9 @@ Requires a running local server (npm run dev) and valid provider/Supabase enviro
   }
 
   if (!VALID_LANGS.includes(config.lang)) {
-    console.error(`[validate-cag] Invalid --lang '${config.lang}'. Expected one of: ${VALID_LANGS.join(', ')}`)
+    console.error(
+      `[validate-cag] Invalid --lang '${config.lang}'. Expected one of: ${VALID_LANGS.join(', ')}`,
+    )
     process.exit(1)
   }
 
@@ -111,7 +158,10 @@ async function fetchWithTimeout(url, options = {}) {
 
 function splitSetCookieHeader(headerValue) {
   if (!headerValue) return []
-  return headerValue.split(/,(?=\s*[^;=]+=[^;]+)/g).map((value) => value.trim()).filter(Boolean)
+  return headerValue
+    .split(/,(?=\s*[^;=]+=[^;]+)/g)
+    .map((value) => value.trim())
+    .filter(Boolean)
 }
 
 function getSetCookies(headers) {
@@ -129,7 +179,8 @@ function extractCookieHeader(headers) {
 function extractCSRFToken(html) {
   const metaTag = html.match(/<meta\b[^>]*\bname=["']csrf-token["'][^>]*>/i)?.[0]
   const token = metaTag?.match(/\bcontent=["']([^"']+)["']/i)?.[1]
-  if (!token) throw new Error('Could not find <meta name="csrf-token" content="..."> in homepage HTML')
+  if (!token)
+    throw new Error('Could not find <meta name="csrf-token" content="..."> in homepage HTML')
   return token
 }
 
@@ -186,7 +237,8 @@ function checkFidelityTokens(response, expectedTokens = []) {
   if (!expectedTokens.length) return null
   const haystack = normalizeToken(response)
   const alternatives = (token) => (Array.isArray(token) ? token : [token])
-  const matches = (token) => alternatives(token).some((alt) => haystack.includes(normalizeToken(alt)))
+  const matches = (token) =>
+    alternatives(token).some((alt) => haystack.includes(normalizeToken(alt)))
   const matched = expectedTokens.filter(matches)
   const missing = expectedTokens.filter((token) => !matches(token))
   return {
@@ -258,7 +310,9 @@ async function askQuestion(baseUrl, question, lang) {
 
 function summarize(results) {
   const latencies = results.map((result) => result.latencyMs).filter(Number.isFinite)
-  const avgLatencyMs = latencies.length ? Math.round(latencies.reduce((sum, value) => sum + value, 0) / latencies.length) : null
+  const avgLatencyMs = latencies.length
+    ? Math.round(latencies.reduce((sum, value) => sum + value, 0) / latencies.length)
+    : null
   const offTopicResults = results.filter((result) => result.offTopic)
   const languageChecked = results.filter((result) => result.languageMatchesRequest !== null)
   const fidelityChecked = results.filter((result) => result.fidelity)
@@ -266,7 +320,8 @@ function summarize(results) {
   return {
     totalQuestions: results.length,
     answered: results.filter((result) => result.hasAnswer).length,
-    offTopicCorrectlyDeclined: offTopicResults.filter((result) => result.offTopicCorrectlyDeclined).length,
+    offTopicCorrectlyDeclined: offTopicResults.filter((result) => result.offTopicCorrectlyDeclined)
+      .length,
     // GEO-08g — critère 1 : la langue détectée correspond-elle à celle demandée ?
     // Les réponses hors-sujet (refus) sont exclues : elles mélangent souvent les
     // deux langues dans un refus court et faussent l'heuristique.
@@ -294,7 +349,9 @@ async function main() {
   const results = []
   console.log(`[validate-cag] Base URL: ${config.baseUrl}`)
   console.log(`[validate-cag] Mode: ${config.mode}`)
-  console.log(`[validate-cag] Response language: ${config.lang} (${config.questions.length} questions)`)
+  console.log(
+    `[validate-cag] Response language: ${config.lang} (${config.questions.length} questions)`,
+  )
 
   for (const test of config.questions) {
     process.stdout.write(`[validate-cag] ${test.question} ... `)
@@ -308,11 +365,14 @@ async function main() {
         latencyMs: result.latencyMs,
         hasAnswer: result.hasAnswer,
         offTopic: Boolean(test.offTopic),
-        offTopicCorrectlyDeclined: test.offTopic ? isLikelyPoliteDecline(result.response, config.lang) : null,
+        offTopicCorrectlyDeclined: test.offTopic
+          ? isLikelyPoliteDecline(result.response, config.lang)
+          : null,
         // GEO-08g — critères 1 et 2 (pré-filtres)
         requestedLanguage: config.lang,
         detectedLanguage,
-        languageMatchesRequest: test.offTopic || !result.hasAnswer ? null : detectedLanguage === config.lang,
+        languageMatchesRequest:
+          test.offTopic || !result.hasAnswer ? null : detectedLanguage === config.lang,
         fidelity: checkFidelityTokens(result.response, test.fidelityTokens),
         status: result.status,
         error: result.error,

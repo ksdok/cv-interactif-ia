@@ -22,7 +22,13 @@
 
 import { NextResponse } from 'next/server'
 import { searchDocuments } from '@/lib/rag'
-import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds, RATE_LIMIT_MESSAGE } from '@/lib/rateLimit'
+import {
+  getClientIP,
+  checkRateLimit,
+  getRateLimitHeaders,
+  getRetryAfterSeconds,
+  RATE_LIMIT_MESSAGE,
+} from '@/lib/rateLimit'
 import { verifyCSRFToken, getCSRFTokenFromRequest, CSRF_COOKIE_CONFIG } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { generateJobMatchResponse } from '@/lib/modelProviders'
@@ -56,7 +62,8 @@ function validateJobDescriptionContent(text: string): boolean {
   }
 
   // Check for SQL injection patterns
-  const sqlPatterns = /(\bunion\b|\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bdrop\b|\bexec\b|\bscript\b)/gi
+  const sqlPatterns =
+    /(\bunion\b|\bselect\b|\binsert\b|\bupdate\b|\bdelete\b|\bdrop\b|\bexec\b|\bscript\b)/gi
   if (sqlPatterns.test(text)) {
     console.warn('Job description contains potential SQL injection patterns')
     return false
@@ -102,7 +109,7 @@ export async function POST(req: Request) {
             'Retry-After': String(retryAfterSeconds),
             ...getRateLimitHeaders(rateLimit),
           },
-        }
+        },
       )
     }
     console.log(`Rate limit OK: ${rateLimit.remaining} requests remaining today`)
@@ -117,7 +124,7 @@ export async function POST(req: Request) {
       console.warn('CSRF token verification failed')
       return NextResponse.json(
         { error: 'CSRF token validation failed', errorCode: 'CSRF' },
-        { status: 403 }
+        { status: 403 },
       )
     }
     console.log('CSRF token verified successfully')
@@ -138,7 +145,7 @@ export async function POST(req: Request) {
       console.warn('Invalid input: jobDescription is missing or not a string')
       return NextResponse.json(
         { error: 'Job description is required', errorCode: 'VALIDATION' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
@@ -146,16 +153,22 @@ export async function POST(req: Request) {
     if (trimmedJob.length < VALIDATION.MIN_LENGTH) {
       console.warn(`Job description too short: ${trimmedJob.length}/${VALIDATION.MIN_LENGTH}`)
       return NextResponse.json(
-        { error: `Job description must be at least ${VALIDATION.MIN_LENGTH} characters`, errorCode: 'VALIDATION' },
-        { status: 400 }
+        {
+          error: `Job description must be at least ${VALIDATION.MIN_LENGTH} characters`,
+          errorCode: 'VALIDATION',
+        },
+        { status: 400 },
       )
     }
 
     if (trimmedJob.length > VALIDATION.MAX_LENGTH) {
       console.warn(`Job description too long: ${trimmedJob.length}/${VALIDATION.MAX_LENGTH}`)
       return NextResponse.json(
-        { error: `Job description must be less than ${VALIDATION.MAX_LENGTH} characters`, errorCode: 'VALIDATION' },
-        { status: 400 }
+        {
+          error: `Job description must be less than ${VALIDATION.MAX_LENGTH} characters`,
+          errorCode: 'VALIDATION',
+        },
+        { status: 400 },
       )
     }
 
@@ -163,10 +176,7 @@ export async function POST(req: Request) {
     console.log('Validating job description content...')
     if (!validateJobDescriptionContent(trimmedJob)) {
       console.warn('Job description failed content validation')
-      return NextResponse.json(
-        { error: 'Invalid input', errorCode: 'VALIDATION' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Invalid input', errorCode: 'VALIDATION' }, { status: 400 })
     }
 
     // Retrieve user's CV from RAG database
@@ -180,7 +190,7 @@ export async function POST(req: Request) {
       console.warn('No CV data found in database — RAG unavailable')
       return NextResponse.json(
         { error: 'RAG temporarily unavailable', errorCode: 'RAG_UNAVAILABLE' },
-        { status: 503 }
+        { status: 503 },
       )
     }
 
@@ -273,7 +283,9 @@ RESPONSE LANGUAGE:
       experienceMatch: Math.max(0, Math.min(100, analysisData.experienceMatch)),
       analysis: analysisData.analysis,
       strengths: Array.isArray(analysisData.strengths) ? analysisData.strengths.slice(0, 5) : [],
-      improvements: Array.isArray(analysisData.improvements) ? analysisData.improvements.slice(0, 5) : [],
+      improvements: Array.isArray(analysisData.improvements)
+        ? analysisData.improvements.slice(0, 5)
+        : [],
     }
 
     console.log('Match analysis completed:', {
@@ -299,7 +311,9 @@ RESPONSE LANGUAGE:
 
     // OBS-001 §3 — report real 500s (rate limit / CSRF / validation paths
     // return early above and are deliberately not instrumented, §4).
-    captureException(error, { tags: { errorCode: 'SERVER', phase: 'request', endpoint: 'job-match' } })
+    captureException(error, {
+      tags: { errorCode: 'SERVER', phase: 'request', endpoint: 'job-match' },
+    })
 
     // Return generic error message to client
     return NextResponse.json(
@@ -307,7 +321,7 @@ RESPONSE LANGUAGE:
         error: 'Failed to analyze job match. Please try again.',
         errorCode: 'SERVER',
       },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

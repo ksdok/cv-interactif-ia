@@ -72,7 +72,9 @@ Run the mono-language series first to keep a baseline to compare against.`)
   }
 
   if (!CACHE_LANGS.includes(config.lang)) {
-    console.error(`[measure-cache] Invalid --lang '${config.lang}'. Expected one of: ${CACHE_LANGS.join(', ')}`)
+    console.error(
+      `[measure-cache] Invalid --lang '${config.lang}'. Expected one of: ${CACHE_LANGS.join(', ')}`,
+    )
     process.exit(1)
   }
 
@@ -85,7 +87,9 @@ Run the mono-language series first to keep a baseline to compare against.`)
   // nombre impair de runs donnerait un `perLanguage` déséquilibré (3 fr / 2 en)
   // et une comparaison trompeuse. On arrondit au pair supérieur et on le dit.
   if (config.lang === 'both' && config.runs % 2 !== 0) {
-    console.log(`[measure-cache] --lang both needs an even run count; adjusted --runs ${config.runs} → ${config.runs + 1} (balanced fr/en alternance).`)
+    console.log(
+      `[measure-cache] --lang both needs an even run count; adjusted --runs ${config.runs} → ${config.runs + 1} (balanced fr/en alternance).`,
+    )
     config.runs += 1
   }
 
@@ -115,7 +119,10 @@ async function fetchWithTimeout(url, options = {}) {
 
 function splitSetCookieHeader(headerValue) {
   if (!headerValue) return []
-  return headerValue.split(/,(?=\s*[^;=]+=[^;]+)/g).map((value) => value.trim()).filter(Boolean)
+  return headerValue
+    .split(/,(?=\s*[^;=]+=[^;]+)/g)
+    .map((value) => value.trim())
+    .filter(Boolean)
 }
 
 function getSetCookies(headers) {
@@ -227,11 +234,13 @@ function parseMetrics(logs, startIndex) {
 
   return {
     provider,
-    cachedTokens: openAIHit ? Number(openAIHit) : geminiUsage?.cachedContentTokenCount ?? null,
+    cachedTokens: openAIHit ? Number(openAIHit) : (geminiUsage?.cachedContentTokenCount ?? null),
     promptTokens: geminiUsage?.promptTokenCount ?? null,
     totalTokens: geminiUsage?.totalTokenCount ?? null,
     rawGeminiUsage: geminiUsage,
-    matchedLogLines: relevantLogs.filter((line) => OPENAI_CACHE_RE.test(line) || GEMINI_USAGE_RE.test(line) || PROVIDER_RE.test(line)),
+    matchedLogLines: relevantLogs.filter(
+      (line) => OPENAI_CACHE_RE.test(line) || GEMINI_USAGE_RE.test(line) || PROVIDER_RE.test(line),
+    ),
   }
 }
 
@@ -242,7 +251,9 @@ function average(values) {
 }
 
 function summarize(runs) {
-  const cacheHits = runs.filter((run) => typeof run.cachedTokens === 'number' && run.cachedTokens > 0)
+  const cacheHits = runs.filter(
+    (run) => typeof run.cachedTokens === 'number' && run.cachedTokens > 0,
+  )
   const cachedLatencies = cacheHits.map((run) => run.latencyMs)
   const uncachedLatencies = runs.filter((run) => !run.cachedTokens).map((run) => run.latencyMs)
   const avgLatencyWithCacheMs = average(cachedLatencies)
@@ -261,7 +272,9 @@ function summarize(runs) {
   for (const lang of SUPPORTED_LANGS) {
     const langRuns = runs.filter((run) => run.lang === lang)
     if (!langRuns.length) continue
-    const langHits = langRuns.filter((run) => typeof run.cachedTokens === 'number' && run.cachedTokens > 0)
+    const langHits = langRuns.filter(
+      (run) => typeof run.cachedTokens === 'number' && run.cachedTokens > 0,
+    )
     perLanguage[lang] = {
       runs: langRuns.length,
       cacheHitRate: `${langHits.length}/${langRuns.length} (${Math.round((langHits.length / langRuns.length) * 100)}%)`,
@@ -290,7 +303,9 @@ async function main() {
     console.log('[measure-cache] Starting npm run dev to capture server logs...')
     devServer = startDevServer()
   } else {
-    console.log('[measure-cache] Using existing server; cache logs cannot be captured from this process.')
+    console.log(
+      '[measure-cache] Using existing server; cache logs cannot be captured from this process.',
+    )
     devServer = { logs: [] }
   }
 
@@ -332,7 +347,8 @@ async function main() {
       })
     }
 
-    const provider = runs.map((run) => run.provider).find(Boolean) || process.env.ACTIVE_PROVIDER || null
+    const provider =
+      runs.map((run) => run.provider).find(Boolean) || process.env.ACTIVE_PROVIDER || null
     const payload = {
       mode: process.env.CV_CONTEXT_SOURCE || 'cag',
       provider,

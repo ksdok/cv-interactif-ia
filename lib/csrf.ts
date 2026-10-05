@@ -22,7 +22,7 @@ export async function generateCSRFToken(): Promise<string> {
   const array = new Uint8Array(32)
   const randomValues = crypto.getRandomValues(array)
   return Array.from(randomValues)
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
 }
 
@@ -36,7 +36,7 @@ export async function generateCSRFToken(): Promise<string> {
  */
 export function verifyCSRFToken(
   providedToken: string | null | undefined,
-  storedToken: string | null | undefined
+  storedToken: string | null | undefined,
 ): boolean {
   // Both tokens must exist
   if (!providedToken || !storedToken) {
@@ -67,8 +67,8 @@ export function getCSRFTokenFromRequest(req: Request): string | null {
 export const CSRF_COOKIE_CONFIG = {
   name: 'csrf-token',
   // Security settings
-  httpOnly: true,        // Prevent JavaScript from accessing the token
-  secure: true,          // Only send over HTTPS (production)
-  sameSite: 'strict',    // Only send from same-site requests
-  maxAge: 60 * 60 * 24,  // 24 hours
+  httpOnly: true, // Prevent JavaScript from accessing the token
+  secure: true, // Only send over HTTPS (production)
+  sameSite: 'strict', // Only send from same-site requests
+  maxAge: 60 * 60 * 24, // 24 hours
 } as const

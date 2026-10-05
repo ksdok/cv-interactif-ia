@@ -33,13 +33,22 @@ export default function Home({ dictionary, locale }: HomeProps) {
       <main className="w-full pt-16 flex-1">
         <Hero dictionary={dictionary} />
         <ChatPreview csrfToken={csrfToken} dictionary={dictionary} locale={locale} />
-        <ExperienceGrid dictionary={dictionary} lang={locale} onOpenJobMatcher={() => setJobMatcherOpen(true)} />
+        <ExperienceGrid
+          dictionary={dictionary}
+          lang={locale}
+          onOpenJobMatcher={() => setJobMatcherOpen(true)}
+        />
       </main>
 
       <Footer dictionary={dictionary} lang={locale} />
 
       {jobMatcherOpen && (
-        <JobMatcher isOpen onClose={() => setJobMatcherOpen(false)} dictionary={dictionary} locale={locale} />
+        <JobMatcher
+          isOpen
+          onClose={() => setJobMatcherOpen(false)}
+          dictionary={dictionary}
+          locale={locale}
+        />
       )}
     </div>
   )

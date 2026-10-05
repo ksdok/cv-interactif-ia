@@ -9,7 +9,12 @@
  */
 import { describe, it, expect, vi } from 'vitest'
 import type { Breadcrumb, ErrorEvent } from '@sentry/nextjs'
-import { buildSentryOptions, isSentryEnabled, scrubBreadcrumb, scrubEvent } from '@/lib/sentryOptions'
+import {
+  buildSentryOptions,
+  isSentryEnabled,
+  scrubBreadcrumb,
+  scrubEvent,
+} from '@/lib/sentryOptions'
 
 describe('scrubEvent — aucun contenu de requête ne part vers Sentry', () => {
   it('supprime body, cookies, query string et en-têtes sensibles', () => {

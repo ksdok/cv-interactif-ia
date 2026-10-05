@@ -34,7 +34,13 @@ import { validateChatMessages, resolveResponseLanguage } from '@/lib/validation'
 import { getCSRFTokenFromRequest, verifyCSRFToken } from '@/lib/csrf'
 import { cookies } from 'next/headers'
 import { CSRF_COOKIE_CONFIG } from '@/lib/csrf'
-import { getClientIP, checkRateLimit, getRateLimitHeaders, getRetryAfterSeconds, RATE_LIMIT_MESSAGE } from '@/lib/rateLimit'
+import {
+  getClientIP,
+  checkRateLimit,
+  getRateLimitHeaders,
+  getRetryAfterSeconds,
+  RATE_LIMIT_MESSAGE,
+} from '@/lib/rateLimit'
 import { streamResponse } from '@/lib/modelProviders'
 import { encodeChatStreamEvent } from '@/lib/chatStreamProtocol'
 import { CV_CONTEXT_SOURCE } from '@/lib/modelConfig'
@@ -48,9 +54,17 @@ interface Document {
 
 async function getChatContext(userMessage: string): Promise<string> {
   if (CV_CONTEXT_SOURCE === 'rag') {
-    console.log('Calling searchDocuments with query (truncated):', userMessage ? userMessage.slice(0, 200) : '<empty>', ' topK=10')
+    console.log(
+      'Calling searchDocuments with query (truncated):',
+      userMessage ? userMessage.slice(0, 200) : '<empty>',
+      ' topK=10',
+    )
     const relevantDocs = await searchDocuments(userMessage, 10)
-    console.log('Search completed. Documents found:', Array.isArray(relevantDocs) ? relevantDocs.length : 'invalid', relevantDocs?.slice?.(0, 5) ?? relevantDocs)
+    console.log(
+      'Search completed. Documents found:',
+      Array.isArray(relevantDocs) ? relevantDocs.length : 'invalid',
+      relevantDocs?.slice?.(0, 5) ?? relevantDocs,
+    )
 
     let context = ''
     if (relevantDocs.length > 0) {
@@ -96,7 +110,7 @@ export async function POST(req: Request) {
             'Retry-After': String(retryAfterSeconds),
             ...getRateLimitHeaders(rateLimit),
           },
-        }
+        },
       )
     }
     console.log(`Rate limit OK: ${rateLimit.remaining} requests remaining today`)
@@ -116,7 +130,7 @@ export async function POST(req: Request) {
       })
       return NextResponse.json(
         { error: 'CSRF token validation failed', errorCode: 'CSRF' },
-        { status: 403 }
+        { status: 403 },
       )
     }
     console.log('CSRF token verified ✓')
@@ -124,7 +138,10 @@ export async function POST(req: Request) {
     // Read the JSON payload and extract the conversation messages.
     console.log('Reading request body...')
     const { messages, lang } = await req.json()
-    console.log('Request body parsed. messages length:', Array.isArray(messages) ? messages.length : 'invalid')
+    console.log(
+      'Request body parsed. messages length:',
+      Array.isArray(messages) ? messages.length : 'invalid',
+    )
 
     // SECURITY: Validate input structure and content to prevent:
     // - Memory exhaustion from huge payloads
@@ -135,14 +152,17 @@ export async function POST(req: Request) {
       console.warn('Invalid message format:', validation.error)
       return NextResponse.json(
         { error: `Invalid request: ${validation.error}`, errorCode: 'VALIDATION' },
-        { status: 400 }
+        { status: 400 },
       )
     }
 
     // Use the last message from the conversation as the retrieval query.
     // Safe to access after validation confirms messages is non-empty array with valid structure
     const lastUserMessage = messages[messages.length - 1].content.trim()
-    console.log('Last user message extracted:', lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>')
+    console.log(
+      'Last user message extracted:',
+      lastUserMessage ? lastUserMessage.slice(0, 200) : '<empty>',
+    )
 
     const context = await getChatContext(lastUserMessage)
 
@@ -170,8 +190,12 @@ export async function POST(req: Request) {
           // `request.signal` is threaded down to the provider SDK call so an
           // abandoned chat aborts the upstream request instead of leaving the
           // handler running to completion (review M13).
-          for await (const delta of streamResponse(messages, systemPrompt, { signal: req.signal })) {
-            controller.enqueue(encoder.encode(encodeChatStreamEvent({ type: 'delta', text: delta })))
+          for await (const delta of streamResponse(messages, systemPrompt, {
+            signal: req.signal,
+          })) {
+            controller.enqueue(
+              encoder.encode(encodeChatStreamEvent({ type: 'delta', text: delta })),
+            )
           }
 
           // Do not emit `done` on a client disconnect — nobody is reading.
@@ -197,7 +221,9 @@ export async function POST(req: Request) {
                 cvContextSource: CV_CONTEXT_SOURCE,
               },
             })
-            controller.enqueue(encoder.encode(encodeChatStreamEvent({ type: 'error', errorCode: 'SERVER' })))
+            controller.enqueue(
+              encoder.encode(encodeChatStreamEvent({ type: 'error', errorCode: 'SERVER' })),
+            )
           }
         } finally {
           try {
@@ -234,7 +260,7 @@ export async function POST(req: Request) {
     })
     return NextResponse.json(
       { error: 'Failed to generate response. Please try again.', errorCode: 'SERVER' },
-      { status: 500 }
+      { status: 500 },
     )
   }
 }

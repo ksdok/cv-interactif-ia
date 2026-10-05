@@ -20,7 +20,9 @@ function parseArgs() {
     if (arg === '--cag') config.cagFile = resolve(args[++i])
     else if (arg === '--rag') config.ragFile = resolve(args[++i])
     else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: node scripts/compare-results.mjs [--cag scripts/results/cag-validation-results.json] [--rag scripts/results/rag-validation-results.json]')
+      console.log(
+        'Usage: node scripts/compare-results.mjs [--cag scripts/results/cag-validation-results.json] [--rag scripts/results/rag-validation-results.json]',
+      )
       process.exit(0)
     }
   }
@@ -49,7 +51,10 @@ function qualityMarker(result) {
 }
 
 function escapeCell(value) {
-  return String(value ?? '—').replaceAll('|', '\\|').replace(/\s+/g, ' ').trim()
+  return String(value ?? '—')
+    .replaceAll('|', '\\|')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 async function main() {
@@ -86,7 +91,9 @@ async function main() {
   console.log('')
   console.log(table)
   console.log('')
-  console.log('Quality markers are intentionally manual placeholders; review responses before making a product decision.')
+  console.log(
+    'Quality markers are intentionally manual placeholders; review responses before making a product decision.',
+  )
 }
 
 main().catch((error) => {
