@@ -19,9 +19,7 @@
  */
 
 export type ChatStreamEvent =
-  | { type: 'delta'; text: string }
-  | { type: 'done' }
-  | { type: 'error'; errorCode: string }
+  { type: 'delta'; text: string } | { type: 'done' } | { type: 'error'; errorCode: string }
 
 /** Serialize one event as a single NDJSON line (trailing newline included). */
 export function encodeChatStreamEvent(event: ChatStreamEvent): string {
@@ -80,9 +78,7 @@ function parseChatStreamEvent(line: string): ChatStreamEvent | null {
 
   switch (candidate.type) {
     case 'delta':
-      return typeof candidate.text === 'string'
-        ? { type: 'delta', text: candidate.text }
-        : null
+      return typeof candidate.text === 'string' ? { type: 'delta', text: candidate.text } : null
     case 'done':
       return { type: 'done' }
     case 'error':
@@ -144,7 +140,7 @@ export function computeRevealChars(
   backlog: number,
   elapsedMs: number,
   remainder = 0,
-  forceCatchUp = false
+  forceCatchUp = false,
 ): RevealBudget {
   if (backlog <= 0 || elapsedMs <= 0) return { chars: 0, remainder: 0 }
 
@@ -179,7 +175,7 @@ export function computeRevealChars(
  */
 export function resolveApiErrorMessage<C extends string>(
   dictionary: { apiErrors: Record<C, string> },
-  errorCode: string | undefined
+  errorCode: string | undefined,
 ): string | undefined {
   if (!errorCode) return undefined
   return dictionary.apiErrors[errorCode as C]

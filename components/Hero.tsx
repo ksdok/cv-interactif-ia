@@ -41,9 +41,7 @@ export default function Hero({ dictionary }: HeroProps) {
 
         {/* Right column (col-start-8, col-span-4) - Self-end for bottom alignment */}
         <div className="md:col-start-8 md:col-span-4 self-end">
-          <p className="text-secondary text-base leading-loose">
-            {dictionary.hero.aside}
-          </p>
+          <p className="text-secondary text-base leading-loose">{dictionary.hero.aside}</p>
         </div>
       </div>
     </section>

@@ -37,10 +37,7 @@ export function buildEntityJsonLd(dictionary: Dictionary) {
         },
         areaServed: 'FR',
         knowsLanguage: ['fr', 'en'],
-        sameAs: [
-          'https://www.linkedin.com/in/kim-san-dok',
-          'https://github.com/ksdok',
-        ],
+        sameAs: ['https://www.linkedin.com/in/kim-san-dok', 'https://github.com/ksdok'],
         knowsAbout: dictionary.jsonLd.knowsAbout,
       },
       {

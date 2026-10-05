@@ -7,7 +7,14 @@
 
 import OpenAI from 'openai'
 import { GoogleGenAI, type GenerateContentResponse } from '@google/genai'
-import { ACTIVE_PROVIDER, FALLBACK_ORDER, ACTIVE_PROVIDER_JOB_MATCH, FALLBACK_ORDER_JOB_MATCH, MODEL_CONFIG, type Provider } from './modelConfig'
+import {
+  ACTIVE_PROVIDER,
+  FALLBACK_ORDER,
+  ACTIVE_PROVIDER_JOB_MATCH,
+  FALLBACK_ORDER_JOB_MATCH,
+  MODEL_CONFIG,
+  type Provider,
+} from './modelConfig'
 import { captureMessage } from '@sentry/nextjs'
 
 // ─── SDK clients (initialized once at module level) ────────────────────────
@@ -65,10 +72,7 @@ async function callOpenAI(messages: ChatMessage[], system: string): Promise<stri
     max_completion_tokens: config.maxTokens,
     // MODEL-004 décision 2 — épinglé, jamais hérité (voir la constante en tête).
     reasoning_effort: CHAT_REASONING_EFFORT,
-    messages: [
-      { role: 'system', content: system },
-      ...messages,
-    ],
+    messages: [{ role: 'system', content: system }, ...messages],
   })
 
   const cachedTokens = response.usage?.prompt_tokens_details?.cached_tokens
@@ -121,7 +125,7 @@ async function callGemini(messages: ChatMessage[], system: string): Promise<stri
 async function* callOpenAIStream(
   messages: ChatMessage[],
   system: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): AsyncGenerator<string> {
   const config = MODEL_CONFIG.openai
   const stream = await openai.chat.completions.create(
@@ -130,10 +134,7 @@ async function* callOpenAIStream(
       max_completion_tokens: config.maxTokens,
       // MODEL-004 décision 2 — épinglé, jamais hérité (voir la constante en tête).
       reasoning_effort: CHAT_REASONING_EFFORT,
-      messages: [
-        { role: 'system', content: system },
-        ...messages,
-      ],
+      messages: [{ role: 'system', content: system }, ...messages],
       stream: true,
       // M3 (review): `include_usage` is REQUIRED, not optional — without it
       // `usage` is null on every chunk and the final chunk loses
@@ -141,7 +142,7 @@ async function* callOpenAIStream(
       // logging relied on by FEAT-CAG/GEO-08g.
       stream_options: { include_usage: true },
     },
-    { signal }
+    { signal },
   )
 
   for await (const chunk of stream) {
@@ -158,7 +159,7 @@ async function* callOpenAIStream(
 async function* callGeminiStream(
   messages: ChatMessage[],
   system: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): AsyncGenerator<string> {
   const config = MODEL_CONFIG.gemini
 
@@ -228,10 +229,14 @@ export async function generateResponse(messages: ChatMessage[], system: string):
 
   for (const provider of chain) {
     try {
-      console.log(`[modelProviders] Trying provider: ${provider} (model: ${MODEL_CONFIG[provider].model})`)
+      console.log(
+        `[modelProviders] Trying provider: ${provider} (model: ${MODEL_CONFIG[provider].model})`,
+      )
       const text = await PROVIDERS[provider](messages, system)
       if (provider !== ACTIVE_PROVIDER) {
-        console.warn(`[modelProviders] Active provider '${ACTIVE_PROVIDER}' failed. Used fallback: '${provider}'`)
+        console.warn(
+          `[modelProviders] Active provider '${ACTIVE_PROVIDER}' failed. Used fallback: '${provider}'`,
+        )
         // OBS-001 §3 — a successful fallback means the primary provider is down:
         // a breadcrumb alone (console.warn) stays invisible, so emit an event.
         captureMessage('Provider fallback used', {
@@ -268,7 +273,7 @@ export async function generateResponse(messages: ChatMessage[], system: string):
 export async function* streamResponse(
   messages: ChatMessage[],
   system: string,
-  options: { signal?: AbortSignal } = {}
+  options: { signal?: AbortSignal } = {},
 ): AsyncGenerator<string> {
   const chain: Provider[] = [
     ACTIVE_PROVIDER,
@@ -281,7 +286,9 @@ export async function* streamResponse(
     let committed = false
 
     try {
-      console.log(`[modelProviders] Streaming with provider: ${provider} (model: ${MODEL_CONFIG[provider].model})`)
+      console.log(
+        `[modelProviders] Streaming with provider: ${provider} (model: ${MODEL_CONFIG[provider].model})`,
+      )
 
       for await (const delta of STREAM_PROVIDERS[provider](messages, system, options.signal)) {
         if (delta) committed = true
@@ -289,7 +296,9 @@ export async function* streamResponse(
       }
 
       if (provider !== ACTIVE_PROVIDER) {
-        console.warn(`[modelProviders] Active provider '${ACTIVE_PROVIDER}' failed. Used streaming fallback: '${provider}'`)
+        console.warn(
+          `[modelProviders] Active provider '${ACTIVE_PROVIDER}' failed. Used streaming fallback: '${provider}'`,
+        )
         // OBS-001 §3 — same signal as the non-streaming path, tagged separately.
         captureMessage('Provider fallback used', {
           level: 'warning',
@@ -305,7 +314,10 @@ export async function* streamResponse(
     } catch (err) {
       lastError = err
       if (committed) {
-        console.error(`[modelProviders] Provider '${provider}' failed mid-stream after first byte — no fallback:`, err)
+        console.error(
+          `[modelProviders] Provider '${provider}' failed mid-stream after first byte — no fallback:`,
+          err,
+        )
         throw err
       }
       console.error(`[modelProviders] Provider '${provider}' failed before first byte:`, err)
@@ -332,10 +344,14 @@ export async function generateJobMatchResponse(prompt: string): Promise<string> 
 
   for (const provider of chain) {
     try {
-      console.log(`[modelProviders:jobMatch] Trying provider: ${provider} (model: ${MODEL_CONFIG[provider].model})`)
+      console.log(
+        `[modelProviders:jobMatch] Trying provider: ${provider} (model: ${MODEL_CONFIG[provider].model})`,
+      )
       const text = await PROVIDERS[provider]([{ role: 'user', content: prompt }], '')
       if (provider !== ACTIVE_PROVIDER_JOB_MATCH) {
-        console.warn(`[modelProviders:jobMatch] Active provider '${ACTIVE_PROVIDER_JOB_MATCH}' failed. Used fallback: '${provider}'`)
+        console.warn(
+          `[modelProviders:jobMatch] Active provider '${ACTIVE_PROVIDER_JOB_MATCH}' failed. Used fallback: '${provider}'`,
+        )
         // OBS-001 §3 — fallback signal for the job-match endpoint.
         captureMessage('Provider fallback used', {
           level: 'warning',

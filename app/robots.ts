@@ -32,41 +32,41 @@ import { MetadataRoute } from 'next'
 // l'opt-out training réel. anthropic-ai est un jeton legacy (absent de la doc Anthropic
 // actuelle) — conservé par compatibilité avec les anciens crawlers.
 export default function robots(): MetadataRoute.Robots {
-    const baseUrl = 'https://kimsandok.com'
+  const baseUrl = 'https://kimsandok.com'
 
-    return {
-        rules: [
-            {
-                // Bots search / retrieval : visibilité et citabilité dans les réponses IA.
-                // (GEO-07 review F1 : uniquement des bots search — pas de crawler training ici.)
-                userAgent: [
-                    'OAI-SearchBot',
-                    'Claude-SearchBot',
-                    'PerplexityBot',
-                    'Googlebot',
-                    'Bingbot',
-                    'Applebot',
-                ],
-                allow: '/',
-            },
-            {
-                // Bots training (crawlers de training + policy tokens) : opt-out de
-                // l'entraînement des futurs modèles (et du grounding Gemini/Vertex,
-                // cf. trade-off ci-dessus).
-                userAgent: [
-                    'GPTBot',
-                    'ClaudeBot',
-                    'Google-Extended',
-                    'Applebot-Extended',
-                    'CCBot',
-                    'Bytespider',
-                    'anthropic-ai', // legacy — non documenté actuellement par Anthropic
-                    'meta-externalagent',
-                    'Amazonbot',
-                ],
-                disallow: '/',
-            },
+  return {
+    rules: [
+      {
+        // Bots search / retrieval : visibilité et citabilité dans les réponses IA.
+        // (GEO-07 review F1 : uniquement des bots search — pas de crawler training ici.)
+        userAgent: [
+          'OAI-SearchBot',
+          'Claude-SearchBot',
+          'PerplexityBot',
+          'Googlebot',
+          'Bingbot',
+          'Applebot',
         ],
-        sitemap: `${baseUrl}/sitemap.xml`,
-    }
+        allow: '/',
+      },
+      {
+        // Bots training (crawlers de training + policy tokens) : opt-out de
+        // l'entraînement des futurs modèles (et du grounding Gemini/Vertex,
+        // cf. trade-off ci-dessus).
+        userAgent: [
+          'GPTBot',
+          'ClaudeBot',
+          'Google-Extended',
+          'Applebot-Extended',
+          'CCBot',
+          'Bytespider',
+          'anthropic-ai', // legacy — non documenté actuellement par Anthropic
+          'meta-externalagent',
+          'Amazonbot',
+        ],
+        disallow: '/',
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+  }
 }

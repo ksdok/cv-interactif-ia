@@ -65,16 +65,8 @@ const SENTINELS = {
     ],
   },
   en: {
-    mustHave: [
-      'Portfolio Showcase',
-      'Featured Role',
-      'What would you like to know',
-    ],
-    mustNotHave: [
-      'Poste actuel',
-      'Que souhaitez-vous savoir',
-      'design par kim-san',
-    ],
+    mustHave: ['Portfolio Showcase', 'Featured Role', 'What would you like to know'],
+    mustNotHave: ['Poste actuel', 'Que souhaitez-vous savoir', 'design par kim-san'],
     pages: [
       {
         path: '/en/projets',
@@ -98,9 +90,7 @@ const dictFiles = {
 
 // Toutes les entrées de sentinelles, home incluse, aplaties pour la garde statique.
 function allEntries(locale, spec) {
-  const entries = [
-    { path: `/${locale}`, mustHave: spec.mustHave, mustNotHave: spec.mustNotHave },
-  ]
+  const entries = [{ path: `/${locale}`, mustHave: spec.mustHave, mustNotHave: spec.mustNotHave }]
   for (const page of spec.pages || []) entries.push(page)
   return entries
 }
@@ -112,19 +102,25 @@ for (const [locale, spec] of Object.entries(SENTINELS)) {
     for (const s of entry.mustHave) {
       if (!dictFiles[locale].includes(s)) {
         staticFailures++
-        console.error(`✗ sentinelle obsolète : "${s}" absente de lib/i18n/${locale}.ts — le wording a changé, mettre à jour SENTINELS dans ce script.`)
+        console.error(
+          `✗ sentinelle obsolète : "${s}" absente de lib/i18n/${locale}.ts — le wording a changé, mettre à jour SENTINELS dans ce script.`,
+        )
       }
     }
     for (const s of entry.mustNotHave) {
       if (!dictFiles[other].includes(s)) {
         staticFailures++
-        console.error(`✗ sentinelle obsolète : "${s}" (doit exister dans lib/i18n/${other}.ts) — mettre à jour SENTINELS dans ce script.`)
+        console.error(
+          `✗ sentinelle obsolète : "${s}" (doit exister dans lib/i18n/${other}.ts) — mettre à jour SENTINELS dans ce script.`,
+        )
       }
     }
   }
 }
 if (staticFailures > 0) {
-  console.error(`\n${staticFailures} sentinelle(s) désynchronisée(s) des dictionnaires — correction requise avant tout check runtime.`)
+  console.error(
+    `\n${staticFailures} sentinelle(s) désynchronisée(s) des dictionnaires — correction requise avant tout check runtime.`,
+  )
   process.exit(2)
 }
 console.log('✓ Sentinelles synchronisées avec les dictionnaires FR/EN.')
@@ -143,13 +139,15 @@ for (const [locale, spec] of Object.entries(SENTINELS)) {
     let pageFailures = 0
     for (const s of entry.mustHave) {
       if (!html.includes(s)) {
-        failures++; pageFailures++
+        failures++
+        pageFailures++
         console.error(`✗ ${entry.path} : sentinelle attendue absente : "${s}"`)
       }
     }
     for (const s of entry.mustNotHave) {
       if (html.includes(s)) {
-        failures++; pageFailures++
+        failures++
+        pageFailures++
         console.error(`✗ ${entry.path} : résidu de l'autre locale : "${s}"`)
       }
     }

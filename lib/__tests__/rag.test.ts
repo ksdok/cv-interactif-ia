@@ -64,7 +64,7 @@ describe('searchDocuments — dégradation sans throw (BUG-010)', () => {
     expect(mocks.captureMessage).toHaveBeenCalledTimes(1)
     expect(mocks.captureMessage).toHaveBeenCalledWith(
       'RAG search returned no documents',
-      expect.objectContaining({ level: 'info' })
+      expect.objectContaining({ level: 'info' }),
     )
     expect(mocks.captureException).not.toHaveBeenCalled()
   })

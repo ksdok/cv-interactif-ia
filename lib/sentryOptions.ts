@@ -27,9 +27,7 @@ export const isSentryEnabled = Boolean(SENTRY_DSN)
 // is only needed to label the *client* bundle (server-side vars are not inlined
 // client-side). It is therefore optional, not mandatory.
 const SENTRY_ENVIRONMENT =
-  process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT ||
-  process.env.VERCEL_ENV ||
-  process.env.NODE_ENV
+  process.env.NEXT_PUBLIC_SENTRY_ENVIRONMENT || process.env.VERCEL_ENV || process.env.NODE_ENV
 
 const TRACES_SAMPLE_RATE = process.env.NODE_ENV === 'production' ? 0.1 : 0
 

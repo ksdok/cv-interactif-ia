@@ -13,8 +13,7 @@ const en: Dictionary = {
   // Cohérence d'entité (ticket GEO-08d point 5) : même nom, même métier
   // (Business Analyst / AMOA), mêmes termes métier que la version FR.
   metadata: {
-    title:
-      'Kim-san DOK — Senior Freelance Business Analyst (AMOA) | Market Finance',
+    title: 'Kim-san DOK — Senior Freelance Business Analyst (AMOA) | Market Finance',
     description:
       'Kim-san DOK, Senior freelance Business Analyst in market finance (Paris, La Défense). ' +
       '10 years of experience in IT transformation, Securities Lending, Repo, Forex. ' +
@@ -22,8 +21,7 @@ const en: Dictionary = {
     siteName: 'Kim-san DOK — Freelance Business Analyst (AMOA)',
     // Review M3 (Lot 1): translated og:image alt (the file-convention
     // .alt.txt is FR-only).
-    ogImageAlt:
-      'Kim-san DOK — Senior freelance Business Analyst, AMOA market finance (Paris)',
+    ogImageAlt: 'Kim-san DOK — Senior freelance Business Analyst, AMOA market finance (Paris)',
     keywords: [
       'Kim-san DOK',
       'Business Analyst',
@@ -219,7 +217,15 @@ const en: Dictionary = {
     humanStackLabel: 'Human Stack',
     humanStack: ['Empathy driven', 'Adaptable', 'Collaborative', 'AI Enthusiast'],
     techStackLabel: 'Project Technical Stack',
-    techStack: ['Agentic Coding', 'React', 'TypeScript', 'Next.js', 'Tailwind', 'Python', 'Supabase'],
+    techStack: [
+      'Agentic Coding',
+      'React',
+      'TypeScript',
+      'Next.js',
+      'Tailwind',
+      'Python',
+      'Supabase',
+    ],
     githubCta: 'View GitHub',
     passionsLabel: 'Burning passions',
     passion1Title: 'Bike & Food',
@@ -271,7 +277,8 @@ const en: Dictionary = {
     VALIDATION: 'Invalid request. Please try again.',
     CSRF: 'Security error: invalid CSRF token. Please refresh the page.',
     // BUG-010 : RAG empty/unavailable (503) — recoverable degraded state.
-    RAG_UNAVAILABLE: 'The analysis service is temporarily unavailable. Please try again in a moment.',
+    RAG_UNAVAILABLE:
+      'The analysis service is temporarily unavailable. Please try again in a moment.',
     SERVER: 'Failed to generate response. Please try again.',
   },
 

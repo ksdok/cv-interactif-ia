@@ -24,7 +24,7 @@
  * Interface for tracking requests per IP
  */
 interface RateLimitRecord {
-  date: string  // Format: YYYY-MM-DD (UTC)
+  date: string // Format: YYYY-MM-DD (UTC)
   count: number // Number of requests today
 }
 

@@ -14,17 +14,15 @@
 const fr = {
   // GEO-08d — metadata par locale (title/description = wording SEO-01).
   metadata: {
-    title:
-      'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché',
+    title: 'Kim-san DOK — Business Analyst Senior Freelance (AMOA) | Finance de marché',
     description:
-      "Kim-san DOK, Business Analyst Senior freelance en finance de marché (Paris, La Défense). " +
+      'Kim-san DOK, Business Analyst Senior freelance en finance de marché (Paris, La Défense). ' +
       "10 ans d'expérience en transformation SI, Securities Lending, Repo, Forex. " +
       'CV interactif avec assistant IA.',
     siteName: 'Kim-san DOK — Business Analyst Freelance (AMOA)',
     // Review M3 (Lot 1) : alt traduit de l'og:image déclarée explicitement
     // (l'alt.txt de la convention fichier est FR-only). Aligné sur alt.txt.
-    ogImageAlt:
-      'Kim-san DOK — Business Analyst Senior freelance, AMOA finance de marché (Paris)',
+    ogImageAlt: 'Kim-san DOK — Business Analyst Senior freelance, AMOA finance de marché (Paris)',
     keywords: [
       'Kim-san DOK',
       'Business Analyst',
@@ -134,14 +132,7 @@ const fr = {
       'Projets GitHub en cours de Kim-san DOK : le code réel au-delà du CV — applications web, IA et outils en ligne de commande.',
     ogDescription:
       'Le code réel derrière le CV — quelques projets en cours autour du web, de l’IA et du design éditorial.',
-    keywords: [
-      'Kim-san DOK',
-      'projets',
-      'GitHub',
-      'portfolio',
-      'open source',
-      'développement',
-    ],
+    keywords: ['Kim-san DOK', 'projets', 'GitHub', 'portfolio', 'open source', 'développement'],
     eyebrow: 'Portfolio',
     title: 'Projets',
     lead: 'Une sélection de projets en cours — le code réel derrière le CV, au-delà des expériences.',
@@ -168,7 +159,8 @@ const fr = {
   },
 
   hero: {
-    label: 'Portfolio',    titleName: 'Kim-san DOK',
+    label: 'Portfolio',
+    titleName: 'Kim-san DOK',
     titleRole: 'Business Analyst Freelance',
     introLead:
       'Explorez mon parcours professionnel à travers une interface conversationnelle — Business Analyst senior en ',
@@ -187,8 +179,7 @@ const fr = {
     statusOnline: 'En ligne',
     badge: 'IA agentique',
     placeholder: 'Demandez à Nicky ce que vous voulez savoir...',
-    placeholderAria:
-      'Demandez à Nicky des informations sur l’expérience de Kim-san',
+    placeholderAria: 'Demandez à Nicky des informations sur l’expérience de Kim-san',
     sendAria: 'Envoyer le message',
     loadingTitle: 'Chargement...',
     errorMessage: 'Impossible d’obtenir une réponse. Veuillez réessayer.',
@@ -226,7 +217,15 @@ const fr = {
     humanStackLabel: 'Stack humaine',
     humanStack: ['Empathie', 'Adaptabilité', 'Collaboratif', 'Passionné d’IA'],
     techStackLabel: 'Stack technique du projet',
-    techStack: ['Agentic Coding', 'React', 'TypeScript', 'Next.js', 'Tailwind', 'Python', 'Supabase'],
+    techStack: [
+      'Agentic Coding',
+      'React',
+      'TypeScript',
+      'Next.js',
+      'Tailwind',
+      'Python',
+      'Supabase',
+    ],
     githubCta: 'Voir GitHub',
     passionsLabel: 'Passions brûlantes',
     passion1Title: 'Vélo & Cuisine',
@@ -241,7 +240,7 @@ const fr = {
     matcherCta: 'Ouvrir le matcher',
     ctaTitle: 'Prêt à collaborer ?',
     ctaBody: 'Je suis disponible et ouvert aux opportunités.',
-    ctaButton: 'C\'est par là',
+    ctaButton: "C'est par là",
   },
 
   jobMatcher: {
@@ -281,7 +280,8 @@ const fr = {
     CSRF: 'Erreur de sécurité : jeton CSRF invalide. Rechargez la page.',
     // BUG-010 : le RAG est vide/indisponible (503) — état dégradé récupérable,
     // pas une erreur serveur générique.
-    RAG_UNAVAILABLE: 'Le service d’analyse est momentanément indisponible. Réessaie dans quelques instants.',
+    RAG_UNAVAILABLE:
+      'Le service d’analyse est momentanément indisponible. Réessaie dans quelques instants.',
     SERVER: 'Échec de la génération de la réponse. Veuillez réessayer.',
   },
 

@@ -89,7 +89,7 @@ export async function POST(request: Request) {
 
   let body: string, tooLarge: boolean
   try {
-    ({ body, tooLarge } = await readLimitedBody(request))
+    ;({ body, tooLarge } = await readLimitedBody(request))
   } catch {
     return new NextResponse(null, { status: 500 })
   }

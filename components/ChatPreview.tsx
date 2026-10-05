@@ -2,7 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import LinkifiedText from './LinkifiedText'
-import { ChatStreamDecoder, computeRevealChars, resolveApiErrorMessage } from '@/lib/chatStreamProtocol'
+import {
+  ChatStreamDecoder,
+  computeRevealChars,
+  resolveApiErrorMessage,
+} from '@/lib/chatStreamProtocol'
 import type { Dictionary } from '@/lib/i18n/types'
 import type { Lang } from '@/lib/i18n/config'
 
@@ -28,13 +32,13 @@ export default function ChatPreview({
   onExpand,
   csrfToken,
   dictionary,
-  locale
+  locale,
 }: ChatPreviewProps) {
   // Review F5 (GEO-08b) : dérivé de greeting1/greeting2 (pas de clé dupliquée —
   // une divergence ferait se contredire la bulle d'accueil et le 1er message).
   const initialMessage = `${dictionary.chat.greeting1}\n\n${dictionary.chat.greeting2}`
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: initialMessage }
+    { role: 'assistant', content: initialMessage },
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -66,10 +70,13 @@ export default function ChatPreview({
     setIsTokenReady(!!csrfToken)
   }, [csrfToken])
 
-  useEffect(() => () => {
-    mountedRef.current = false
-    abortRef.current?.abort()
-  }, [])
+  useEffect(
+    () => () => {
+      mountedRef.current = false
+      abortRef.current?.abort()
+    },
+    [],
+  )
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -160,7 +167,7 @@ export default function ChatPreview({
 
     const reveal = (text: string) => {
       setMessages((prev) =>
-        prev.map((m) => (m.streaming ? { ...m, content: m.content + text } : m))
+        prev.map((m) => (m.streaming ? { ...m, content: m.content + text } : m)),
       )
       scrollToBottom()
     }
@@ -176,9 +183,7 @@ export default function ChatPreview({
     const pump = (now: number) => {
       frame = 0
       if (stopped || !mountedRef.current) return
-      const elapsed = lastFrameTime
-        ? Math.min(now - lastFrameTime, MAX_FRAME_MS)
-        : DEFAULT_FRAME_MS
+      const elapsed = lastFrameTime ? Math.min(now - lastFrameTime, MAX_FRAME_MS) : DEFAULT_FRAME_MS
       lastFrameTime = now
       const budget = computeRevealChars(buffered.length, elapsed, remainder, streamEnded)
       remainder = budget.remainder
@@ -229,9 +234,7 @@ export default function ChatPreview({
             { role: 'assistant' as const, content: text },
           ]
         }
-        return prev.map((m) =>
-          m.streaming ? { role: 'assistant' as const, content: text } : m
-        )
+        return prev.map((m) => (m.streaming ? { role: 'assistant' as const, content: text } : m))
       })
       setIsLoading(false)
     }
@@ -275,7 +278,7 @@ export default function ChatPreview({
           // (réseau, lecture) — voir le `catch` ci-dessous.
           showError(
             data.errorCode,
-            data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error)
+            data.errorCode === 'VALIDATION' ? data.error : (mapped ?? data.error),
           )
           return
         }
@@ -366,13 +369,17 @@ export default function ChatPreview({
   }
 
   return (
-    <section ref={sectionRef} className={`w-full px-8 transition-all duration-500 ${expanded ? 'mb-16 py-8' : 'mb-32'}`}>
-      <div className={`max-w-3xl mx-auto transition-all duration-500 ${
-        expanded
-          ? 'bg-surface p-0'
-          : 'bg-surface-container-low rounded-2xl border border-outline-variant/60 p-12 hover:shadow-sm'
-      }`}>
-
+    <section
+      ref={sectionRef}
+      className={`w-full px-8 transition-all duration-500 ${expanded ? 'mb-16 py-8' : 'mb-32'}`}
+    >
+      <div
+        className={`max-w-3xl mx-auto transition-all duration-500 ${
+          expanded
+            ? 'bg-surface p-0'
+            : 'bg-surface-container-low rounded-2xl border border-outline-variant/60 p-12 hover:shadow-sm'
+        }`}
+      >
         {/* État replié (UX-005 §6.1) — identité, bulle d'accueil, suggestions.
             Se replie à l'expansion comme avant ; `inert` retire les puces du
             flux de tabulation quand le bloc est masqué (§6.4 : aucun contrôle
@@ -388,7 +395,11 @@ export default function ChatPreview({
           <div className="flex items-center justify-between gap-4 pb-4 border-b border-outline-variant/50 mb-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0">
-                <svg className="w-4 h-4 text-on-primary-container" fill="currentColor" viewBox="0 0 24 24">
+                <svg
+                  className="w-4 h-4 text-on-primary-container"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
                 </svg>
               </div>
@@ -410,12 +421,8 @@ export default function ChatPreview({
           {/* Bulle d'accueil — clés greeting1/greeting2 réutilisées (le 1er
               message de la conversation en dérive aussi, review F5). */}
           <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/60 mb-5">
-            <p className="text-sm text-on-surface leading-relaxed">
-              {dictionary.chat.greeting1}
-            </p>
-            <p className="text-sm font-medium text-on-surface mt-2">
-              {dictionary.chat.greeting2}
-            </p>
+            <p className="text-sm text-on-surface leading-relaxed">{dictionary.chat.greeting1}</p>
+            <p className="text-sm font-medium text-on-surface mt-2">{dictionary.chat.greeting2}</p>
           </div>
 
           {/* Suggestions — envoi direct (décision 2), puces inertes tant que le
@@ -442,20 +449,30 @@ export default function ChatPreview({
         </div>
 
         {/* Messages list — fades in when expanded */}
-        <div className={`transition-all duration-500 overflow-hidden ${
-          expanded ? 'max-h-[500px] opacity-100 mb-8' : 'max-h-0 opacity-0 mb-0'
-        }`}>
-          <div ref={messagesContainerRef} className="max-h-[500px] overflow-y-auto space-y-6" aria-live="polite" aria-atomic="false" aria-busy={isLoading}>
+        <div
+          className={`transition-all duration-500 overflow-hidden ${
+            expanded ? 'max-h-[500px] opacity-100 mb-8' : 'max-h-0 opacity-0 mb-0'
+          }`}
+        >
+          <div
+            ref={messagesContainerRef}
+            className="max-h-[500px] overflow-y-auto space-y-6"
+            aria-live="polite"
+            aria-atomic="false"
+            aria-busy={isLoading}
+          >
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[85%] rounded-2xl px-6 py-4 text-sm ${
-                  message.role === 'user'
-                    ? 'bg-primary text-on-primary-fixed'
-                    : 'bg-surface-container-low text-on-surface'
-                }`}>
+                <div
+                  className={`max-w-[85%] rounded-2xl px-6 py-4 text-sm ${
+                    message.role === 'user'
+                      ? 'bg-primary text-on-primary-fixed'
+                      : 'bg-surface-container-low text-on-surface'
+                  }`}
+                >
                   {message.role === 'assistant' && message.streaming ? (
                     // PERF-002 (review M16) : texte brut pendant le streaming —
                     // `LinkifiedText` re-parse le texte entier à chaque rendu
@@ -489,7 +506,9 @@ export default function ChatPreview({
         </div>
 
         {/* Input — always visible */}
-        <div className={`relative group chat-shadow-focus transition-all duration-300 ${expanded ? '' : 'mb-8'}`}>
+        <div
+          className={`relative group chat-shadow-focus transition-all duration-300 ${expanded ? '' : 'mb-8'}`}
+        >
           <input
             ref={inputRef}
             type="text"
@@ -510,13 +529,34 @@ export default function ChatPreview({
             title={!isTokenReady ? dictionary.chat.loadingTitle : ''}
           >
             {isLoading ? (
-              <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" opacity="0.25" />
-                <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <svg
+                className="w-5 h-5 animate-spin"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                  opacity="0.25"
+                />
+                <path
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
               </svg>
             ) : (
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"
+                />
               </svg>
             )}
           </button>
@@ -530,7 +570,6 @@ export default function ChatPreview({
         >
           {dictionary.chat.hint}
         </p>
-
       </div>
     </section>
   )

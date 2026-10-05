@@ -16,7 +16,17 @@ const KICKER = 'text-[0.7rem] uppercase tracking-[0.3em] text-secondary font-sem
 const SECTION_TITLE = 'text-3xl md:text-4xl font-bold tracking-tighter text-on-surface mt-2 mb-10'
 const BODY = 'text-on-surface-variant leading-relaxed'
 
-function Section({ id, kicker, title, children }: { id: string; kicker: string; title: string; children: ReactNode }) {
+function Section({
+  id,
+  kicker,
+  title,
+  children,
+}: {
+  id: string
+  kicker: string
+  title: string
+  children: ReactNode
+}) {
   return (
     <section id={id} className="mb-24">
       <span className={KICKER}>{kicker}</span>
@@ -51,8 +61,8 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
           <strong className="text-on-surface">10 ans d’expérience en finance de marché</strong>,
           intervenant sur des systèmes critiques à forte volumétrie chez Société Générale.
           Spécialisé dans la simplification de SI complexes, la réduction des coûts et la
-          sécurisation des processus front-to-back — en faisant le lien entre équipes métier
-          et IT pour livrer des solutions robustes, scalables et prêtes pour la production sur{' '}
+          sécurisation des processus front-to-back — en faisant le lien entre équipes métier et IT
+          pour livrer des solutions robustes, scalables et prêtes pour la production sur{' '}
           <strong className="text-on-surface">Securities Lending, Repo, Forex et Hedging</strong>.
         </p>
       </Section>
@@ -63,8 +73,14 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
           <table className="w-full text-left text-sm">
             <tbody className="divide-y divide-surface-variant">
               <Figure figure="10 ans" context="Business Analyst en finance de marché" />
-              <Figure figure="Simplification du SI & 500 000€/an d’économies" context="Remplacement de Kondor+ et K+TP (Front + Back Office) par des solutions internes" />
-              <Figure figure="Ouverture de nouvelles activités" context="Migration de 4Sight Financial vers SFCM (Repo, Triparty)" />
+              <Figure
+                figure="Simplification du SI & 500 000€/an d’économies"
+                context="Remplacement de Kondor+ et K+TP (Front + Back Office) par des solutions internes"
+              />
+              <Figure
+                figure="Ouverture de nouvelles activités"
+                context="Migration de 4Sight Financial vers SFCM (Repo, Triparty)"
+              />
             </tbody>
           </table>
         </div>
@@ -75,15 +91,44 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-surface-variant border border-surface-variant rounded-lg overflow-hidden">
           <ExpertiseCol
             label="Finance de marché"
-            items={['Securities Lending', 'Repo', 'Forex', 'Hedging', 'Triparty', 'Collatéral', 'OST', 'Settlement', 'Billing', 'Référentiel']}
+            items={[
+              'Securities Lending',
+              'Repo',
+              'Forex',
+              'Hedging',
+              'Triparty',
+              'Collatéral',
+              'OST',
+              'Settlement',
+              'Billing',
+              'Référentiel',
+            ]}
           />
           <ExpertiseCol
             label="Business Analysis / AMOA"
-            items={['Cadrage besoins', 'Cartographie processus', 'Spécifications fonctionnelles', 'Recette / UAT', 'KPI & Monitoring', 'Gestion incidents critiques']}
+            items={[
+              'Cadrage besoins',
+              'Cartographie processus',
+              'Spécifications fonctionnelles',
+              'Recette / UAT',
+              'KPI & Monitoring',
+              'Gestion incidents critiques',
+            ]}
           />
           <ExpertiseCol
             label="Outils & technique"
-            items={['SFCM Broadridge', 'Kondor+', 'TIBCO BusinessWorks', 'SQL', 'Unix Shell', 'Java', 'Agile / Scrum', 'PSM I', 'BDD', 'IA générative pour cadrage & recette']}
+            items={[
+              'SFCM Broadridge',
+              'Kondor+',
+              'TIBCO BusinessWorks',
+              'SQL',
+              'Unix Shell',
+              'Java',
+              'Agile / Scrum',
+              'PSM I',
+              'BDD',
+              'IA générative pour cadrage & recette',
+            ]}
           />
         </div>
       </Section>
@@ -161,17 +206,36 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
       <Section id="competences" kicker="Compétences & Certifications" title="Boîte à outils">
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
           <SkillRow term="Certification" items={['Professional Scrum Master I (PSM I)']} />
-          <SkillRow term="Langues" items={['Anglais — courant (TOEIC 895)', 'Khmer — courant', 'Français — courant', 'Japonais — débutant']} />
+          <SkillRow
+            term="Langues"
+            items={[
+              'Anglais — courant (TOEIC 895)',
+              'Khmer — courant',
+              'Français — courant',
+              'Japonais — débutant',
+            ]}
+          />
           <SkillRow term="Langages" items={['SQL', 'Unix shell', 'Java', 'HTML', 'CSS']} />
-          <SkillRow term="Logiciels" items={['SFCM Broadridge', 'Kondor+', 'TIBCO BusinessWorks']} />
+          <SkillRow
+            term="Logiciels"
+            items={['SFCM Broadridge', 'Kondor+', 'TIBCO BusinessWorks']}
+          />
         </dl>
       </Section>
 
       {/* ---------------------------------------------------------------- Education */}
       <Section id="formation" kicker="Formation" title="Parcours académique">
         <ul className="space-y-6">
-          <EduRow degree="Master — Management des Systèmes d’Information" school="ESIEE Paris, Champs-sur-Marne" years="2012 – 2014" />
-          <EduRow degree="Licence — Mathématiques et Informatique" school="Université de Marne-la-Vallée, Champs-sur-Marne" years="2011 – 2012" />
+          <EduRow
+            degree="Master — Management des Systèmes d’Information"
+            school="ESIEE Paris, Champs-sur-Marne"
+            years="2012 – 2014"
+          />
+          <EduRow
+            degree="Licence — Mathématiques et Informatique"
+            school="Université de Marne-la-Vallée, Champs-sur-Marne"
+            years="2011 – 2012"
+          />
           <EduRow degree="DUT — Informatique" school="IUT de Villetaneuse, Paris 13" years="2011" />
         </ul>
       </Section>
@@ -209,9 +273,18 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
       {/* ---------------------------------------------------------------- Interests */}
       <Section id="interets" kicker="Au-delà du travail" title="Intérêts">
         <ul className="space-y-3 text-on-surface-variant">
-          <li><span className="text-on-surface font-medium">Cyclisme</span> — les cols de montagne avec les amis.</li>
-          <li><span className="text-on-surface font-medium">Course</span> — Marathon de Paris, semi-marathon de Paris, Oxy’Trail, 10KM de Paris.</li>
-          <li><span className="text-on-surface font-medium">Intelligence Artificielle</span> — gestion d’agents IA, recherche en apprentissage automatique.</li>
+          <li>
+            <span className="text-on-surface font-medium">Cyclisme</span> — les cols de montagne
+            avec les amis.
+          </li>
+          <li>
+            <span className="text-on-surface font-medium">Course</span> — Marathon de Paris,
+            semi-marathon de Paris, Oxy’Trail, 10KM de Paris.
+          </li>
+          <li>
+            <span className="text-on-surface font-medium">Intelligence Artificielle</span> — gestion
+            d’agents IA, recherche en apprentissage automatique.
+          </li>
         </ul>
       </Section>
 
@@ -222,8 +295,24 @@ export default function CvContentFr({ lang }: { lang: Lang }) {
           Contactez-moi pour évoquer vos besoins :
         </p>
         <ul className="mt-6 space-y-2 text-on-surface">
-          <li>E-mail : <a className="underline decoration-surface-variant underline-offset-4 hover:text-secondary" href="mailto:dokkimsan@gmail.com">dokkimsan@gmail.com</a></li>
-          <li>Site : <a className="underline decoration-surface-variant underline-offset-4 hover:text-secondary" href="https://kimsandok.com">kimsandok.com</a></li>
+          <li>
+            E-mail :{' '}
+            <a
+              className="underline decoration-surface-variant underline-offset-4 hover:text-secondary"
+              href="mailto:dokkimsan@gmail.com"
+            >
+              dokkimsan@gmail.com
+            </a>
+          </li>
+          <li>
+            Site :{' '}
+            <a
+              className="underline decoration-surface-variant underline-offset-4 hover:text-secondary"
+              href="https://kimsandok.com"
+            >
+              kimsandok.com
+            </a>
+          </li>
         </ul>
         <p className="mt-10 text-secondary text-sm">
           Plutôt une conversation ?{' '}
@@ -244,7 +333,9 @@ function Figure({ figure, context }: { figure: string; context: string }) {
       <th scope="row" className="font-semibold text-on-surface px-5 py-4 align-top text-left">
         {context}
       </th>
-      <td className="text-on-surface-variant px-5 py-4 text-right whitespace-nowrap w-[40%]">{figure}</td>
+      <td className="text-on-surface-variant px-5 py-4 text-right whitespace-nowrap w-[40%]">
+        {figure}
+      </td>
     </tr>
   )
 }
@@ -262,7 +353,19 @@ function ExpertiseCol({ label, items }: { label: string; items: string[] }) {
   )
 }
 
-function Article({ role, org, dates, context, points }: { role: string; org: string; dates: string; context: string; points: string[] }) {
+function Article({
+  role,
+  org,
+  dates,
+  context,
+  points,
+}: {
+  role: string
+  org: string
+  dates: string
+  context: string
+  points: string[]
+}) {
   return (
     <article>
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 mb-1">
@@ -273,7 +376,10 @@ function Article({ role, org, dates, context, points }: { role: string; org: str
       <p className={`${BODY} mb-5`}>{context}</p>
       <ul className="space-y-3 text-on-surface-variant">
         {points.map((p, i) => (
-          <li key={i} className="pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[0.6em] before:w-2 before:h-px before:bg-secondary">
+          <li
+            key={i}
+            className="pl-5 relative before:content-[''] before:absolute before:left-0 before:top-[0.6em] before:w-2 before:h-px before:bg-secondary"
+          >
             {p}
           </li>
         ))}
@@ -303,7 +409,17 @@ function EduRow({ degree, school, years }: { degree: string; school: string; yea
   )
 }
 
-function Project({ name, what, stack, url }: { name: string; what: string; stack: string; url: string }) {
+function Project({
+  name,
+  what,
+  stack,
+  url,
+}: {
+  name: string
+  what: string
+  stack: string
+  url: string
+}) {
   return (
     <article>
       <h3 className="text-lg font-semibold text-on-surface tracking-tight mb-2">{name}</h3>

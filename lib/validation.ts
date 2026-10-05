@@ -31,9 +31,7 @@ const VALID_ROLES = ['user', 'assistant'] as const
  * 5. Validates role field is one of allowed values
  * 6. Validates content is non-empty string with length limits
  */
-export function validateChatMessages(
-  messages: unknown
-): { isValid: boolean; error?: string } {
+export function validateChatMessages(messages: unknown): { isValid: boolean; error?: string } {
   // Check 1: messages must be an array
   if (!Array.isArray(messages)) {
     return {
@@ -128,17 +126,11 @@ export function validateChatMessages(
     // Check for unexpected fields (optional, helps catch typos/misuse)
     const allowedFields = ['role', 'content']
     const messageKeys = Object.keys(msg)
-    const hasUnexpectedFields = messageKeys.some(
-      (key) => !allowedFields.includes(key)
-    )
+    const hasUnexpectedFields = messageKeys.some((key) => !allowedFields.includes(key))
     if (hasUnexpectedFields) {
-      const unexpectedFields = messageKeys.filter(
-        (key) => !allowedFields.includes(key)
-      )
+      const unexpectedFields = messageKeys.filter((key) => !allowedFields.includes(key))
       // Log warning but don't fail (optional fields might be added in future)
-      console.warn(
-        `Message at index ${i} has unexpected fields: ${unexpectedFields.join(', ')}`
-      )
+      console.warn(`Message at index ${i} has unexpected fields: ${unexpectedFields.join(', ')}`)
     }
   }
 
@@ -150,9 +142,7 @@ export function validateChatMessages(
  * Type guard to assert messages is valid ChatMessage array
  * Useful for TypeScript type narrowing
  */
-export function assertValidChatMessages(
-  messages: unknown
-): asserts messages is ChatMessage[] {
+export function assertValidChatMessages(messages: unknown): asserts messages is ChatMessage[] {
   const validation = validateChatMessages(messages)
   if (!validation.isValid) {
     throw new Error(`Invalid chat messages: ${validation.error}`)

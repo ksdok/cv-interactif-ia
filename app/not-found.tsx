@@ -24,13 +24,8 @@ export default async function NotFound() {
   return (
     <div className="min-h-screen bg-surface flex flex-col items-center justify-center px-6 text-center">
       <p className="text-sm tracking-widest uppercase text-muted mb-4">404</p>
-      <h1 className="text-2xl font-semibold text-primary mb-2">
-        {dictionary.notFound.title}
-      </h1>
-      <Link
-        href={`/${lang}`}
-        className="text-sm underline underline-offset-4 hover:text-primary"
-      >
+      <h1 className="text-2xl font-semibold text-primary mb-2">{dictionary.notFound.title}</h1>
+      <Link href={`/${lang}`} className="text-sm underline underline-offset-4 hover:text-primary">
         {dictionary.notFound.back}
       </Link>
     </div>
