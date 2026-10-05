@@ -1,0 +1,32 @@
+# Build / deps
+.next/
+out/
+build/
+node_modules/
+
+# Générés (prebuild) — jamais édités à la main
+public/llms-full.txt
+
+# Lockfile et rapports de couverture
+package-lock.json
+coverage/
+
+# Rapports runtime générés par les scripts (gitignorés côté dépôt)
+scripts/results/
+
+# Worktrees d'agents + exemples autonomes (globs ignorés par eslint.config.mjs)
+.claude/
+.claude/**
+example-project/
+example-project/**
+example-project-v2/
+example-project-v2/**
+
+# Documentation et contenu Markdown — ÉCART §5 arbitré par l'orchestrateur le 2026-10-04.
+# `prettier --write .` littéral reformaterait CONTEXT.md / project-state.md /
+# architecture.md (règle permanente : ne pas les modifier sans validation
+# opérateur) ainsi que les 90+ specs de docs/backlog/** et docs/** (CONTEXT.md §2 :
+# une spec reste stable après livraison). README.md et data/cv.md sont couverts
+# par le même motif `*.md` (source CAG — on ne change pas les octets du prompt).
+*.md
+docs/
